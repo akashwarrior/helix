@@ -1,0 +1,601 @@
+@import "tailwindcss";
+
+@theme inline {
+  --spacing: 0.25rem;
+  --font-display: "Inter", "ui-sans-serif", "system-ui", "sans-serif";
+  --font-body: "Inter", "ui-sans-serif", "system-ui", "sans-serif";
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.37, 0, 0.63, 1);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Base scrolling setup */
+  html {
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: auto;
+    /* Disable smooth scroll behavior */
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    min-height: 100vh;
+    @apply bg-black text-white;
+  }
+
+  /* Mobile-specific fixes for native scrolling */
+  @media (max-width: 768px) {
+    html {
+      /* Use native scrolling on mobile */
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior-y: auto !important;
+    }
+
+    body {
+      /* Reset body to allow natural scrolling */
+      overflow-y: visible !important;
+      position: relative !important;
+      height: auto !important;
+      min-height: 100vh;
+      -webkit-overflow-scrolling: inherit !important;
+      overscroll-behavior: none !important;
+      touch-action: pan-y !important;
+    }
+
+    /* Ensure main content can scroll naturally */
+    main {
+      overflow: visible !important;
+      position: relative !important;
+      transform: none !important;
+    }
+
+    /* Prevent fixed backgrounds from causing scroll jank */
+    .fixed {
+      will-change: auto !important;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
+    /* Disable parallax effects on mobile */
+    [data-speed] {
+      transform: none !important;
+    }
+  }
+
+  * {
+    will-change: auto;
+    scroll-behavior: smooth;
+  }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .hardware-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  @media (max-width: 768px) {
+    * {
+      -webkit-transform: translate3d(0, 0, 0);
+    }
+
+    .glass-card {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+  }
+
+  .gsap-section {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .gsap-fade-in {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  p {
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+@layer components {
+  .gradient-text {
+    @apply bg-linear-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent;
+    filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.5));
+  }
+
+  @media (max-width: 768px) {
+    .gradient-text {
+      filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
+    }
+  }
+
+  .btn-primary {
+    @apply relative px-6 py-2.5 md:px-7 md:py-3 bg-linear-to-r from-blue-600 to-purple-600 rounded-full font-semibold text-sm md:text-base text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 active:scale-95;
+    background-size: 200% 100%;
+    background-position: 0% 0%;
+  }
+
+  .btn-primary:hover {
+    background-position: 100% 0%;
+  }
+
+  .btn-secondary {
+    @apply relative px-6 py-2.5 md:px-7 md:py-3 border border-slate-700 rounded-full font-semibold text-sm md:text-base text-slate-300 transition-all duration-300 hover:border-slate-500 hover:text-white hover:shadow-lg hover:shadow-slate-500/20 hover:scale-105 active:scale-95;
+    background: linear-gradient(135deg,
+        transparent 0%,
+        rgba(148, 163, 184, 0.1) 100%);
+  }
+
+  .glass-card {
+    @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.05] rounded-2xl;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Reduced blur on mobile for performance */
+  @media (max-width: 768px) {
+    .glass-card {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .glass-card-hover {
+    @apply hover:bg-white/[0.05] hover:border-white/[0.1] hover:shadow-2xl hover:shadow-blue-500/10;
+  }
+}
+
+@layer utilities {
+  .text-gradient-blue {
+    @apply bg-linear-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-purple {
+    @apply bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-subtle {
+    @apply bg-linear-to-r from-slate-200 to-slate-400 bg-clip-text text-transparent;
+  }
+
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-950;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-800 rounded-full;
+  border: 3px solid rgb(2, 6, 23);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-700;
+}
+
+::selection {
+  @apply bg-blue-500/30 text-white;
+}
+
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-blue-500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile performance optimizations */
+@media (max-width: 768px) {
+
+  /* Slow down animations on mobile */
+  .animate-spin-slow {
+    animation-duration: 40s !important;
+  }
+
+  .animate-spin-reverse {
+    animation-duration: 30s !important;
+  }
+
+  .animate-pulse {
+    animation-duration: 3s !important;
+  }
+
+  .animate-pulse-slow {
+    animation-duration: 6s !important;
+  }
+
+  .animate-float {
+    animation-duration: 8s !important;
+  }
+
+  .animate-bounce {
+    animation-duration: 2s !important;
+  }
+
+  /* Disable heavy animations on mobile */
+  .animate-aurora-1,
+  .animate-aurora-2,
+  .animate-aurora-3,
+  .animate-nebula-float-1,
+  .animate-nebula-float-2,
+  .animate-nebula-float-3,
+  .animate-shooting-star,
+  .animate-cosmic-dust {
+    animation: none !important;
+    opacity: 0.3;
+  }
+
+  /* Simplify gradient animations */
+  .animate-gradient {
+    animation-duration: 10s !important;
+  }
+
+  /* Reduce blur radius for performance */
+  .blur-3xl {
+    filter: blur(24px);
+  }
+
+  .blur-2xl {
+    filter: blur(16px);
+  }
+
+  .blur-xl {
+    filter: blur(12px);
+  }
+
+  .blur-lg {
+    filter: blur(8px);
+  }
+
+  .blur-md {
+    filter: blur(6px);
+  }
+
+  .blur-sm {
+    filter: blur(4px);
+  }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(105deg,
+      transparent 40%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 60%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 3s ease infinite;
+}
+
+/* Mission card enhancements */
+.mission-card-glow {
+  background: radial-gradient(circle at center,
+      rgba(168, 85, 247, 0.2) 0%,
+      transparent 70%);
+  filter: blur(60px);
+}
+
+/* Black hole animations */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translate(calc(var(--float-x, 10px)), calc(var(--float-y, -10px))) scale(1.2);
+    opacity: 1;
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 15s linear infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float var(--duration, 8s) ease-in-out infinite;
+}
+
+/* Gradient utilities for black hole */
+.bg-gradient-conic {
+  background: conic-gradient(var(--tw-gradient-stops));
+}
+
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Cosmic Background Animations */
+@keyframes aurora-1 {
+
+  0%,
+  100% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translateY(-20%) scaleX(1.2);
+    opacity: 0.5;
+  }
+}
+
+@keyframes aurora-2 {
+
+  0%,
+  100% {
+    transform: translateY(10%) scaleX(1.1);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: translateY(-10%) scaleX(0.9);
+    opacity: 0.4;
+  }
+}
+
+@keyframes aurora-3 {
+
+  0%,
+  100% {
+    transform: translateY(-5%) scaleX(0.95);
+    opacity: 0.25;
+  }
+
+  50% {
+    transform: translateY(15%) scaleX(1.15);
+    opacity: 0.35;
+  }
+}
+
+@keyframes nebula-float-1 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(10%, -10%) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-5%, 5%) scale(0.95);
+  }
+}
+
+@keyframes nebula-float-2 {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(-15%, 10%) scale(0.9);
+  }
+
+  66% {
+    transform: translate(10%, -5%) scale(1.05);
+  }
+}
+
+@keyframes nebula-float-3 {
+
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    transform: translate(-48%, -52%) scale(1.1);
+  }
+}
+
+@keyframes twinkle {
+
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes shooting-star {
+  0% {
+    transform: translateX(-100px) translateY(0);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(calc(100vw + 100px)) translateY(30px);
+    opacity: 0;
+  }
+}
+
+@keyframes cosmic-dust {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  100% {
+    transform: translate(-100px, -100px);
+  }
+}
+
+.animate-aurora-1 {
+  animation: aurora-1 20s ease-in-out infinite;
+}
+
+.animate-aurora-2 {
+  animation: aurora-2 25s ease-in-out infinite;
+}
+
+.animate-aurora-3 {
+  animation: aurora-3 30s ease-in-out infinite;
+}
+
+.animate-nebula-float-1 {
+  animation: nebula-float-1 40s ease-in-out infinite;
+}
+
+.animate-nebula-float-2 {
+  animation: nebula-float-2 35s ease-in-out infinite;
+}
+
+.animate-nebula-float-3 {
+  animation: nebula-float-3 45s ease-in-out infinite;
+}
+
+.animate-twinkle {
+  animation: twinkle var(--duration, 3s) ease-in-out infinite;
+}
+
+.animate-shooting-star {
+  animation: shooting-star var(--duration, 3s) ease-out infinite;
+}
+
+.animate-cosmic-dust {
+  animation: cosmic-dust 100s linear infinite;
+}
