@@ -120,7 +120,7 @@ export default function HeroSection() {
               { value: timeLeft.days, label: "Days" },
               { value: timeLeft.hours, label: "Hours" },
               { value: timeLeft.minutes, label: "Minutes" },
-            ].map((item, index) => (
+            ].map((item) => (
               <m.div
                 key={item.label}
                 className="text-center glass-card px-4 py-3 md:px-6 md:py-4 rounded-xl"
