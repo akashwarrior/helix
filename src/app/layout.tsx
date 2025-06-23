@@ -6,7 +6,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Helix - Create Stunning 3D Websites with AI",
+  title: "Helix",
   description: "Build the future of web design with AI-powered 3D website creation. Transform your ideas into reality with drag-and-drop simplicity and cosmic creativity.",
   keywords: "3D websites, AI website builder, web design, drag and drop, website creation",
   authors: [{ name: "Helix Team" }],
@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Helix - Create Stunning 3D Websites with AI",
     description: "Transform your ideas into stunning 3D experiences with AI-powered design.",
+  },
+  icons: {
+    icon: "/logo.png",
   },
 };
 

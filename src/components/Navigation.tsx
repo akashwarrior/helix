@@ -4,7 +4,7 @@ import { gsap } from "gsap";
 import * as m from "motion/react-m";
 import { useState, memo, useEffect, useRef } from "react";
 import { LazyMotion, domAnimation } from "motion/react";
-import { customEase, scrollToSection } from "@/utils/animations";
+import { customEase } from "@/utils/animations";
 
 const NAV_ITEMS = [
   { name: "Features", href: "#features" },
@@ -76,7 +76,7 @@ function Navigation() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: "easeInOut" }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300`}
+        className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300`}
       >
         <div className={`${scrolled ? "py-3" : "py-4"} transition-all duration-300`}>
           <div className="px-4 sm:px-6 lg:px-8">
@@ -90,7 +90,7 @@ function Navigation() {
               <div className="flex items-center justify-between h-14 md:h-16 px-6">
                 {/* Logo with animated gradient */}
                 <m.a
-                  href="/"
+                  href="#"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.98 }}
                   className="nav-item relative flex items-center gap-3 group"
@@ -129,11 +129,6 @@ function Navigation() {
                           href={item.href}
                           whileHover={{ y: -2 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            scrollToSection(item.href, { offsetY: 100 });
-                            setMobileMenuOpen(false);
-                          }}
                           onHoverStart={(e) => {
                             const target = e.target as HTMLElement;
                             if (indicatorRef.current) {
@@ -247,11 +242,6 @@ function Navigation() {
                         <m.a
                           key={item.name}
                           href={item.href}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            scrollToSection(item.href, { offsetY: 100 });
-                            setMobileMenuOpen(false);
-                          }}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}

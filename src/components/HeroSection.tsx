@@ -39,7 +39,7 @@ export default function HeroSection() {
   return (
     <LazyMotion features={domAnimation}>
       <m.section
-        className="relative min-h-screen flex items-center justify-center py-20 overflow-hidden"
+        className="relative min-h-screen flex items-center justify-center pb-20 pt-10 overflow-hidden"
       >
         <div className="relative z-20 text-center max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Coming Soon Badge */}

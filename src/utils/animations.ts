@@ -5,14 +5,6 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
 gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin);
 
-export const defaultScrollTrigger = {
-  start: "top 80%",
-  end: "bottom 20%",
-  toggleActions: "play pause resume reverse",
-  fastScrollEnd: true,
-  preventOverlaps: true,
-};
-
 export const customEase = {
   smooth: "power2.inOut",
   smoothOut: "power2.out",
@@ -26,33 +18,6 @@ export const customEase = {
   springIn: "back.in(1.2)",
   circ: "circ.out",
   sine: "sine.inOut",
-};
-
-// Scroll to section with easing
-export const scrollToSection = (
-  target: string,
-  options?: { offsetY?: number },
-) => {
-  const element = document.querySelector(target);
-  if (!element) return;
-
-  const defaults = {
-    duration: 1.8,
-    ease: customEase.smoothOut,
-    offsetY: options?.offsetY || 80,
-  };
-
-  const targetPosition =
-    element.getBoundingClientRect().top + window.pageYOffset - defaults.offsetY;
-
-  gsap.to(window, {
-    scrollTo: {
-      y: targetPosition,
-      autoKill: false,
-    },
-    duration: defaults.duration,
-    ease: defaults.ease,
-  });
 };
 
 // Scroll-triggered counter animation
