@@ -150,7 +150,7 @@ function FeatureCard({ feature, index, progressScale }: {
       className="group relative"
     >
       {/* Gradient background */}
-      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 glass-card glass-card-hover z-50`} />
+      <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500 glass-card glass-card-hover z-20`} />
 
       {/* Glass card with enhanced styling */}
       <m.div

@@ -200,8 +200,7 @@ function Navigation() {
                   <m.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/[0.05]"
-                    aria-label="Toggle menu"
+                    className="p-2 text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/[0.05] z-50"
                   >
                     <svg
                       className="w-6 h-6"
@@ -212,9 +211,7 @@ function Navigation() {
                       <m.path
                         initial={false}
                         animate={{
-                          d: mobileMenuOpen
-                            ? "M6 18L18 6M6 6l12 12"
-                            : "M4 6h16M4 12h16M4 18h16",
+                          d: mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"
                         }}
                         transition={{ duration: 0.3 }}
                         strokeLinecap="round"
@@ -233,7 +230,7 @@ function Navigation() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="md:hidden overflow-hidden"
+                  className="md:hidden overflow-hidden absolute top-full left-0 w-full h-full z-50 bg-black"
                 >
                   <div className="px-6 py-4 space-y-1 border-t border-white/[0.08]">
                     {NAV_ITEMS.map((item, index) => {
@@ -244,10 +241,14 @@ function Navigation() {
                           href={item.href}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                          className={`block px-4 py-3 text-sm font-medium rounded-lg transition-all 
+                          transition={{
+                            delay: index * 0.1,
+                            damping: 10,
+                            stiffness: 100,
+                          }}
+                          className={`block px-4 py-3 text-sm font-medium rounded-lg
                             ${isActive
-                              ? "text-white bg-gradient-to-r from-blue-600/10 to-purple-600/10"
+                              ? " bg-gradient-to-r from-blue-600/10 to-purple-600/10"
                               : "text-slate-400 hover:text-white hover:bg-white/[0.05]"
                             }`}
                         >

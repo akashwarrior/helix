@@ -2,8 +2,9 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/TextPlugin";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { ScrollSmoother } from "gsap/ScrollSmoother";
 
-gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin);
+gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin, ScrollSmoother);
 
 export const customEase = {
   smooth: "power2.inOut",

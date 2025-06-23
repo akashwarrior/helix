@@ -38,9 +38,7 @@ export default function HeroSection() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <m.section
-        className="relative min-h-screen flex items-center justify-center pb-20 pt-10 overflow-hidden"
-      >
+      <section className="relative min-h-screen flex items-center justify-center pb-20 overflow-hidden">
         <div className="relative z-20 text-center max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Coming Soon Badge */}
           <m.div
@@ -64,13 +62,12 @@ export default function HeroSection() {
 
           {/* Main title with enhanced styling */}
           <div className="mb-6 relative">
-            <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold gradient-text leading-[0.9] tracking-tighter">
+            <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold gradient-text leading-[0.9] tracking-tighter">
               {[..."HELIX"].map((char, idx) => (
                 <m.span
                   key={idx}
-                  className="inline-block"
-                  initial={{ opacity: 0, y: 30, rotateX: -45, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
+                  initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{
                     delay: idx * 0.08,
                     type: "spring",
@@ -83,7 +80,7 @@ export default function HeroSection() {
                   {char}
                 </m.span>
               ))}
-            </span>
+            </div>
             <m.span
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -224,7 +221,7 @@ export default function HeroSection() {
             <div className="absolute inset-0 bg-pink-400/10 rounded-full blur-[40px] md:blur-[80px] scale-75" />
           </div>
         </div>
-      </m.section>
+      </section>
     </LazyMotion>
   );
 }

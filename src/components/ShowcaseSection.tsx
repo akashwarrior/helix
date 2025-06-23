@@ -7,8 +7,6 @@ import * as m from "motion/react-m";
 import { LazyMotion, domAnimation, useScroll, useTransform } from "motion/react";
 import { customEase } from "@/utils/animations";
 
-gsap.registerPlugin(ScrollTrigger);
-
 const industries = [
   {
     icon: "🏢",

@@ -8,9 +8,6 @@ import * as m from "motion/react-m";
 import { useCardScroll } from "@/utils/scrollAnimations";
 import { animateCounter, createScrollObserver, customEase } from "@/utils/animations";
 
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger);
-
 const milestones = [
   {
     date: "March 2025",
