@@ -1,12 +1,12 @@
 "use client";
 
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useEffect } from "react";
-import { useScroll, useTransform, LazyMotion, domAnimation } from "motion/react";
+import { gsap } from "gsap/gsap-core";
+import { useScroll, useTransform } from "motion/react";
 import * as m from "motion/react-m";
 import { useCardScroll } from "@/utils/scrollAnimations";
 import { animateCounter, createScrollObserver, customEase } from "@/utils/animations";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 const milestones = [
   {
@@ -142,7 +142,7 @@ export default function AboutSection() {
   useEffect(() => {
     // Detect mobile for performance optimizations
     const isMobile = window.innerWidth < 768;
-
+    ScrollTrigger.refresh()
     const ctx = gsap.context(() => {
       // Refresh ScrollTrigger after all elements are rendered
       gsap.delayedCall(0.1, () => ScrollTrigger.refresh());
@@ -372,150 +372,148 @@ export default function AboutSection() {
   }, []);
 
   return (
-    <LazyMotion features={domAnimation}>
-      <section
-        id="about"
-        ref={sectionRef}
-        className="relative py-20 md:py-32 overflow-hidden"
-      >
-        <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          {/* Section Header with scroll animations */}
-          <div className="text-center mb-16 md:mb-20">
-            <m.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block mb-4"
-            >
-              <span className="px-4 py-2 rounded-full bg-purple-500/10 text-purple-400 text-sm font-semibold tracking-wide">
-                OUR MISSION
+    <section
+      id="about"
+      ref={sectionRef}
+      className="relative py-20 md:py-32 overflow-hidden"
+    >
+      <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        {/* Section Header with scroll animations */}
+        <div className="text-center mb-16 md:mb-20">
+          <m.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="inline-block mb-4"
+          >
+            <span className="px-4 py-2 rounded-full bg-purple-500/10 text-purple-400 text-sm font-semibold tracking-wide">
+              OUR MISSION
+            </span>
+          </m.div>
+          <h2 className="about-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
+            <span className="about-title-text">Building the Future</span>
+          </h2>
+          <p className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto">
+            We&apos;re on a mission to democratize web development by making it accessible,
+            intuitive, and powerful for everyone.
+          </p>
+        </div>
+
+        {/* Mission Statement with scroll animations */}
+        <div ref={quoteRef} className="relative mb-16">
+          {/* Animated gradient orbs */}
+          <div className="mission-orb-1 absolute -top-20 -left-20 w-40 h-40 bg-purple-600/20 rounded-full blur-[80px]" />
+          <div className="mission-orb-2 absolute -bottom-20 -right-20 w-40 h-40 bg-blue-600/20 rounded-full blur-[80px]" />
+
+
+          <div className="relative glass-card p-8 md:p-12 lg:p-16 text-center overflow-hidden">
+
+            {/* Main quote with scroll reveal */}
+            <blockquote className="relative z-10 text-xl md:text-2xl lg:text-3xl font-light leading-relaxed tracking-wide">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-200">
+                We believe everyone should have the power to create beautiful,
+                functional websites without writing a single line of code.
+                Helix is our answer to that vision.
               </span>
-            </m.div>
-            <h2 className="about-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
-              <span className="about-title-text">Building the Future</span>
-            </h2>
-            <p className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto">
-              We&apos;re on a mission to democratize web development by making it accessible,
-              intuitive, and powerful for everyone.
-            </p>
-          </div>
+            </blockquote>
 
-          {/* Mission Statement with scroll animations */}
-          <div ref={quoteRef} className="relative mb-16">
-            {/* Animated gradient orbs */}
-            <div className="mission-orb-1 absolute -top-20 -left-20 w-40 h-40 bg-purple-600/20 rounded-full blur-[80px]" />
-            <div className="mission-orb-2 absolute -bottom-20 -right-20 w-40 h-40 bg-blue-600/20 rounded-full blur-[80px]" />
-
-
-            <div className="relative glass-card p-8 md:p-12 lg:p-16 text-center overflow-hidden">
-
-              {/* Main quote with scroll reveal */}
-              <blockquote className="relative z-10 text-xl md:text-2xl lg:text-3xl font-light leading-relaxed tracking-wide">
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-200">
-                  We believe everyone should have the power to create beautiful,
-                  functional websites without writing a single line of code.
-                  Helix is our answer to that vision.
+            {/* Author */}
+            <cite className="mission-cite relative z-10 block mt-6 md:mt-8">
+              <div className="inline-flex items-center gap-3">
+                <div className="h-px w-12 bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+                <span className="text-sm md:text-base font-medium tracking-wider uppercase bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  The Helix Team
                 </span>
-              </blockquote>
+                <div className="h-px w-12 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
+              </div>
+            </cite>
 
-              {/* Author */}
-              <cite className="mission-cite relative z-10 block mt-6 md:mt-8">
-                <div className="inline-flex items-center gap-3">
-                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
-                  <span className="text-sm md:text-base font-medium tracking-wider uppercase bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                    The Helix Team
-                  </span>
-                  <div className="h-px w-12 bg-gradient-to-r from-transparent via-blue-500 to-transparent" />
-                </div>
-              </cite>
-
-              {/* Decorative corner accents */}
-              <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-purple-500/20 rounded-tl-2xl" />
-              <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-blue-500/20 rounded-tr-2xl" />
-              <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-blue-500/20 rounded-bl-2xl" />
-              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-purple-500/20 rounded-br-2xl" />
-            </div>
+            {/* Decorative corner accents */}
+            <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-purple-500/20 rounded-tl-2xl" />
+            <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-blue-500/20 rounded-tr-2xl" />
+            <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-blue-500/20 rounded-bl-2xl" />
+            <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-purple-500/20 rounded-br-2xl" />
           </div>
+        </div>
 
-          {/* Current Stats with scroll animations */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
-            {[
-              { value: 3, label: "Months in Development", suffix: "" },
-              { value: 100, label: "Beta Waitlist Members", suffix: "+" },
-              { value: 4, label: "Active Users", suffix: "" },
-              { value: 10, label: "Features Planned", suffix: "+" },
-            ].map((stat, index) => (
-              <StatItem key={stat.label} stat={stat} index={index} />
+        {/* Current Stats with scroll animations */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+          {[
+            { value: 3, label: "Months in Development", suffix: "" },
+            { value: 100, label: "Beta Waitlist Members", suffix: "+" },
+            { value: 4, label: "Active Users", suffix: "" },
+            { value: 10, label: "Features Planned", suffix: "+" },
+          ].map((stat, index) => (
+            <StatItem key={stat.label} stat={stat} index={index} />
+          ))}
+        </div>
+
+        {/* Development Timeline with scroll animations */}
+        <div className="mb-16">
+          <h3 className="text-2xl md:text-3xl font-bold text-center mb-12">
+            <m.span
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-gradient-subtle"
+            >
+              Our Journey
+            </m.span>
+          </h3>
+          <div ref={timelineRef} className="timeline-container relative">
+            {/* Timeline line with scroll progress */}
+            <m.div
+              ref={timelineLineRef}
+              style={{ height: timelineHeight }}
+              className="absolute left-8 md:left-1/2 top-0 w-0.5 bg-gradient-to-b from-blue-600 via-purple-600 to-pink-600 h-full"
+            />
+
+            {milestones.map((milestone, index) => (
+              <TimelineItem key={milestone.date} milestone={milestone} index={index} />
             ))}
           </div>
-
-          {/* Development Timeline with scroll animations */}
-          <div className="mb-16">
-            <h3 className="text-2xl md:text-3xl font-bold text-center mb-12">
-              <m.span
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="text-gradient-subtle"
-              >
-                Our Journey
-              </m.span>
-            </h3>
-            <div ref={timelineRef} className="timeline-container relative">
-              {/* Timeline line with scroll progress */}
-              <m.div
-                ref={timelineLineRef}
-                style={{ height: timelineHeight }}
-                className="absolute left-8 md:left-1/2 top-0 w-0.5 bg-gradient-to-b from-blue-600 via-purple-600 to-pink-600 h-full"
-              />
-
-              {milestones.map((milestone, index) => (
-                <TimelineItem key={milestone.date} milestone={milestone} index={index} />
-              ))}
-            </div>
-          </div>
-
-          {/* Team Section with scroll animations */}
-          <m.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center"
-          >
-            <h3 className="text-2xl md:text-3xl font-bold mb-8">
-              <span className="text-gradient-subtle">
-                Built by Developers, for Everyone
-              </span>
-            </h3>
-            <p className="text-slate-500 max-w-2xl mx-auto mb-8">
-              Our team consists of passionate developers, designers, and
-              creators who believe in making web development accessible to all.
-              We&apos;re committed to building the best website builder on the
-              planet.
-            </p>
-
-            {/* CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <m.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="btn-primary"
-              >
-                Join Our Journey
-              </m.button>
-              <m.a
-                href="mailto:team@helix.com"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="btn-secondary"
-              >
-                Contact Team
-              </m.a>
-            </div>
-          </m.div>
         </div>
-      </section>
-    </LazyMotion>
+
+        {/* Team Section with scroll animations */}
+        <m.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <h3 className="text-2xl md:text-3xl font-bold mb-8">
+            <span className="text-gradient-subtle">
+              Built by Developers, for Everyone
+            </span>
+          </h3>
+          <p className="text-slate-500 max-w-2xl mx-auto mb-8">
+            Our team consists of passionate developers, designers, and
+            creators who believe in making web development accessible to all.
+            We&apos;re committed to building the best website builder on the
+            planet.
+          </p>
+
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <m.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-primary"
+            >
+              Join Our Journey
+            </m.button>
+            <m.a
+              href="mailto:team@helix.com"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="btn-secondary"
+            >
+              Contact Team
+            </m.a>
+          </div>
+        </m.div>
+      </div>
+    </section>
   );
 }

@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from "react";
 import * as m from "motion/react-m";
-import { LazyMotion, domAnimation } from "motion/react";
+import ComingSoonModal from "@/components/ui/ComingSoonModal";
+import Link from "next/link";
 
 export default function HeroSection() {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   useEffect(() => {
-    const launchDate = new Date("2025-07-11");
+    let timeOut: NodeJS.Timeout;
+    const launchDate = new Date("2025-07-11T00:00:00");
 
     function updateCountdown() {
       const now = new Date();
@@ -24,20 +27,20 @@ export default function HeroSection() {
         );
 
         setTimeLeft({ days, hours, minutes });
+        timeOut = setTimeout(updateCountdown, 60000 - (now.getSeconds() * 1000));
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0 });
-        clearInterval(interval);
       }
     }
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timeOut);
   }, []);
 
+
   return (
-    <LazyMotion features={domAnimation}>
+    <>
       <section className="relative min-h-screen flex items-center justify-center pb-20 overflow-hidden">
         <div className="relative z-20 text-center max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Coming Soon Badge */}
@@ -151,37 +154,40 @@ export default function HeroSection() {
 
           {/* CTA Buttons with enhanced design */}
           <m.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-6"
           >
-            <m.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              className="btn-primary w-full sm:w-auto min-w-[200px] shimmer group"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Get Early Access
-                <svg
-                  className="w-4 h-4 group-hover:rotate-12 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </span>
-            </m.button>
+            <Link href="#cta">
+              <m.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                className="btn-primary w-full sm:w-auto min-w-[200px] shimmer group"
+              >
+                <span className="flex items-center gap-2">
+                  Get Early Access
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </span>
+              </m.button>
+            </Link>
 
             <m.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setShowPreviewModal(true)}
               className="btn-secondary w-full sm:w-auto min-w-[200px] group"
             >
               <span className="flex items-center gap-2">
@@ -222,6 +228,35 @@ export default function HeroSection() {
           </div>
         </div>
       </section>
-    </LazyMotion>
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        title="Product Preview"
+        description="We're putting the finishing touches on our product demo. Get an exclusive first look at Helix's revolutionary website builder when we launch!"
+        icon={
+          <svg
+            className="w-10 h-10 text-blue-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        }
+      />
+    </>
   );
 }

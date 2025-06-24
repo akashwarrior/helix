@@ -1,11 +1,12 @@
 "use client";
 
-import { gsap } from "gsap";
 import { useRef, useState, useLayoutEffect } from "react";
+import { gsap } from "gsap/gsap-core";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import * as m from "motion/react-m";
-import { LazyMotion, domAnimation, useScroll, useTransform } from "motion/react";
+import { useScroll, useTransform } from "motion/react";
 import { customEase } from "@/utils/animations";
+import ComingSoonModal from "@/components/ui/ComingSoonModal";
 
 const industries = [
   {
@@ -61,6 +62,8 @@ const industries = [
 export default function ShowcaseSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [hoveredIndustry, setHoveredIndustry] = useState<number | null>(null);
+  const [showStartModal, setShowStartModal] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
@@ -72,11 +75,9 @@ export default function ShowcaseSection() {
   useLayoutEffect(() => {
     // Detect mobile for performance optimizations
     const isMobile = window.innerWidth < 768;
+    ScrollTrigger.refresh()
 
     const ctx = gsap.context(() => {
-      // Refresh ScrollTrigger after all elements are rendered
-      gsap.delayedCall(0.1, () => ScrollTrigger.refresh());
-
       const title = sectionRef.current?.querySelector(".showcase-title");
       if (title) {
         const chars = title.textContent?.split("") || [];
@@ -254,7 +255,7 @@ export default function ShowcaseSection() {
   }, []);
 
   return (
-    <LazyMotion features={domAnimation}>
+    <>
       <section
         ref={sectionRef}
         id="showcase"
@@ -379,6 +380,7 @@ export default function ShowcaseSection() {
                   <m.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowStartModal(true)}
                     className="btn-primary group"
                   >
                     <span className="flex items-center gap-2">
@@ -401,6 +403,7 @@ export default function ShowcaseSection() {
                   <m.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowRequestModal(true)}
                     className="btn-secondary"
                   >
                     Request a Template
@@ -411,6 +414,51 @@ export default function ShowcaseSection() {
           </div>
         </div>
       </section>
-    </LazyMotion>
+
+      {/* Coming Soon Modals */}
+      <ComingSoonModal
+        isOpen={showStartModal}
+        onClose={() => setShowStartModal(false)}
+        title="Blank Canvas Builder"
+        description="Our visual builder will let you create stunning websites from scratch with drag-and-drop simplicity. Design freely with complete control over every element."
+        icon={
+          <svg
+            className="w-10 h-10 text-purple-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
+          </svg>
+        }
+      />
+
+      <ComingSoonModal
+        isOpen={showRequestModal}
+        onClose={() => setShowRequestModal(false)}
+        title="Template Request"
+        description="Have a specific template in mind? We're building our template library based on your needs. Submit your request and we'll prioritize it for development."
+        icon={
+          <svg
+            className="w-10 h-10 text-cyan-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+        }
+      />
+    </>
   );
 }

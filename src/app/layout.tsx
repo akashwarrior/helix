@@ -38,10 +38,9 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className={`${inter.className} antialiased relative bg-black text-white`}>
-        <div className="fixed inset-0 z-0">
-          <CosmicBackground />
-        </div>
-        {children}
+        <CosmicBackground>
+          {children}
+        </CosmicBackground>
       </body>
     </html>
   );

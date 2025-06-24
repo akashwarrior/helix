@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef } from 'react';
-import { motion } from 'motion/react';
+import { useRef, useState } from "react";
 import { Group } from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Sphere, Box, Torus } from '@react-three/drei';
+import * as m from "motion/react-m";
+import ComingSoonModal from "./ui/ComingSoonModal";
 
 function NeuralNetwork() {
   const groupRef = useRef<Group>(null);
@@ -67,6 +68,8 @@ const items = [
 ]
 
 export default function NeuralSection() {
+  const [showTechModal, setShowTechModal] = useState(false);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center py-20 md:py-32 overflow-hidden">
       {/* Background gradient */}
@@ -82,7 +85,7 @@ export default function NeuralSection() {
       </div>
 
       {/* Floating glow effects */}
-      <motion.div
+      <m.div
         animate={{
           x: [0, 50, 0],
           y: [0, -30, 0],
@@ -90,7 +93,7 @@ export default function NeuralSection() {
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
         className="absolute top-1/4 left-10 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px]"
       />
-      <motion.div
+      <m.div
         animate={{
           x: [0, -50, 0],
           y: [0, 30, 0],
@@ -101,14 +104,14 @@ export default function NeuralSection() {
 
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
           className="text-center mb-16 md:mb-20"
         >
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.5 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, type: "spring" }}
@@ -117,7 +120,7 @@ export default function NeuralSection() {
             <span className="px-6 py-3 rounded-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-purple-400 text-sm font-bold tracking-wider border border-purple-500/30 backdrop-blur-sm">
               🧠 NEURAL ARCHITECTURE
             </span>
-          </motion.div>
+          </m.div>
 
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
             <span className="gradient-text">
@@ -128,9 +131,9 @@ export default function NeuralSection() {
             Powered by advanced neural networks that understand your creative vision
             and transform it into stunning 3D experiences
           </p>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.3 }}
@@ -138,7 +141,7 @@ export default function NeuralSection() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
         >
           {items.map((item, index) => (
-            <motion.div
+            <m.div
               key={index}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -167,21 +170,22 @@ export default function NeuralSection() {
                 {/* Bottom gradient line */}
                 <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-b-2xl`} />
               </div>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Bottom CTA */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <motion.button
+          <m.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => setShowTechModal(true)}
             className="btn-primary group"
           >
             <span className="flex items-center gap-2">
@@ -190,9 +194,32 @@ export default function NeuralSection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </span>
-          </motion.button>
-        </motion.div>
+          </m.button>
+        </m.div>
       </div>
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={showTechModal}
+        onClose={() => setShowTechModal(false)}
+        title="AI Technology Deep Dive"
+        description="Discover how our proprietary AI engine transforms natural language into production-ready code. Learn about our neural networks, optimization algorithms, and the future of web development."
+        icon={
+          <svg
+            className="w-10 h-10 text-indigo-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
+        }
+      />
     </section>
   );
 } 

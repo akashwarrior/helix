@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as m from "motion/react-m";
-import { LazyMotion, domAnimation, useScroll, useTransform, MotionValue } from "motion/react";
+import { useScroll, useTransform, MotionValue } from "motion/react";
 import { useSectionReveal, useParallaxScroll } from "@/utils/scrollAnimations";
 
 // CSS-based feature animations
@@ -261,122 +261,120 @@ export default function FeaturesSection() {
   if (!render) return null;
 
   return (
-    <LazyMotion features={domAnimation}>
-      <section
-        ref={sectionRef}
-        id="features"
-        className="relative py-20 md:py-32 overflow-hidden"
-      >
-        {/* Background with gradient mesh */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/10 to-transparent" />
+    <section
+      ref={sectionRef}
+      id="features"
+      className="relative py-20 md:py-32 overflow-hidden"
+    >
+      {/* Background with gradient mesh */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/10 to-transparent" />
 
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            {/* Section Header with scroll animations */}
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header with scroll animations */}
+          <m.div
+            style={{ y: sectionY, opacity: sectionOpacity }}
+            className="text-center mb-16 md:mb-20"
+          >
             <m.div
-              style={{ y: sectionY, opacity: sectionOpacity }}
-              className="text-center mb-16 md:mb-20"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-block mb-4"
             >
-              <m.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="inline-block mb-4"
-              >
-                <span className="px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-semibold tracking-wide">
-                  FEATURES IN DEVELOPMENT
-                </span>
-              </m.div>
-              <h2 ref={titleRef} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
-                <m.span
-                  initial={{ opacity: 0, y: 50, filter: "blur(5px)" }}
-                  whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 1 }}
-                  className="gradient-text"
-                >
-                  Build Without Limits
-                </m.span>
-              </h2>
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto"
-              >
-                Everything you need to create modern, interactive websites. No
-                coding required, just pure creativity.
-              </m.p>
+              <span className="px-4 py-2 rounded-full bg-blue-500/10 text-blue-400 text-sm font-semibold tracking-wide">
+                FEATURES IN DEVELOPMENT
+              </span>
             </m.div>
+            <h2 ref={titleRef} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6">
+              <m.span
+                initial={{ opacity: 0, y: 50, filter: "blur(5px)" }}
+                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 1 }}
+                className="gradient-text"
+              >
+                Build Without Limits
+              </m.span>
+            </h2>
+            <m.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-lg md:text-xl text-slate-500 max-w-3xl mx-auto"
+            >
+              Everything you need to create modern, interactive websites. No
+              coding required, just pure creativity.
+            </m.p>
+          </m.div>
 
-            {/* Features Grid with scroll animations */}
-            <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
-              {features.map((feature, index) => (
-                <FeatureCard key={feature.title} feature={feature} index={index} progressScale={progressScale} />
+          {/* Features Grid with scroll animations */}
+          <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+            {features.map((feature, index) => (
+              <FeatureCard key={feature.title} feature={feature} index={index} progressScale={progressScale} />
+            ))}
+          </div>
+
+          {/* Coming Soon Features with scroll animations */}
+          <m.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            viewport={{ once: true }}
+            className="mt-20 text-center"
+          >
+            <h3 className="text-xl font-semibold text-slate-400 mb-8">
+              More Features Coming Soon
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              {[
+                { icon: "🎨", name: "Template Library", status: "Q2 2024" },
+                { icon: "👥", name: "Team Collaboration", status: "Q2 2024" },
+                {
+                  icon: "📊",
+                  name: "Analytics Dashboard",
+                  status: "Q3 2024",
+                },
+                { icon: "🔌", name: "Plugin Ecosystem", status: "Q3 2024" },
+                { icon: "🌍", name: "Multi-language", status: "Q2 2024" },
+                { icon: "📱", name: "Mobile Editor", status: "Q4 2024" },
+                { icon: "🔒", name: "Advanced Security", status: "Q3 2024" },
+                { icon: "⚡", name: "AI Content Gen", status: "Q4 2024" },
+              ].map((item, index) => (
+                <m.div
+                  key={item.name}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  className="glass-card p-4 text-center cursor-pointer group"
+                >
+                  <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  <div className="text-sm font-medium text-slate-300">
+                    {item.name}
+                  </div>
+                  <div className="text-xs text-slate-600 mt-1">
+                    {item.status}
+                  </div>
+                </m.div>
               ))}
             </div>
-
-            {/* Coming Soon Features with scroll animations */}
-            <m.div
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              viewport={{ once: true }}
-              className="mt-20 text-center"
-            >
-              <h3 className="text-xl font-semibold text-slate-400 mb-8">
-                More Features Coming Soon
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-                {[
-                  { icon: "🎨", name: "Template Library", status: "Q2 2024" },
-                  { icon: "👥", name: "Team Collaboration", status: "Q2 2024" },
-                  {
-                    icon: "📊",
-                    name: "Analytics Dashboard",
-                    status: "Q3 2024",
-                  },
-                  { icon: "🔌", name: "Plugin Ecosystem", status: "Q3 2024" },
-                  { icon: "🌍", name: "Multi-language", status: "Q2 2024" },
-                  { icon: "📱", name: "Mobile Editor", status: "Q4 2024" },
-                  { icon: "🔒", name: "Advanced Security", status: "Q3 2024" },
-                  { icon: "⚡", name: "AI Content Gen", status: "Q4 2024" },
-                ].map((item, index) => (
-                  <m.div
-                    key={item.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.05 }}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    className="glass-card p-4 text-center cursor-pointer group"
-                  >
-                    <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">
-                      {item.icon}
-                    </div>
-                    <div className="text-sm font-medium text-slate-300">
-                      {item.name}
-                    </div>
-                    <div className="text-xs text-slate-600 mt-1">
-                      {item.status}
-                    </div>
-                  </m.div>
-                ))}
-              </div>
-            </m.div>
-          </div>
+          </m.div>
         </div>
+      </div>
 
-        {/* Decorative elements with parallax */}
-        <m.div
-          ref={bgLeftRef}
-          style={{ y: bgLeftY }}
-          className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-[150px]"
-        />
-        <m.div
-          ref={bgRightRef}
-          style={{ y: bgRightY }}
-          className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-purple-600/10 rounded-full blur-[150px]"
-        />
-      </section>
-    </LazyMotion>
+      {/* Decorative elements with parallax */}
+      <m.div
+        ref={bgLeftRef}
+        style={{ y: bgLeftY }}
+        className="absolute top-1/2 left-0 -translate-y-1/2 w-96 h-96 bg-blue-600/10 rounded-full blur-[150px]"
+      />
+      <m.div
+        ref={bgRightRef}
+        style={{ y: bgRightY }}
+        className="absolute top-1/2 right-0 -translate-y-1/2 w-96 h-96 bg-purple-600/10 rounded-full blur-[150px]"
+      />
+    </section>
   );
 }

@@ -1,24 +1,9 @@
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { TextPlugin } from "gsap/TextPlugin";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-import { ScrollSmoother } from "gsap/ScrollSmoother";
-
-gsap.registerPlugin(ScrollTrigger, TextPlugin, ScrollToPlugin, ScrollSmoother);
-
 export const customEase = {
   smooth: "power2.inOut",
   smoothOut: "power2.out",
   smoothIn: "power2.in",
   elastic: "elastic.out(1, 0.5)",
-  elasticIn: "elastic.in(1, 0.5)",
   bounce: "bounce.out",
-  expo: "expo.out",
-  expoIn: "expo.in",
-  spring: "back.out(1.2)",
-  springIn: "back.in(1.2)",
-  circ: "circ.out",
-  sine: "sine.inOut",
 };
 
 // Scroll-triggered counter animation
