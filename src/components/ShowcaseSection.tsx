@@ -1,12 +1,13 @@
 "use client";
 
-import { useRef, useState, useLayoutEffect } from "react";
-import { gsap } from "gsap/gsap-core";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef, useState } from "react";
+import gsap from "gsap";
 import * as m from "motion/react-m";
-import { useScroll, useTransform } from "motion/react";
 import { customEase } from "@/utils/animations";
+import { useGSAP } from "@gsap/react";
 import ComingSoonModal from "@/components/ui/ComingSoonModal";
+
+gsap.registerPlugin(useGSAP)
 
 const industries = [
   {
@@ -64,195 +65,90 @@ export default function ShowcaseSection() {
   const [hoveredIndustry, setHoveredIndustry] = useState<number | null>(null);
   const [showStartModal, setShowStartModal] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
 
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
+  useGSAP(() => {
+    const title = sectionRef.current?.querySelector(".showcase-title");
+    if (title) {
+      const chars = title.textContent?.split("") || [];
+      title.innerHTML = chars
+        .map(
+          (char) =>
+            `<span class="inline-block">${char === " " ? "&nbsp;" : char}</span>`,
+        )
+        .join("");
 
-  useLayoutEffect(() => {
-    // Detect mobile for performance optimizations
-    const isMobile = window.innerWidth < 768;
-    ScrollTrigger.refresh()
-
-    const ctx = gsap.context(() => {
-      const title = sectionRef.current?.querySelector(".showcase-title");
-      if (title) {
-        const chars = title.textContent?.split("") || [];
-        title.innerHTML = chars
-          .map(
-            (char) =>
-              `<span class="inline-block">${char === " " ? "&nbsp;" : char}</span>`,
-          )
-          .join("");
-
-        gsap.fromTo(
-          title.querySelectorAll("span"),
-          {
-            opacity: 0,
-            y: isMobile ? 50 : 100,
-            rotateX: isMobile ? 0 : -90,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            duration: isMobile ? 0.6 : 1,
-            stagger: isMobile ? 0.01 : 0.02,
-            ease: isMobile ? customEase.smooth : customEase.bounce,
-            force3D: true,
-            scrollTrigger: {
-              trigger: title,
-              start: "top 80%",
-              end: "bottom 20%",
-              toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-            },
-          },
-        );
-      }
-
-      // Industry cards animation with mobile optimization
       gsap.fromTo(
-        ".industry-card",
+        title.querySelectorAll("span"),
         {
           opacity: 0,
-          scale: isMobile ? 0.9 : 0,
-          rotateY: isMobile ? 0 : -90,
-        },
-        {
-          opacity: 1,
-          scale: 1,
-          rotateY: 0,
-          duration: isMobile ? 0.4 : 0.6,
-          stagger: {
-            each: isMobile ? 0.03 : 0.05,
-            from: isMobile ? "start" : "random"
-          },
-          ease: customEase.smoothOut,
-          force3D: true,
-          scrollTrigger: {
-            trigger: ".industry-grid",
-            start: "top 80%",
-            end: "bottom 20%",
-            toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-          },
-        },
-      );
-
-      // Subtitle animation with mobile optimization
-      const subtitle = sectionRef.current?.querySelector('p.text-xl');
-      if (subtitle) {
-        gsap.fromTo(subtitle,
-          {
-            opacity: 0,
-            y: isMobile ? 20 : 30,
-            filter: isMobile ? 'blur(0px)' : 'blur(10px)'
-          },
-          {
-            opacity: 1,
-            y: 0,
-            filter: 'blur(0px)',
-            duration: isMobile ? 0.6 : 1,
-            delay: isMobile ? 0.3 : 0.5,
-            ease: customEase.smooth,
-            force3D: true,
-            scrollTrigger: {
-              trigger: subtitle,
-              start: "top 85%",
-              end: "bottom 20%",
-              toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-            }
-          }
-        );
-      }
-
-      // Badge animation with mobile optimization
-      const badge = sectionRef.current?.querySelector('.tracking-wider');
-      if (badge) {
-        gsap.fromTo(badge,
-          {
-            opacity: 0,
-            scale: isMobile ? 0.9 : 0.5,
-            rotateX: isMobile ? 0 : -180
-          },
-          {
-            opacity: 1,
-            scale: 1,
-            rotateX: 0,
-            duration: isMobile ? 0.5 : 0.8,
-            ease: isMobile ? customEase.smooth : customEase.elastic,
-            force3D: true,
-            scrollTrigger: {
-              trigger: badge,
-              start: "top 85%",
-              end: "bottom 20%",
-              toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-            }
-          }
-        );
-      }
-
-      // Simplified animations for remaining elements on mobile
-      if (!isMobile) {
-        // Industry section title animation
-        const industryTitle = sectionRef.current?.querySelector('h3');
-        if (industryTitle) {
-          gsap.fromTo(industryTitle,
-            {
-              opacity: 0,
-              y: 50,
-              scale: 0.9
-            },
-            {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 0.8,
-              ease: customEase.smooth,
-              scrollTrigger: {
-                trigger: industryTitle,
-                start: "top 85%",
-                end: "bottom 20%",
-                toggleActions: "play pause resume reverse",
-              }
-            }
-          );
-        }
-      }
-
-      // CTA buttons animation with mobile optimization
-      gsap.fromTo('.btn-primary, .btn-secondary',
-        {
-          opacity: 0,
-          y: isMobile ? 20 : 30,
-          scale: isMobile ? 0.98 : 0.95
+          y: 100,
+          rotateX: -90,
         },
         {
           opacity: 1,
           y: 0,
-          scale: 1,
-          duration: isMobile ? 0.4 : 0.6,
-          stagger: isMobile ? 0.05 : 0.1,
-          ease: customEase.smooth,
+          rotateX: 0,
+          duration: 1,
+          stagger: 0.02,
+          ease: customEase.bounce,
           force3D: true,
           scrollTrigger: {
-            trigger: '.mt-20',
-            start: "top 85%",
+            trigger: title,
+            start: "top 80%",
             end: "bottom 20%",
-            toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-          }
-        }
+            toggleActions: "play pause resume reverse",
+          },
+        },
       );
+    }
 
-    }, sectionRef);
 
-    return () => {
-      ctx.revert();
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, []);
+    gsap.fromTo(".industry-title",
+      {
+        opacity: 0,
+        y: 50,
+        scale: 0.9
+      },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: customEase.smooth,
+        scrollTrigger: {
+          trigger: ".industry-title",
+          start: "top 85%",
+          end: "bottom 20%",
+          toggleActions: "play pause resume reverse",
+        }
+      }
+    );
+
+    // CTA buttons animation with mobile optimization
+    gsap.fromTo('.btn-primary, .btn-secondary',
+      {
+        opacity: 0,
+        y: 30,
+        scale: 0.95
+      },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: customEase.smooth,
+        force3D: true,
+        scrollTrigger: {
+          trigger: '.mt-20',
+          start: "top 85%",
+          end: "bottom 20%",
+          toggleActions: "play pause resume reverse",
+        }
+      }
+    );
+
+  }, { scope: sectionRef });
 
   return (
     <>
@@ -309,7 +205,7 @@ export default function ShowcaseSection() {
             </div>
 
             {/* Industry Templates Grid */}
-            <m.div style={{ y, scale }} className="relative">
+            <m.div className="relative">
               <div className="text-center mb-12">
                 <h3 className="text-3xl md:text-4xl font-bold mb-4 text-white">
                   Templates for Every Industry
@@ -324,7 +220,10 @@ export default function ShowcaseSection() {
                 {industries.map((industry, index) => (
                   <m.div
                     key={industry.name}
-                    className="industry-card relative group"
+                    className="relative group"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, type: "spring", delay: index * 0.05 }}
                     onMouseEnter={() => setHoveredIndustry(index)}
                     onMouseLeave={() => setHoveredIndustry(null)}
                     whileHover={{ scale: 1.05, zIndex: 10 }}

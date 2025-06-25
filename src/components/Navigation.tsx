@@ -1,9 +1,12 @@
 "use client";
 
-import { gsap } from "gsap/gsap-core";
+import gsap from "gsap";
 import * as m from "motion/react-m";
-import { useState, memo, useEffect, useRef } from "react";
+import { useState, memo, useRef } from "react";
 import { customEase } from "@/utils/animations";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP)
 
 const NAV_ITEMS = [
   { name: "Features", href: "#features" },
@@ -18,7 +21,7 @@ function Navigation() {
   const navRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useGSAP(() => {
     const handleScroll = () => {
       requestAnimationFrame(() => {
         setScrolled(window.scrollY > 50);
@@ -38,32 +41,29 @@ function Navigation() {
     };
 
     // Animate nav items on mount
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".nav-item",
-        {
-          y: -20,
-          opacity: 0,
-        },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: customEase.smooth,
-          delay: 0.5,
-        },
-      );
-    }, navRef);
+    gsap.fromTo(
+      ".nav-item",
+      {
+        y: -20,
+        opacity: 0,
+      },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: customEase.smooth,
+        delay: 0.5,
+      },
+    );
 
     handleScroll();
     window.addEventListener("scroll", handleScroll);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      ctx.kill(true);
     };
-  }, []);
+  }, { scope: navRef });
 
   return (
     <m.nav

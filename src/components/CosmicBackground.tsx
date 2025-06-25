@@ -1,35 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { domAnimation, LazyMotion } from "motion/react";
 
-gsap.registerPlugin(ScrollTrigger);
+const starCounts = {
+  large: 15,
+  medium: 30,
+  small: 100,
+  shooting: 3
+};
 
 export default function CosmicBackground({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    setIsMobile(window.innerWidth < 768);
-
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   if (!mounted) return null;
-
-  // Reduce number of elements on mobile
-  const starCounts = {
-    large: isMobile ? 5 : 15,
-    medium: isMobile ? 10 : 30,
-    small: isMobile ? 30 : 100,
-    shooting: isMobile ? 1 : 3
-  };
 
   return (
     <>
@@ -40,19 +28,17 @@ export default function CosmicBackground({ children }: { children: React.ReactNo
             {[...Array(starCounts.large)].map((_, i) => (
               <div
                 key={`star-large-${i}`}
-                className={`absolute w-1 h-1 bg-blue-100 rounded-full ${isMobile ? '' : 'animate-twinkle'}`}
+                className={`absolute w-1 h-1 bg-blue-100 rounded-full animate-twinkle`}
                 style={{
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
                   animationDelay: `${Math.random() * 5}s`,
                   animationDuration: `${3 + Math.random() * 2}s`,
                   transform: 'translateZ(0)',
-                  willChange: isMobile ? 'auto' : 'opacity, transform',
+                  willChange: 'opacity, transform',
                 }}
               >
-                {!isMobile && (
-                  <div className="absolute inset-0 bg-blue-100 rounded-full blur-sm" />
-                )}
+                <div className="absolute inset-0 bg-blue-100 rounded-full blur-sm" />
               </div>
             ))}
 
@@ -60,7 +46,7 @@ export default function CosmicBackground({ children }: { children: React.ReactNo
             {[...Array(starCounts.medium)].map((_, i) => (
               <div
                 key={`star-medium-${i}`}
-                className={`absolute w-[0.5px] h-[0.5px] bg-cyan-200 rounded-full ${isMobile ? 'opacity-60' : 'animate-pulse'}`}
+                className={`absolute w-[0.5px] h-[0.5px] bg-cyan-200 rounded-full animate-pulse`}
                 style={{
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
@@ -87,25 +73,23 @@ export default function CosmicBackground({ children }: { children: React.ReactNo
           </div>
 
           {/* Shooting stars - reduced on mobile */}
-          {!isMobile && (
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(starCounts.shooting)].map((_, i) => (
-                <div
-                  key={`shooting-star-${i}`}
-                  className="absolute h-[1px] w-20 animate-shooting-star"
-                  style={{
-                    top: `${20 + Math.random() * 60}%`,
-                    animationDelay: `${i * 7 + Math.random() * 5}s`,
-                    animationDuration: '3s',
-                    transform: 'translateZ(0)',
-                    willChange: 'transform',
-                  }}
-                >
-                  <div className="h-full w-full bg-gradient-to-r from-transparent via-cyan-300 to-transparent opacity-60" />
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {[...Array(starCounts.shooting)].map((_, i) => (
+              <div
+                key={`shooting-star-${i}`}
+                className="absolute h-[1px] w-20 animate-shooting-star"
+                style={{
+                  top: `${20 + Math.random() * 60}%`,
+                  animationDelay: `${i * 7 + Math.random() * 5}s`,
+                  animationDuration: '3s',
+                  transform: 'translateZ(0)',
+                  willChange: 'transform',
+                }}
+              >
+                <div className="h-full w-full bg-gradient-to-r from-transparent via-cyan-300 to-transparent opacity-60" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
       <LazyMotion features={domAnimation}>
