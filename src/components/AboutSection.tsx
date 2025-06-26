@@ -1,12 +1,15 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { gsap } from "gsap/gsap-core";
+import { useRef } from "react";
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
 import { useScroll, useTransform } from "motion/react";
 import * as m from "motion/react-m";
 import { useCardScroll } from "@/utils/scrollAnimations";
 import { animateCounter, createScrollObserver, customEase } from "@/utils/animations";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(useGSAP, ScrollTrigger);
 
 const milestones = [
   {
@@ -139,237 +142,218 @@ export default function AboutSection() {
 
   const timelineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
-  useEffect(() => {
-    // Detect mobile for performance optimizations
-    const isMobile = window.innerWidth < 768;
-    ScrollTrigger.refresh()
-    const ctx = gsap.context(() => {
-      // Refresh ScrollTrigger after all elements are rendered
-      gsap.delayedCall(0.1, () => ScrollTrigger.refresh());
+  useGSAP(() => {
+    const title = sectionRef.current?.querySelector('.about-title-text');
+    if (title) {
+      const words = title.textContent?.split(' ') || [];
+      title.innerHTML = words.map(word =>
+        `<span class="inline-block mx-1">${word}</span>`
+      ).join('');
 
-      // Title animation with mobile optimization
-      const title = sectionRef.current?.querySelector('.about-title-text');
-      if (title) {
-        const words = title.textContent?.split(' ') || [];
-        title.innerHTML = words.map(word =>
-          `<span class="inline-block mx-1">${word}</span>`
-        ).join('');
-
-        gsap.fromTo(title.querySelectorAll('span'),
-          {
-            opacity: 0,
-            y: isMobile ? 40 : 80,
-            rotateY: isMobile ? 0 : -45,
-            transformPerspective: 1000,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            rotateY: 0,
-            duration: isMobile ? 0.6 : 0.8,
-            stagger: isMobile ? 0.08 : 0.1,
-            ease: isMobile ? customEase.smooth : customEase.elastic,
-            force3D: true,
-            scrollTrigger: {
-              trigger: title,
-              start: "top 80%",
-              end: "bottom 20%",
-              toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-            }
-          }
-        );
-      }
-
-      // Enhanced quote animation with mobile optimization
-      const quote = quoteRef.current?.querySelector('blockquote');
-      if (quote) {
-        const words = quote.textContent?.split(' ') || [];
-        quote.innerHTML = words.map(word =>
-          `<span class="inline-block mx-1 quote-word">${word}</span>`
-        ).join('');
-
-        gsap.fromTo(quote.querySelectorAll('span'),
-          {
-            opacity: 0,
-            y: isMobile ? 20 : 40,
-            scale: isMobile ? 0.95 : 0.8,
-            rotateX: isMobile ? 0 : -45,
-            filter: isMobile ? 'blur(0px)' : 'blur(10px)',
-            transformPerspective: 1000,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            rotateX: 0,
-            filter: 'blur(0px)',
-            duration: isMobile ? 0.6 : 0.8,
-            stagger: {
-              each: isMobile ? 0.02 : 0.03,
-              from: "center"
-            },
-            ease: customEase.smooth,
-            force3D: true,
-            scrollTrigger: {
-              trigger: quote,
-              start: "top 80%",
-              end: "bottom 20%",
-              toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
-            }
-          }
-        );
-      }
-
-      // Animate the mission card with mobile optimization
-      gsap.fromTo(quoteRef.current,
+      gsap.fromTo(title.querySelectorAll('span'),
         {
           opacity: 0,
-          scale: isMobile ? 0.95 : 0.9,
-          y: isMobile ? 30 : 50,
+          y: 80,
+          rotateY: -45,
+          transformPerspective: 1000,
         },
         {
           opacity: 1,
-          scale: 1,
           y: 0,
-          duration: isMobile ? 0.8 : 1,
-          ease: customEase.smooth,
+          rotateY: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: customEase.elastic,
           force3D: true,
           scrollTrigger: {
-            trigger: quoteRef.current,
-            start: "top 85%",
+            trigger: title,
+            start: "top 80%",
             end: "bottom 20%",
-            toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
+            toggleActions: "play pause resume reverse",
           }
         }
       );
+    }
 
-      // Animate cite text with mobile optimization
-      gsap.fromTo('.mission-cite',
+    // Enhanced quote animation with mobile optimization
+    const quote = quoteRef.current?.querySelector('blockquote');
+    if (quote) {
+      const words = quote.textContent?.split(' ') || [];
+      quote.innerHTML = words.map(word =>
+        `<span class="inline-block mx-1 quote-word">${word}</span>`
+      ).join('');
+
+      gsap.fromTo(quote.querySelectorAll('span'),
         {
           opacity: 0,
-          x: isMobile ? -30 : -50,
-          filter: isMobile ? 'blur(0px)' : 'blur(5px)'
+          y: 40,
+          scale: 0.8,
+          rotateX: -45,
+          filter: 'blur(10px)',
+          transformPerspective: 1000,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          rotateX: 0,
+          filter: 'blur(0px)',
+          duration: 0.8,
+          stagger: {
+            each: 0.03,
+            from: "center"
+          },
+          ease: customEase.smooth,
+          force3D: true,
+          scrollTrigger: {
+            trigger: quote,
+            start: "top 80%",
+            end: "bottom 20%",
+            toggleActions: "play pause resume reverse",
+          }
+        }
+      );
+    }
+
+    // Animate the mission card with mobile optimization
+    gsap.fromTo(quoteRef.current,
+      {
+        opacity: 0,
+        scale: 0.9,
+        y: 50,
+      },
+      {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 1,
+        ease: customEase.smooth,
+        force3D: true,
+        scrollTrigger: {
+          trigger: quoteRef.current,
+          start: "top 85%",
+          end: "bottom 20%",
+          toggleActions: "play pause resume reverse",
+        }
+      }
+    );
+
+    // Animate cite text with mobile optimization
+    gsap.fromTo('.mission-cite',
+      {
+        opacity: 0,
+        x: -50,
+        filter: 'blur(5px)'
+      },
+      {
+        opacity: 1,
+        x: 0,
+        filter: 'blur(0px)',
+        duration: 0.8,
+        delay: 0.5,
+        ease: customEase.smooth,
+        force3D: true,
+        scrollTrigger: {
+          trigger: '.mission-cite',
+          start: "top 85%",
+          end: "bottom 20%",
+          toggleActions: "play pause resume reverse",
+        }
+      }
+    );
+
+    // Enhanced timeline animation with mobile optimization
+    const timelineItems = gsap.utils.toArray('.timeline-item') as HTMLElement[];
+    timelineItems.forEach((item, index) => {
+      gsap.fromTo(item,
+        {
+          opacity: 0,
+          x: (index % 2 === 0 ? 100 : -100),
+          y: 0,
+          rotateY: (index % 2 === 0 ? 45 : -45),
+          transformPerspective: 1000,
         },
         {
           opacity: 1,
           x: 0,
-          filter: 'blur(0px)',
-          duration: isMobile ? 0.6 : 0.8,
-          delay: isMobile ? 0.3 : 0.5,
+          y: 0,
+          rotateY: 0,
+          duration: 1,
           ease: customEase.smooth,
           force3D: true,
           scrollTrigger: {
-            trigger: '.mission-cite',
+            trigger: item,
             start: "top 85%",
             end: "bottom 20%",
-            toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
+            toggleActions: "play pause resume reverse",
           }
         }
       );
+    });
 
-      // Enhanced timeline animation with mobile optimization
-      const timelineItems = gsap.utils.toArray('.timeline-item') as HTMLElement[];
-      timelineItems.forEach((item, index) => {
-        gsap.fromTo(item,
-          {
-            opacity: 0,
-            x: isMobile ? 0 : (index % 2 === 0 ? 100 : -100),
-            y: isMobile ? 30 : 0,
-            rotateY: isMobile ? 0 : (index % 2 === 0 ? 45 : -45),
-            transformPerspective: 1000,
-          },
-          {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            rotateY: 0,
-            duration: isMobile ? 0.6 : 1,
-            ease: customEase.smooth,
-            force3D: true,
-            scrollTrigger: {
-              trigger: item,
-              start: "top 85%",
-              end: "bottom 20%",
-              toggleActions: isMobile ? "play none none none" : "play pause resume reverse",
+    // Animate timeline line with mobile optimization
+    if (timelineLineRef.current) {
+      gsap.fromTo(timelineLineRef.current,
+        {
+          scaleY: 0,
+          transformOrigin: "top center"
+        },
+        {
+          scaleY: 1,
+          duration: 2,
+          ease: customEase.smooth,
+          scrollTrigger: {
+            trigger: timelineRef.current,
+            start: "top 80%",
+            end: "bottom 20%",
+            scrub: 1,
+            toggleActions: "play pause resume reverse",
+          }
+        }
+      );
+    }
+
+    // Stats animation - only trigger once when visible
+    ScrollTrigger.create({
+      trigger: '.grid',
+      start: "top 80%",
+      once: true,
+      onEnter: () => {
+        // Trigger counter animations
+        const counters = document.querySelectorAll('[data-counter]');
+        counters.forEach((counter) => createScrollObserver(
+          document.querySelectorAll(`[data-counter="${counter.getAttribute('data-counter')}"]`),
+          () => {
+            if (counter instanceof HTMLElement) {
+              const value = parseInt(counter.getAttribute('data-value') || '0');
+              const suffix = counter.getAttribute('data-suffix') || '';
+              animateCounter(counter, value, 1000, suffix);
             }
           }
-        );
-      });
-
-      // Animate timeline line with mobile optimization
-      if (timelineLineRef.current) {
-        gsap.fromTo(timelineLineRef.current,
-          {
-            scaleY: 0,
-            transformOrigin: "top center"
-          },
-          {
-            scaleY: 1,
-            duration: isMobile ? 1.5 : 2,
-            ease: customEase.smooth,
-            scrollTrigger: {
-              trigger: timelineRef.current,
-              start: "top 80%",
-              end: "bottom 20%",
-              scrub: isMobile ? 2 : 1,
-              toggleActions: "play pause resume reverse",
-            }
-          }
-        );
+        ));
       }
+    });
 
-      // Stats animation - only trigger once when visible
-      const statsContainer = sectionRef.current?.querySelector('.grid');
-      if (statsContainer) {
-        ScrollTrigger.create({
-          trigger: statsContainer,
-          start: "top 80%",
-          once: true,
-          onEnter: () => {
-            // Trigger counter animations
-            const counters = statsContainer.querySelectorAll('[data-counter]');
-            counters.forEach((counter) => createScrollObserver(
-              document.querySelectorAll(`[data-counter="${counter.getAttribute('data-counter')}"]`),
-              () => {
-                if (counter instanceof HTMLElement) {
-                  const value = parseInt(counter.getAttribute('data-value') || '0');
-                  const suffix = counter.getAttribute('data-suffix') || '';
-                  animateCounter(counter, value, 2000, suffix);
-                }
-              }
-            ));
-          }
-        });
-      }
+    // Floating animation for orbs - disabled on mobile
+    gsap.to('.mission-orb-1', {
+      x: 50,
+      y: -30,
+      duration: 20,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
 
-      // Floating animation for orbs - disabled on mobile
-      if (!isMobile) {
-        gsap.to('.mission-orb-1', {
-          x: 50,
-          y: -30,
-          duration: 20,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
-        });
+    gsap.to('.mission-orb-2', {
+      x: -50,
+      y: 30,
+      duration: 25,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
 
-        gsap.to('.mission-orb-2', {
-          x: -50,
-          y: 30,
-          duration: 25,
-          repeat: -1,
-          yoyo: true,
-          ease: 'sine.inOut'
-        });
-      }
-
-    }, sectionRef);
-
-    return () => {
-      ctx.revert();
-      ScrollTrigger.getAll().forEach(st => st.kill());
-    };
-  }, []);
+  }, { scope: sectionRef });
 
   return (
     <section
@@ -409,7 +393,7 @@ export default function AboutSection() {
           <div className="relative glass-card p-8 md:p-12 lg:p-16 text-center overflow-hidden">
 
             {/* Main quote with scroll reveal */}
-            <blockquote className="relative z-10 text-xl md:text-2xl lg:text-3xl font-light leading-relaxed tracking-wide">
+            <blockquote className="quote relative z-10 text-xl md:text-2xl lg:text-3xl font-light leading-relaxed tracking-wide">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 via-white to-slate-200">
                 We believe everyone should have the power to create beautiful,
                 functional websites without writing a single line of code.

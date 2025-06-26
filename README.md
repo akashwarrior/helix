@@ -70,6 +70,7 @@ Helix is an open-source landing page for an upcoming SaaS platform that aims to 
 | Language | TypeScript 5 |
 | Styling | Tailwind CSS, PostCSS |
 | Animation | motion/react, GSAP |
+| Database | PostgreSQL (via Prisma ORM) |
 | Tooling | PNPM / NPM scripts, Vercel for deployment |
 
 ---
@@ -84,6 +85,8 @@ These instructions will set up the project on your local machine for development
 - Node.js ^18 (or later)
 
 - pnpm, npm or yarn package manager
+
+- PostgreSQL 15+ instance (local or remote) and a valid `DATABASE_URL` environment variable
   
 
 ### Installation
@@ -102,7 +105,19 @@ npm  install  # or pnpm install / yarn install
 
 ```bash
 
+# Ensure DATABASE_URL is set in .env before proceeding
+
 npm  run  dev  # starts on http://localhost:3000
+
+```
+
+If this is your first time running the project (or whenever you change the Prisma schema) execute:
+
+```bash
+
+npx prisma migrate dev --name init   # creates & applies migrations
+
+npx prisma generate                  # regenerates the typed Prisma Client
 
 ```
 
@@ -142,6 +157,10 @@ helix/
 │ ├─ components/ # Reusable React components
 
 │ ├─ utils/ # Helper utilities & animation configs
+
+│ ├─ prisma/ # Prisma schema & migrations
+
+│ ├─ generated/ # Generated Prisma Client (do **not** edit manually)
 
 │ ├─ global.css # (Tailwind CSS)
 
