@@ -12,14 +12,9 @@
     "build:production": "npm run lint:fix && next build"
   },
   "dependencies": {
-    "@gsap/react": "^2.1.2",
     "@prisma/client": "^6.10.1",
-    "@react-three/drei": "^10.3.0",
-    "@react-three/fiber": "^9.1.2",
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
-    "gsap": "^3.13.0",
-    "lucide-react": "^0.518.0",
     "motion": "^12.18.1",
     "next": "15.3.4",
     "react": "^19.0.0",
