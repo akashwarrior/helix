@@ -1,8 +1,8 @@
 "use client";
 
+import { useState } from 'react';
 import { motion } from 'motion/react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const navItems = [
   { name: 'Home', href: '#hero' },
@@ -10,27 +10,17 @@ const navItems = [
   { name: 'Solution', href: '#solution' },
   { name: 'Features', href: '#features' },
   { name: 'Showcase', href: '#showcase' },
-  { name: 'Get Started', href: '#cta' },
 ];
 
 export default function Navigation() {
-  const router = useRouter();
-  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
-    handleScroll();
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleMobileMenuToggle = () => setIsMobileMenuOpen(prev => !prev);
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
-    router.push(href);
+    const target = document.querySelector(href);
+    target?.scrollIntoView({ behavior: 'smooth' });
     setIsMobileMenuOpen(false);
   };
 
@@ -43,67 +33,60 @@ export default function Navigation() {
         transition={{ duration: 0.5 }}
       >
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            className="glass-card px-6 py-3 rounded-full backdrop-blur-md"
-            animate={{
-              backgroundColor: isScrolled ? 'rgba(10, 10, 10, 0.9)' : 'rgba(10, 10, 10, 0.4)',
-            }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="flex items-center justify-between">
-              {/* Logo */}
-              <motion.span
-                className="text-2xl font-bold"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
-                  Helix
-                </span>
-              </motion.span>
+          <div className="flex items-center justify-between glass-card px-6 py-3 rounded-full bg-black/60 backdrop-blur-md">
+            {/* Logo */}
+            <motion.span
+              className="text-2xl font-bold"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+                Helix
+              </span>
+            </motion.span>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center gap-8">
-                {navItems.map((item) => (
-                  <motion.a
-                    key={item.name}
-                    href={item.href}
-                    className="text-sm text-slate-300 hover:text-white transition-colors"
-                    whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={(e) => handleNavClick(e, item.href)}
-                  >
-                    {item.name}
-                  </motion.a>
-                ))}
-              </nav>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-8">
+              {navItems.map((item) => (
+                <motion.a
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm text-slate-300 hover:text-white transition-colors"
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                >
+                  {item.name}
+                </motion.a>
+              ))}
+            </nav>
 
-              {/* CTA Button */}
+            {/* CTA Button */}
+            <Link href="/auth">
               <motion.button
                 className="hidden md:block btn-primary text-sm px-6 py-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => router.push('#cta')}
               >
-                Join Waitlist
+                Get Started
               </motion.button>
+            </Link>
 
-              {/* Mobile Menu Button */}
-              <button
-                className="md:hidden p-2 text-slate-300 hover:text-white"
-                onClick={handleMobileMenuToggle}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                  />
-                </svg>
-              </button>
-            </div>
-          </motion.div>
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 text-slate-300 hover:text-white"
+              onClick={handleMobileMenuToggle}
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </motion.nav>
 
@@ -131,14 +114,15 @@ export default function Navigation() {
               {item.name}
             </motion.a>
           ))}
-          <motion.button
-            className="btn-primary text-lg px-8 py-3 mt-4"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push('#cta')}
-          >
-            Join Waitlist
-          </motion.button>
+          <Link href="/auth">
+            <motion.button
+              className="btn-primary text-lg px-8 py-3 mt-4"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Get Started
+            </motion.button>
+          </Link>
         </nav>
       </motion.div>
     </>

@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useInView } from 'motion/react';
 import { useRef } from 'react';
+import { motion, useInView } from 'motion/react';
+import Link from 'next/link';
 
 export default function CTASection() {
   const ref = useRef(null);
@@ -71,23 +72,17 @@ export default function CTASection() {
           animation-rich websites with unprecedented ease.
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.4 }}
-        >
-          <button className="group relative btn-primary text-lg px-12 py-5 overflow-hidden">
-            <span className="relative z-10">Join the Waitlist</span>
-
-            {/* Animated background effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
-              initial={{ x: "-100%" }}
-              whileHover={{ x: 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </button>
-        </motion.div>
+        <Link href="/auth">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <button className="group relative btn-primary text-lg px-12 py-5 overflow-hidden">
+              Get Started
+            </button>
+          </motion.div>
+        </Link>
 
         {/* Additional floating elements */}
         <motion.div

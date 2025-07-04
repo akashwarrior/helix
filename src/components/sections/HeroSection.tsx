@@ -1,11 +1,9 @@
 "use client";
 
 import { motion } from 'motion/react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function HeroSection() {
-  const router = useRouter();
-
   return (
     <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="relative z-10 max-w-6xl mx-auto text-center mt-20">
@@ -39,12 +37,11 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
         >
-          <button
-            onClick={() => router.push('#cta')}
-            className="btn-primary text-lg px-10 py-4 hover:scale-105 transition-transform duration-200"
-          >
-            Join the Waitlist
-          </button>
+          <Link href="/auth">
+            <button className="btn-primary text-lg px-10 py-4">
+              Get Started
+            </button>
+          </Link>
         </motion.div>
       </div>
     </section>

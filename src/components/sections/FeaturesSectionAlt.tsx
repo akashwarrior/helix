@@ -89,7 +89,7 @@ export default function FeaturesSectionAlt() {
                     <motion.div
                       className="h-full bg-gradient-to-r from-cyan-400 to-blue-400"
                       animate={{
-                        x: hoveredFeature === feature.id ? "0%" : "-100%",
+                        x: hoveredFeature === feature.id ? "0%" : "-25%",
                       }}
                       transition={{ duration: 1 }}
                     />
