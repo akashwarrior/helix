@@ -7,7 +7,7 @@ import CTASection from '@/components/sections/CTASection';
 import Navigation from '@/components/ui/Navigation';
 import ScrollProgressBar from '@/components/ui/ScrollProgressBar';
 
-export default async function Home() {
+export default async function Welcome() {
   return (
     <>
       <Navigation />
