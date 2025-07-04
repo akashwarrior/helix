@@ -4,14 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Terminal as TerminalIcon, 
-  X, 
-  Minus, 
-  Square, 
   Settings,
-  Search,
-  Copy,
-  Download,
-  Maximize2,
   Zap,
   Cpu,
   HardDrive,
