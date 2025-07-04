@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
-export const maxDuration = 1200; // 20 minutes
+export const maxDuration = 300; // 5 minutes (max duration for free plan)
 
 export async function POST(req: Request) {
     try {
