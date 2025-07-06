@@ -7,7 +7,7 @@ function FloatingParticles() {
   return [...Array(10)].map((_, i) => (
     <motion.div
       key={i}
-      className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400"
+      className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 will-change-transform"
       style={{
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
@@ -60,10 +60,10 @@ export default function SolutionSection() {
         </motion.div>
 
         <motion.div
-          className="relative h-96 overflow-hidden rounded-2xl"
+          className="relative h-96 overflow-hidden rounded-2xl will-change-transform"
           initial={{ opacity: 0, scale: 0.9 }}
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.8 }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 to-purple-900/10" />
 
@@ -82,6 +82,7 @@ export default function SolutionSection() {
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={isInView ? { pathLength: 1, opacity: 1 } : {}}
                 transition={{ duration: 2, delay: 0.5 + strand * 0.2, ease: "easeOut" }}
+                className='will-change-transform'
               />
             ))}
 

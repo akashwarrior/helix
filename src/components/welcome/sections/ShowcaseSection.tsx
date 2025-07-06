@@ -115,7 +115,7 @@ function ParticleField() {
       {particles.map((particle) => (
         <motion.div
           key={particle.id}
-          className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"
+          className="absolute w-2 h-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full will-change-transform"
           initial={{ x: particle.x - 4, y: particle.y - 4, scale: 0 }}
           animate={{ scale: [0, 1, 0] }}
           transition={{ duration: 1 }}
@@ -133,7 +133,7 @@ function ParticleField() {
 function RotatingCube() {
   return (
     <motion.div
-      className="w-32 h-32 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl shadow-xl"
+      className="w-32 h-32 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl shadow-xl will-change-transform"
       animate={{
         rotateY: 360,
         rotateX: 360,
@@ -159,7 +159,7 @@ function RotatingCube() {
 function LiquidLoader() {
   return (
     <div className="relative w-32 h-32">
-      <svg viewBox="0 0 100 100" className="w-full h-full">
+      <svg viewBox="0 0 100 100" className="w-full h-full will-change-transform">
         <defs>
           <linearGradient id="liquid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#f97316" />

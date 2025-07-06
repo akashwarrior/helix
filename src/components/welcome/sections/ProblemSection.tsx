@@ -50,6 +50,7 @@ export default function ProblemSection() {
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={isInView ? { pathLength: 1, opacity: 0.4 } : {}}
                 transition={{ duration: 2, delay: 0.5 + i * 0.1, ease: "easeOut" }}
+                className='will-change-transform'
               />
             ))}
           </svg>
