@@ -1,8 +1,7 @@
 "use client";
 
+import { useRef, useState } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'motion/react';
-import { useRef } from 'react';
-import { useState } from 'react';
 
 const showcaseItems = [
   {
@@ -59,7 +58,7 @@ function MagneticButton() {
   return (
     <motion.button
       ref={buttonRef}
-      className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full text-white font-semibold"
+      className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full text-white font-semibold shadow-lg"
       animate={{ x: position.x, y: position.y }}
       transition={{ type: "spring", stiffness: 150, damping: 15 }}
       onMouseMove={handleMouseMove}
@@ -78,7 +77,7 @@ function MorphingCard() {
 
   return (
     <motion.div
-      className="w-48 h-48 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl cursor-pointer"
+      className="w-48 h-48 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl cursor-pointer shadow-xl"
       animate={{
         borderRadius: isHovered ? "50%" : "16px",
         rotate: isHovered ? 180 : 0,
@@ -103,14 +102,14 @@ function ParticleField() {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const newParticle = { id: Date.now(), x, y };
+    const newParticle = { id: Date.now() + Math.random(), x, y };
 
     setParticles(prev => [...prev.slice(-20), newParticle]);
   };
 
   return (
     <div
-      className="relative w-full h-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl overflow-hidden"
+      className="relative w-full h-full bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-2xl"
       onMouseMove={handleMouseMove}
     >
       {particles.map((particle) => (
@@ -123,7 +122,7 @@ function ParticleField() {
           onAnimationComplete={() => setParticles(prev => prev.filter(p => p.id !== particle.id))}
         />
       ))}
-      <div className="absolute inset-0 flex items-center justify-center text-white/50">
+      <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
         Move your mouse
       </div>
     </div>
@@ -134,7 +133,7 @@ function ParticleField() {
 function RotatingCube() {
   return (
     <motion.div
-      className="w-32 h-32 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl"
+      className="w-32 h-32 bg-gradient-to-br from-pink-500 to-red-500 rounded-xl shadow-xl"
       animate={{
         rotateY: 360,
         rotateX: 360,
@@ -150,7 +149,7 @@ function RotatingCube() {
       }}
     >
       <div className="w-full h-full flex items-center justify-center text-white font-bold">
-        3D
+        Cube
       </div>
     </motion.div>
   );
@@ -204,15 +203,20 @@ export default function ShowcaseSection() {
 
   return (
     <section ref={containerRef} className="relative py-20 overflow-x-hidden">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
         <motion.h2
-          className="text-4xl sm:text-6xl font-bold text-center"
+          className="text-4xl sm:text-6xl font-bold text-center leading-tight"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-white">Don&apos;t just build websites</span>
+          <span className="text-foreground">Don&apos;t just build websites</span>
           <br />
           <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
             Build experiences
@@ -220,37 +224,29 @@ export default function ShowcaseSection() {
         </motion.h2>
       </div>
 
-      {/* Horizontally scrolling showcase */}
-      <div className="relative overflow-x-hidden">
-        <motion.div className="relative" style={{ x: smoothX }}>
-          <div className="flex gap-6 px-4 pb-8">
-            {showcaseItems.map((item, index) => {
-              return (
-                <motion.div
-                  key={item.id}
-                  className="flex-shrink-0 w-80 h-96 glass-card p-6 flex flex-col"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                >
-                  <h3 className="text-xl font-semibold mb-2">
-                    <span className={`bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent`}>
-                      {item.title}
-                    </span>
-                  </h3>
-                  <p className="text-sm text-slate-400 mb-6">{item.description}</p>
+      <motion.div
+        style={{ x: smoothX }}
+        className="relative flex gap-6 px-4 pb-8"
+      >
+        {showcaseItems.map((item) => (
+          <motion.div
+            key={item.id}
+            className="flex-shrink-0 w-80 h-96 bg-card/50 rounded-2xl p-6 flex flex-col border border-border/50"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            whileHover={{ y: -15 }}
+          >
+            <h3 className={`text-xl font-semibold mb-2 bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent`}>
+              {item.title}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{item.description}</p>
 
-                  <div className="flex-1 flex items-center justify-center">
-                    <item.component />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-      </div>
+            <div className="flex-1 flex items-center justify-center">
+              <item.component />
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
     </section>
   );
 }

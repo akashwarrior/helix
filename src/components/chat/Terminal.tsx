@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Terminal as TerminalIcon, 
+import { LazyMotion } from "motion/react";
+import * as motion from "motion/react-m";
+import {
+  Terminal as TerminalIcon,
   Settings,
   Zap,
   Cpu,
   HardDrive,
   Wifi
 } from 'lucide-react';
+
+const domAnimation = () => import('motion/react').then(mod => mod.domAnimation);
 
 interface CommandEntry {
   command: string;
@@ -24,12 +27,12 @@ export default function Terminal() {
     {
       command: 'npm create vite@latest todo-app -- --template react-ts',
       output: [
-    '',
-    'Need to install the following packages:',
-    '  create-vite@5.0.0',
-    'Ok to proceed? (y) y',
-    '',
-    '✔ Package installed successfully',
+        '',
+        'Need to install the following packages:',
+        '  create-vite@5.0.0',
+        'Ok to proceed? (y) y',
+        '',
+        '✔ Package installed successfully',
         ''
       ],
       timestamp: new Date(Date.now() - 120000),
@@ -38,9 +41,9 @@ export default function Terminal() {
     {
       command: 'cd todo-app && npm install',
       output: [
-    '',
-    'added 213 packages, and audited 214 packages in 12s',
-    '',
+        '',
+        'added 213 packages, and audited 214 packages in 12s',
+        '',
         '29 packages are looking for funding',
         '  run `npm fund` for details',
         '',
@@ -53,9 +56,9 @@ export default function Terminal() {
     {
       command: 'npm install lucide-react framer-motion',
       output: [
-    '',
+        '',
         'added 2 packages, and audited 216 packages in 3s',
-    '',
+        '',
         'found 0 vulnerabilities',
         ''
       ],
@@ -65,12 +68,12 @@ export default function Terminal() {
     {
       command: 'npm run dev',
       output: [
-    '',
-    '  VITE v5.0.0  ready in 532 ms',
-    '',
-    '  ➜  Local:   http://localhost:3000/',
-    '  ➜  Network: use --host to expose',
-    '  ➜  press h + enter to show help',
+        '',
+        '  VITE v5.0.0  ready in 532 ms',
+        '',
+        '  ➜  Local:   http://localhost:3000/',
+        '  ➜  Network: use --host to expose',
+        '  ➜  press h + enter to show help',
         ''
       ],
       timestamp: new Date(Date.now() - 30000),
@@ -94,7 +97,7 @@ export default function Terminal() {
     if (!command.trim()) return;
 
     setIsTyping(true);
-    
+
     // Simulate typing delay
     setTimeout(() => {
       const newEntry: CommandEntry = {
@@ -104,8 +107,8 @@ export default function Terminal() {
         status: 'success'
       };
 
-    // Simulate command responses
-    if (command === 'clear') {
+      // Simulate command responses
+      if (command === 'clear') {
         setCommandHistory([]);
       } else if (command === 'ls' || command === 'dir') {
         newEntry.output = [
@@ -114,7 +117,7 @@ export default function Terminal() {
           ''
         ];
         setCommandHistory(prev => [...prev, newEntry]);
-    } else if (command.startsWith('cd ')) {
+      } else if (command.startsWith('cd ')) {
         newEntry.output = [''];
         setCommandHistory(prev => [...prev, newEntry]);
       } else if (command === 'npm run build') {
@@ -150,7 +153,7 @@ export default function Terminal() {
       } else if (command === 'exit') {
         newEntry.output = ['Goodbye! 👋'];
         setCommandHistory(prev => [...prev, newEntry]);
-    } else {
+      } else {
         newEntry.output = [`bash: ${command}: command not found`];
         newEntry.status = 'error';
         setCommandHistory(prev => [...prev, newEntry]);
@@ -170,7 +173,7 @@ export default function Terminal() {
         const newIndex = historyIndex + 1;
         setHistoryIndex(newIndex);
         setCommand(commands[commands.length - 1 - newIndex]);
-    }
+      }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (historyIndex > 0) {
@@ -219,66 +222,66 @@ export default function Terminal() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] border border-neutral-800/50">
-      {/* Enhanced Terminal Header */}
-      <motion.div 
-        className="h-12 bg-gradient-to-r from-neutral-900/90 to-neutral-800/90 backdrop-blur-sm border-b border-neutral-700/50 flex items-center justify-between px-4"
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <motion.div 
-              className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            />
-            <motion.div 
-              className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 cursor-pointer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            />
-            <motion.div 
-              className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 cursor-pointer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
+    <LazyMotion features={domAnimation}>
+      <div className="h-full flex flex-col bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] border border-neutral-800/50">
+        {/* Enhanced Terminal Header */}
+        <motion.div
+          className="h-12 bg-gradient-to-r from-neutral-900/90 to-neutral-800/90 backdrop-blur-sm border-b border-neutral-700/50 flex items-center justify-between px-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="p-1 rounded bg-neutral-800/50">
-                <TerminalIcon size={14} className="text-green-400" />
+              <motion.div
+                className="w-3 h-3 rounded-full bg-red-500/80 hover:bg-red-500 cursor-pointer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              />
+              <motion.div
+                className="w-3 h-3 rounded-full bg-yellow-500/80 hover:bg-yellow-500 cursor-pointer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              />
+              <motion.div
+                className="w-3 h-3 rounded-full bg-green-500/80 hover:bg-green-500 cursor-pointer"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              />
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded bg-neutral-800/50">
+                  <TerminalIcon size={14} className="text-green-400" />
+                </div>
+                <span className="text-sm font-medium text-white">Terminal</span>
+                <span className="text-xs text-muted-foreground">— zsh</span>
               </div>
-              <span className="text-sm font-medium text-white">Terminal</span>
-              <span className="text-xs text-muted-foreground">— zsh</span>
             </div>
           </div>
-        </div>
-        
-        {/* Terminal Controls */}
-        <div className="flex items-center gap-2">
-          <motion.button 
-            onClick={() => setShowSystemInfo(!showSystemInfo)}
-            className="p-2 text-muted-foreground hover:text-white hover:bg-neutral-800/50 rounded-lg transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Cpu size={14} />
-          </motion.button>
-          <motion.button 
-            className="p-2 text-muted-foreground hover:text-white hover:bg-neutral-800/50 rounded-lg transition-all duration-200"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Settings size={14} />
-          </motion.button>
-        </div>
-      </motion.div>
 
-      {/* System Info Bar */}
-      <AnimatePresence>
+          {/* Terminal Controls */}
+          <div className="flex items-center gap-2">
+            <motion.button
+              onClick={() => setShowSystemInfo(!showSystemInfo)}
+              className="p-2 text-muted-foreground hover:text-white hover:bg-neutral-800/50 rounded-lg transition-all duration-200"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Cpu size={14} />
+            </motion.button>
+            <motion.button
+              className="p-2 text-muted-foreground hover:text-white hover:bg-neutral-800/50 rounded-lg transition-all duration-200"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Settings size={14} />
+            </motion.button>
+          </div>
+        </motion.div>
+
+        {/* System Info Bar */}
         {showSystemInfo && (
           <motion.div
             className="px-4 py-2 bg-neutral-900/60 border-b border-neutral-800/30 flex items-center justify-between text-xs"
@@ -304,18 +307,16 @@ export default function Terminal() {
             <div className="flex items-center gap-1">
               <Zap size={12} className="text-yellow-400" />
               <span className="text-gray-400">Power: AC</span>
-      </div>
+            </div>
           </motion.div>
         )}
-      </AnimatePresence>
 
-      {/* Terminal Content */}
-      <div
-        ref={terminalRef}
-        className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] font-mono text-sm leading-relaxed"
-      >
-        {/* Command History */}
-        <AnimatePresence>
+        {/* Terminal Content */}
+        <div
+          ref={terminalRef}
+          className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] font-mono text-sm leading-relaxed"
+        >
+          {/* Command History */}
           {commandHistory.map((entry, index) => (
             <motion.div
               key={index}
@@ -334,7 +335,7 @@ export default function Terminal() {
                   {entry.timestamp.toLocaleTimeString()}
                 </span>
               </div>
-              
+
               {/* Output */}
               {entry.output.map((line, lineIndex) => (
                 <motion.div
@@ -344,15 +345,13 @@ export default function Terminal() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2, delay: lineIndex * 0.05 }}
                 >
-              {line || '\u00A0'}
+                  {line || '\u00A0'}
                 </motion.div>
               ))}
             </motion.div>
           ))}
-        </AnimatePresence>
 
-        {/* Typing Indicator */}
-        <AnimatePresence>
+          {/* Typing Indicator */}
           {isTyping && (
             <motion.div
               className="flex items-center gap-2 mb-4"
@@ -374,54 +373,54 @@ export default function Terminal() {
                     }}
                   />
                 ))}
-            </div>
+              </div>
               <span className="text-gray-400 text-xs ml-2">Processing...</span>
             </motion.div>
           )}
-        </AnimatePresence>
 
-        {/* Input Line */}
-        <form onSubmit={handleCommand} className="flex items-center gap-2">
-          <span className="text-emerald-400 font-medium">$</span>
-          <input
-            ref={inputRef}
-            type="text"
-            value={command}
-            onChange={(e) => setCommand(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent text-white outline-none placeholder-muted-foreground caret-emerald-400 font-mono"
-            placeholder="Type a command... (try 'help')"
-            autoComplete="off"
-            spellCheck={false}
-            disabled={isTyping}
-          />
-        </form>
-      </div>
-
-      {/* Clean Status Bar */}
-      <motion.div 
-        className="h-6 bg-gradient-to-r from-neutral-900 to-neutral-800 flex items-center justify-between px-4 text-xs text-white border-t border-neutral-700/50"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
-            <motion.div 
-              className="w-1.5 h-1.5 rounded-full bg-green-400"
-              animate={{ opacity: [1, 0.5, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
+          {/* Input Line */}
+          <form onSubmit={handleCommand} className="flex items-center gap-2">
+            <span className="text-emerald-400 font-medium">$</span>
+            <input
+              ref={inputRef}
+              type="text"
+              value={command}
+              onChange={(e) => setCommand(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="flex-1 bg-transparent text-white outline-none placeholder-muted-foreground caret-emerald-400 font-mono"
+              placeholder="Type a command... (try 'help')"
+              autoComplete="off"
+              spellCheck={false}
+              disabled={isTyping}
             />
-            <span>zsh</span>
+          </form>
+        </div>
+
+        {/* Clean Status Bar */}
+        <motion.div
+          className="h-6 bg-gradient-to-r from-neutral-900 to-neutral-800 flex items-center justify-between px-4 text-xs text-white border-t border-neutral-700/50"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <motion.div
+                className="w-1.5 h-1.5 rounded-full bg-green-400"
+                animate={{ opacity: [1, 0.5, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <span>zsh</span>
+            </div>
+            <span>~/projects/todo-app</span>
           </div>
-          <span>~/projects/todo-app</span>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <span>{commandHistory.length} commands</span>
-          <span>Node 18.17.0</span>
-        </div>
-      </motion.div>
-    </div>
+
+          <div className="flex items-center gap-3">
+            <span>{commandHistory.length} commands</span>
+            <span>Node 18.17.0</span>
+          </div>
+        </motion.div>
+      </div>
+    </LazyMotion>
   );
 } 

@@ -9,24 +9,28 @@ export default function ProblemSection() {
 
   return (
     <section ref={ref} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
-      <div className="max-w-6xl mx-auto">
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-radial from-red-600/5 via-orange-600/5 to-transparent" />
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-red-500/10 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative z-10 max-w-6xl mx-auto">
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6">
-            <span className="text-white">Great Animations are </span>
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+            <span className="text-foreground">Great Animations are </span>
             <span className="text-red-400">Hard</span>
           </h2>
-          <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Juggling complex libraries, fighting performance issues, and endless tweaking.
             Building fluid web experiences is a constant battle between creativity and code.
           </p>
         </motion.div>
 
-        {/* Visual representation of complexity */}
         <motion.div
           className="relative h-96 overflow-hidden rounded-2xl"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -35,9 +39,8 @@ export default function ProblemSection() {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-orange-900/20" />
 
-          {/* Chaotic lines */}
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
-            {[...Array(15)].map((_, i) => (
+            {isInView && [...Array(15)].map((_, i) => (
               <motion.path
                 key={i}
                 d={`M${i * 50} ${200 + Math.sin(i) * 100} Q${400 + i * 20} ${100 + Math.cos(i) * 50} ${800 - i * 30} ${200 + Math.sin(i + 1) * 80}`}
@@ -45,13 +48,12 @@ export default function ProblemSection() {
                 strokeWidth="2"
                 fill="none"
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={isInView ? { pathLength: 1, opacity: 0.5 } : {}}
+                animate={isInView ? { pathLength: 1, opacity: 0.4 } : {}}
                 transition={{ duration: 2, delay: 0.5 + i * 0.1, ease: "easeOut" }}
               />
             ))}
           </svg>
 
-          {/* Glitch effect text */}
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
               className="text-2xl font-mono text-red-400"

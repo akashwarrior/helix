@@ -11,11 +11,11 @@ import {
   PanelLeftClose,
   PanelLeftOpen
 } from 'lucide-react';
-import ChatInterface from '@/components/ui/ChatInterface';
-import CodeEditor from '@/components/ui/CodeEditor';
-import Terminal from '@/components/ui/Terminal';
-import Preview from '@/components/ui/Preview';
-import FileTree from '@/components/ui/FileTree';
+import ChatInterface from '@/components/chat/ChatInterface';
+import CodeEditor from '@/components/chat/CodeEditor';
+import Terminal from '@/components/chat/Terminal';
+import Preview from '@/components/chat/Preview';
+import FileTree from '@/components/chat/FileTree';
 
 interface Tab {
   id: 'app' | 'editor' | 'terminal';
@@ -50,7 +50,7 @@ const renderMainContent = (activeView: string) => {
     case 'terminal':
       return <Terminal />;
     default:
-      return <CodeEditor />;
+      return null;
   }
 };
 
