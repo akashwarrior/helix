@@ -1,11 +1,11 @@
-import HeroSection from '@/components/sections/HeroSection';
-import ProblemSection from '@/components/sections/ProblemSection';
-import SolutionSection from '@/components/sections/SolutionSection';
-import FeaturesSectionAlt from '@/components/sections/FeaturesSectionAlt';
-import ShowcaseSection from '@/components/sections/ShowcaseSection';
-import CTASection from '@/components/sections/CTASection';
-import Navigation from '@/components/ui/Navigation';
-import ScrollProgressBar from '@/components/ui/ScrollProgressBar';
+import HeroSection from '@/components/welcome/sections/HeroSection';
+import ProblemSection from '@/components/welcome/sections/ProblemSection';
+import SolutionSection from '@/components/welcome/sections/SolutionSection';
+import FeaturesSection from '@/components/welcome/sections/FeaturesSection';
+import ShowcaseSection from '@/components/welcome/sections/ShowcaseSection';
+import CTASection from '@/components/welcome/sections/CTASection';
+import Navigation from '@/components/welcome/Navigation';
+import ScrollProgressBar from '@/components/welcome/ScrollProgressBar';
 
 export default async function Welcome() {
   return (
@@ -27,8 +27,7 @@ export default async function Welcome() {
           </div>
 
           <div id="features">
-            {/* <FeaturesSection /> */}
-            <FeaturesSectionAlt />
+            <FeaturesSection />
           </div>
 
           <div id="showcase">

@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { motion, useInView } from 'motion/react';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function CTASection() {
@@ -10,12 +11,10 @@ export default function CTASection() {
 
   return (
     <section ref={ref} className="relative min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
-      {/* Background effects */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-blue-600/10 via-purple-600/5 to-transparent" />
 
-        {/* Animated helix lines */}
-        <svg className="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
+        <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
           <defs>
             <linearGradient id="cta-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#60a5fa" stopOpacity="0" />
@@ -48,22 +47,22 @@ export default function CTASection() {
         </svg>
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto text-center">
+      <div className="relative z-10 max-w-4xl mx-auto text-center flex flex-col items-center justify-center">
         <motion.h2
           className="text-5xl sm:text-7xl font-bold mb-8"
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-white">Ready to Build with </span>
+          <span className="text-foreground">Ready to Build with </span>
           <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
             Helix
           </span>
-          <span className="text-white">?</span>
+          <span className="text-foreground">?</span>
         </motion.h2>
 
         <motion.p
-          className="text-xl text-slate-300 mb-12"
+          className="text-xl text-muted-foreground mb-12 leading-relaxed"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -78,21 +77,23 @@ export default function CTASection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <button className="group relative btn-primary text-lg px-12 py-5 overflow-hidden">
-              Get Started
-            </button>
+            <Button size="lg" className="text-lg px-12 py-5 h-auto relative overflow-hidden group rounded-full hover:scale-105 transition-transform duration-300">
+              <span className="relative z-10">Get Started</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+            </Button>
           </motion.div>
         </Link>
 
-        {/* Additional floating elements */}
         <motion.div
           className="absolute top-0 left-0 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
+            x: [0, 20, 0],
+            y: [0, -10, 0],
           }}
           transition={{
-            duration: 4,
+            duration: 6,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -102,11 +103,39 @@ export default function CTASection() {
           animate={{
             scale: [1.2, 1, 1.2],
             opacity: [0.5, 0.3, 0.5],
+            x: [0, -15, 0],
+            y: [0, 10, 0],
+          }}
+          transition={{
+            duration: 6,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1,
+          }}
+        />
+
+        <motion.div
+          className="absolute top-1/3 right-1/3 w-2 h-2 bg-blue-400 rounded-full"
+          animate={{
+            scale: [0, 1, 0],
+            opacity: [0, 1, 0],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            delay: 2,
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/3 left-1/4 w-1 h-1 bg-purple-400 rounded-full"
+          animate={{
+            scale: [0, 1, 0],
+            opacity: [0, 1, 0],
           }}
           transition={{
             duration: 4,
             repeat: Infinity,
-            ease: "easeInOut",
+            delay: 3,
           }}
         />
       </div>

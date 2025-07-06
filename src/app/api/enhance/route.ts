@@ -25,10 +25,10 @@ export async function POST(req: NextRequest) {
         const result = streamText({
             model: google('gemma-3-27b-it'),
             experimental_continueSteps: true,
-            prompt: `I want you to improve the user prompt that is wrapped in \`<original_prompt>\` tags.
+            prompt: `I want you to improve the user prompt that is wrapped in <original_prompt> tags.
             Understand the user's intent and improve the prompt to be more specific and clear.
             
-            IMPORTANT: Only respond with the improved prompt and don't include any other text!
+            IMPORTANT: Only respond with the improved prompt in plain text and don't include any other text or markdown!
             
             <original_prompt>
             ${messages[messages.length - 1].content}
