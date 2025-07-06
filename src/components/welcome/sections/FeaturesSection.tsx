@@ -61,7 +61,7 @@ export default function FeaturesSection() {
               animate={isInView ? { opacity: 1 } : {}}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="relative group bg-card/50 rounded-2xl overflow-hidden p-8 h-full transition-transform duration-300 hover:scale-105 border border-border/50">
+              className="relative group bg-card/50 rounded-2xl overflow-hidden p-8 h-full transition-transform duration-300 hover:scale-105 border border-border/50 will-change-transform">
 
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-20 transition-all duration-500`} />
 

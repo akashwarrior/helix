@@ -12,7 +12,7 @@ export default async function Welcome() {
     <>
       <Navigation />
       <ScrollProgressBar />
-      <main>
+      <main className='will-change-transform'>
         <div className="relative z-10">
           <div id="hero">
             <HeroSection />

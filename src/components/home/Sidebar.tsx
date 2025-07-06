@@ -18,7 +18,7 @@ export default function Sidebar({ menuItems, isAuthenticated }: SidebarProps) {
         <>
             <aside className={cn(
                 "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-20 bg-background md:bg-transparent transition-all duration-300",
-                isOpen ? 'w-64' : 'w-0 -translate-x-full',
+                isOpen ? 'w-72' : 'w-0 -translate-x-full',
                 "px-3 pt-20 pb-8"
             )}>
                 {!isAuthenticated ? (
