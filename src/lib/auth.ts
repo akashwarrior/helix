@@ -4,7 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import prisma from "@/lib/prisma";
 
 export const auth = betterAuth({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+  baseURL: process.env.NEXT_PUBLIC_BASE_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
