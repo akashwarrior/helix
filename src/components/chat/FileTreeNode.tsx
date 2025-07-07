@@ -30,20 +30,21 @@ import {
     Palette,
     Globe,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 const ICON_PROPS = {
     size: 16,
     className: "ml-4 text-muted-foreground"
 };
 
-const FILE_ICON_MAP: Record<string, { icon: any; className: string }> = {
+const FILE_ICON_MAP: Record<string, { icon: LucideIcon; className: string }> = {
     'package.json': { icon: Package, className: "text-red-400" },
     'package-lock.json': { icon: Package, className: "text-red-300" },
     'tsconfig.json': { icon: Settings, className: "text-blue-400" },
     'jsconfig.json': { icon: Settings, className: "text-blue-400" },
 };
 
-const EXTENSION_ICON_MAP: Record<string, { icon: any; className: string }> = {
+const EXTENSION_ICON_MAP: Record<string, { icon: LucideIcon; className: string }> = {
     'tsx': { icon: FileCode, className: "text-blue-400" },
     'jsx': { icon: FileCode, className: "text-cyan-400" },
     'ts': { icon: FileCode, className: "text-blue-500" },
@@ -100,6 +101,7 @@ const FileIcon = memo(({ name }: { name: string }) => {
 
     return <FileText {...ICON_PROPS} />;
 });
+FileIcon.displayName = 'FileIcon';
 
 const FolderIcon = memo(({ name, isExpanded, isSelected }: { name: string; isExpanded: boolean; isSelected: boolean }) => {
     const folderName = name.toLowerCase();
@@ -121,6 +123,7 @@ const FolderIcon = memo(({ name, isExpanded, isSelected }: { name: string; isExp
         <Icon size={16} className={className} />
     </>
 });
+FolderIcon.displayName = 'FolderIcon';
 
 const SearchHighlight = ({ text, searchQuery }: { text: string; searchQuery: string }) => {
     if (!searchQuery) return <>{text}</>;
