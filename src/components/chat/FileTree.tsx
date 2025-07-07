@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { LazyMotion } from "motion/react";
-import * as motion from "motion/react-m";
+import { motion } from "motion/react";
 
 import {
   ChevronRight,
@@ -392,150 +391,148 @@ export default function FileTree() {
   const filteredFiles = searchQuery ? filterFiles(defaultFiles, searchQuery) : defaultFiles;
 
   return (
-    <LazyMotion features={domAnimation}>
-      <div className="h-full flex flex-col w-[280px] bg-gradient-to-b from-[#1a1a1a] to-[#141414] border-r border-neutral-800/50">
-        {/* Enhanced Header */}
-        <motion.div
-          className="px-4 py-3 border-b border-neutral-800/50 bg-neutral-900/50 backdrop-blur-sm"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-white tracking-wide">
-              Explorer
-            </h3>
-            <div className="flex items-center gap-1">
-              <motion.button
-                className="p-1.5 hover:bg-neutral-800/50 rounded transition-colors group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FolderPlus size={14} className="text-gray-400 group-hover:text-white" />
-              </motion.button>
-              <motion.button
-                className="p-1.5 hover:bg-neutral-800/50 rounded transition-colors group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Plus size={14} className="text-gray-400 group-hover:text-white" />
-              </motion.button>
-            </div>
+    <div className="h-full flex flex-col w-[280px] bg-gradient-to-b from-[#1a1a1a] to-[#141414] border-r border-neutral-800/50">
+      {/* Enhanced Header */}
+      <motion.div
+        className="px-4 py-3 border-b border-neutral-800/50 bg-neutral-900/50 backdrop-blur-sm"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-white tracking-wide">
+            Explorer
+          </h3>
+          <div className="flex items-center gap-1">
+            <motion.button
+              className="p-1.5 hover:bg-neutral-800/50 rounded transition-colors group"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FolderPlus size={14} className="text-gray-400 group-hover:text-white" />
+            </motion.button>
+            <motion.button
+              className="p-1.5 hover:bg-neutral-800/50 rounded transition-colors group"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Plus size={14} className="text-gray-400 group-hover:text-white" />
+            </motion.button>
           </div>
+        </div>
 
-          {/* Enhanced Search */}
-          <motion.div
-            className="relative"
-            animate={{
-              scale: isSearchFocused ? 1.02 : 1,
-              y: isSearchFocused ? -1 : 0
-            }}
-            transition={{ duration: 0.2 }}
-          >
-            <Search size={14} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search files..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-              className={`
+        {/* Enhanced Search */}
+        <motion.div
+          className="relative"
+          animate={{
+            scale: isSearchFocused ? 1.02 : 1,
+            y: isSearchFocused ? -1 : 0
+          }}
+          transition={{ duration: 0.2 }}
+        >
+          <Search size={14} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+            className={`
               w-full pl-9 pr-8 py-2 bg-neutral-800/50 border rounded-lg text-sm text-white 
               placeholder-gray-400 focus:outline-none transition-all duration-200
               ${isSearchFocused
-                  ? 'border-blue-500/50 bg-neutral-800/80 shadow-lg shadow-blue-500/10'
-                  : 'border-neutral-700 hover:border-neutral-600'
-                }
+                ? 'border-blue-500/50 bg-neutral-800/80 shadow-lg shadow-blue-500/10'
+                : 'border-neutral-700 hover:border-neutral-600'
+              }
             `}
-            />
-            {searchQuery && (
-              <motion.button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-neutral-700/50 rounded transition-colors"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <X size={12} className="text-gray-400" />
-              </motion.button>
-            )}
-          </motion.div>
-
+          />
           {searchQuery && (
-            <motion.div
-              className="mt-2 text-xs text-gray-400"
-              initial={{ opacity: 0, y: -5 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
+            <motion.button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-neutral-700/50 rounded transition-colors"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
-              {filteredFiles.length} result{filteredFiles.length !== 1 ? 's' : ''}
-            </motion.div>
+              <X size={12} className="text-gray-400" />
+            </motion.button>
           )}
         </motion.div>
 
-        {/* File Tree */}
-        <div className="flex-1 overflow-y-auto py-2 overflow-x-hidden">
-          {filteredFiles.map(node => renderNode(node))}
-        </div>
-
-        {/* Enhanced Footer */}
-        <motion.div
-          className="px-4 py-2 border-t border-neutral-800/50 bg-neutral-900/30 backdrop-blur-sm"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-        >
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{defaultFiles[0]?.children?.length || 0} items</span>
-            <div className="flex items-center gap-2">
-              <motion.div
-                className="w-2 h-2 rounded-full bg-green-400"
-                animate={{ opacity: [1, 0.5, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              />
-              <span>Watching</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Context Menu */}
-        {contextMenu && (
+        {searchQuery && (
           <motion.div
-            className="fixed z-50 glass-card bg-neutral-900/95 backdrop-blur-xl border border-neutral-700 rounded-lg shadow-2xl py-2 min-w-[160px]"
-            style={{
-              left: contextMenu.x,
-              top: contextMenu.y,
-            }}
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.15 }}
+            className="mt-2 text-xs text-gray-400"
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <motion.button
-              className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-800/50 transition-colors flex items-center gap-2"
-              whileHover={{ x: 2 }}
-            >
-              <Edit3 size={14} />
-              Rename
-            </motion.button>
-            <motion.button
-              className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-800/50 transition-colors flex items-center gap-2"
-              whileHover={{ x: 2 }}
-            >
-              <Copy size={14} />
-              Copy Path
-            </motion.button>
-            <div className="h-px bg-neutral-700 my-1"></div>
-            <motion.button
-              className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
-              whileHover={{ x: 2 }}
-            >
-              <Trash2 size={14} />
-              Delete
-            </motion.button>
+            {filteredFiles.length} result{filteredFiles.length !== 1 ? 's' : ''}
           </motion.div>
         )}
+      </motion.div>
+
+      {/* File Tree */}
+      <div className="flex-1 overflow-y-auto py-2 overflow-x-hidden">
+        {filteredFiles.map(node => renderNode(node))}
       </div>
-    </LazyMotion>
+
+      {/* Enhanced Footer */}
+      <motion.div
+        className="px-4 py-2 border-t border-neutral-800/50 bg-neutral-900/30 backdrop-blur-sm"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{defaultFiles[0]?.children?.length || 0} items</span>
+          <div className="flex items-center gap-2">
+            <motion.div
+              className="w-2 h-2 rounded-full bg-green-400"
+              animate={{ opacity: [1, 0.5, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <span>Watching</span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <motion.div
+          className="fixed z-50 glass-card bg-neutral-900/95 backdrop-blur-xl border border-neutral-700 rounded-lg shadow-2xl py-2 min-w-[160px]"
+          style={{
+            left: contextMenu.x,
+            top: contextMenu.y,
+          }}
+          initial={{ opacity: 0, scale: 0.95, y: -10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -10 }}
+          transition={{ duration: 0.15 }}
+        >
+          <motion.button
+            className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-800/50 transition-colors flex items-center gap-2"
+            whileHover={{ x: 2 }}
+          >
+            <Edit3 size={14} />
+            Rename
+          </motion.button>
+          <motion.button
+            className="w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-800/50 transition-colors flex items-center gap-2"
+            whileHover={{ x: 2 }}
+          >
+            <Copy size={14} />
+            Copy Path
+          </motion.button>
+          <div className="h-px bg-neutral-700 my-1"></div>
+          <motion.button
+            className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors flex items-center gap-2"
+            whileHover={{ x: 2 }}
+          >
+            <Trash2 size={14} />
+            Delete
+          </motion.button>
+        </motion.div>
+      )}
+    </div>
   );
 } 

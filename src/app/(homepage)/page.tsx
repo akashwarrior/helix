@@ -161,7 +161,7 @@ export default function HelixApp() {
     }
 
     // Cmd/Ctrl + E to enhance
-    if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'e') {
       e.preventDefault();
       handleEnhancePrompt();
     }

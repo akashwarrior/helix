@@ -202,7 +202,6 @@ export default function CodeEditor() {
 
   return (
     <div className="h-full flex flex-col bg-background">
-      {/* Enhanced Tab Bar */}
       <div className="h-11 bg-neutral-900 border-b border-neutral-700/50 flex items-center">
         {tabs.map((tab, index) => (
           <button
@@ -225,7 +224,6 @@ export default function CodeEditor() {
         ))}
       </div>
 
-      {/* Breadcrumb Navigation */}
       <div className="px-4 py-2 bg-neutral-900/40 flex items-center gap-1 text-xs">
         {activeTab.path.split('/').map((part, index, array) => (
           index < array.length - 1 ? (
@@ -239,7 +237,6 @@ export default function CodeEditor() {
         ))}
       </div>
 
-      {/* Monaco Editor */}
       <div className="flex-1 relative">
         <Editor
           value={code}
@@ -280,7 +277,6 @@ export default function CodeEditor() {
         />
       </div>
 
-      {/* Enhanced Status Bar */}
       <div className="h-7 bg-neutral-900 flex items-center justify-between px-4 text-xs text-white border-t border-neutral-700/50">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
