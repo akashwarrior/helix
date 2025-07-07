@@ -1,10 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
-import { ChevronRight, FileCode, Bug, Zap } from 'lucide-react';
+import { motion } from 'motion/react';
+import { ChevronRight, FileCode } from 'lucide-react';
 import { shikiToMonaco } from '@shikijs/monaco';
 import { createHighlighter } from 'shiki';
+import { useTheme } from 'next-themes';
+
 const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
 interface Tab {
@@ -169,15 +173,16 @@ body {
   }
 ];
 
-const themes = ['dark-plus'];
+const themes = ['dark-plus', 'light-plus'];
 const languages = ['tsx', 'jsx', 'css', 'html', 'json', 'ts', 'js', 'toml', 'md'];
 
 export default function CodeEditor() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [code, setCode] = useState(tabs[activeTabIndex].content);
+  const { theme } = useTheme()
 
+  const activeTheme = theme === 'light' ? themes[1] : themes[0];
   const activeTab = tabs[activeTabIndex];
-  const lineCount = code.split('\n').length;
 
   const handleTabChange = (index: number) => {
     setActiveTabIndex(index);
@@ -185,66 +190,99 @@ export default function CodeEditor() {
   };
 
   const getLanguageIcon = (language: string) => {
+    const iconProps = { size: 14 };
     switch (language) {
       case 'tsx':
-        return <FileCode size={14} className="text-blue-400" />;
+        return <FileCode {...iconProps} className="text-blue-400" />;
       case 'typescript':
-        return <FileCode size={14} className="text-blue-300" />;
+        return <FileCode {...iconProps} className="text-blue-300" />;
       case 'css':
-        return <FileCode size={14} className="text-purple-400" />;
+        return <FileCode {...iconProps} className="text-purple-400" />;
       case 'javascript':
       case 'jsx':
-        return <FileCode size={14} className="text-yellow-400" />;
+        return <FileCode {...iconProps} className="text-yellow-400" />;
       default:
-        return <FileCode size={14} className="text-gray-400" />;
+        return <FileCode {...iconProps} className="text-muted-foreground" />;
     }
   };
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      <div className="h-11 bg-neutral-900 border-b border-neutral-700/50 flex items-center">
-        {tabs.map((tab, index) => (
-          <button
-            key={tab.path}
-            onClick={() => handleTabChange(index)}
-            className={`
-                flex items-center gap-2 px-4 py-2 text-sm border-r border-neutral-700/40 transition-all duration-200 group
-                ${activeTabIndex !== index
-                ? 'bg-background text-white border-b-2 border-blue-400'
-                : 'text-gray-400 hover:text-white hover:bg-neutral-800/50'
-              }
-              `}
-          >
-            {getLanguageIcon(tab.language)}
-            <span>{tab.name}</span>
-            {tab.modified && (
-              <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-            )}
-          </button>
-        ))}
+    <div className="h-full flex flex-col bg-card border border-border/50 rounded-lg overflow-hidden">
+      <div className="bg-card border-b border-border/50 overflow-x-auto">
+        <div className="flex">
+          {tabs.map((tab, index) => (
+            <motion.button
+              key={tab.path}
+              onClick={() => handleTabChange(index)}
+              className={cn(
+                "relative flex items-center gap-2 px-4 py-3 text-sm border-r border-border/30",
+                "transition-all duration-200 group min-w-0 flex-shrink-0",
+                activeTabIndex === index
+                  ? 'bg-muted/50 text-foreground border-b-2 border-primary'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+              )}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.05 }}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {getLanguageIcon(tab.language)}
+              <span className="truncate max-w-[100px]">{tab.name}</span>
+              {tab.modified && (
+                <motion.div
+                  className="w-1.5 h-1.5 rounded-full bg-orange-400"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                />
+              )}
+            </motion.button>
+          ))}
+        </div>
       </div>
 
-      <div className="px-4 py-2 bg-neutral-900/40 flex items-center gap-1 text-xs">
+      <motion.div
+        className="px-4 py-2 bg-muted/20 border-b border-border/30 flex items-center gap-1 text-xs"
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
         {activeTab.path.split('/').map((part, index, array) => (
-          index < array.length - 1 ? (
-            <span key={index} className='flex items-center gap-1'>
-              <span className="text-muted hover:text-white">{part}</span>
-              <ChevronRight size={14} className="text-neutral-600" />
-            </span>
-          ) : (
-            <span key={index} className="text-white font-medium">{part}</span>
-          )
+          <motion.span
+            key={index}
+            className="flex items-center gap-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 + index * 0.05 }}
+          >
+            {index < array.length - 1 ? (
+              <>
+                <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
+                  {part}
+                </span>
+                <ChevronRight size={12} className="text-muted-foreground/50" />
+              </>
+            ) : (
+              <span className="text-foreground font-medium">{part}</span>
+            )}
+          </motion.span>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="flex-1 relative">
+      <motion.div
+        className="flex-1 relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
         <Editor
           value={code}
           language={activeTab.language}
-          theme="dark-plus"
+          theme={activeTheme}
           beforeMount={async (monaco) => {
             try {
-              const highlighter = createHighlighter({
+              const highlighter = await createHighlighter({
                 themes,
                 langs: languages,
               });
@@ -252,18 +290,18 @@ export default function CodeEditor() {
               monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
                 skipLibCheck: true,
               });
-
               languages.forEach((lang) => monaco.languages.register({ id: lang }));
-              shikiToMonaco((await highlighter), monaco);
+              shikiToMonaco(highlighter, monaco);
+              monaco.editor.setTheme(activeTheme)
             } catch (error) {
               console.error('Failed to setup Monaco editor:', error);
             }
           }}
           options={{
-            fontSize: 13.5,
+            fontSize: 14,
             fontFamily: "'Fira Code', 'Monaco', 'Cascadia Code', monospace",
             fontLigatures: true,
-            lineHeight: 20,
+            lineHeight: 22,
             minimap: { enabled: true },
             guides: {
               bracketPairs: true,
@@ -272,34 +310,16 @@ export default function CodeEditor() {
             quickSuggestionsDelay: 250,
             autoClosingBrackets: 'always',
             autoIndent: 'full',
-            padding: { top: 4, bottom: 4 }
+            padding: { top: 16, bottom: 16 },
+            scrollBeyondLastLine: false,
+            smoothScrolling: true,
+            cursorBlinking: 'smooth',
+            renderLineHighlight: 'all',
+            selectOnLineNumbers: true,
+            automaticLayout: true
           }}
         />
-      </div>
-
-      <div className="h-7 bg-neutral-900 flex items-center justify-between px-4 text-xs text-white border-t border-neutral-700/50">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-400"></div>
-            <span className="font-medium">{activeTab.language.toUpperCase()}</span>
-          </div>
-          <span>UTF-8</span>
-          <span>LF</span>
-          <span>Spaces: 2</span>
-          <div className="flex items-center gap-1">
-            <Bug size={12} className="text-green-400" />
-            <span>0 errors</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <span>Ln {lineCount}, Col 1</span>
-          <div className="flex items-center gap-1">
-            <Zap size={12} className="text-yellow-400" />
-            <span>{activeTab.language.toUpperCase()}</span>
-          </div>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 } 
