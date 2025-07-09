@@ -1,6 +1,6 @@
 import Header from '@/components/home/Header';
 import Sidebar from '@/components/home/Sidebar';
-import { authClient } from '@/lib/auth/auth-client';
+import { authClient } from '@/lib/auth';
 import prisma from '@/lib/db';
 
 export const revalidate = 300; // 5 minutes

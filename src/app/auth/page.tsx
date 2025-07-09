@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { authClient } from '@/lib/auth/auth-client'
+import { authClient } from '@/lib/auth'
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';

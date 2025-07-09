@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { useChat } from '@ai-sdk/react';
-import { authClient } from '@/lib/auth/auth-client';
+import { authClient } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/lib/type';
