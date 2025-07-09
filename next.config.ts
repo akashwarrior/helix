@@ -18,6 +18,24 @@ const nextConfig: NextConfig = {
     parallelServerCompiles: true,
     webpackBuildWorker: true,
   },
+
+  async headers() {
+    return [
+      {
+        source: '/chat/:path*',
+        headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

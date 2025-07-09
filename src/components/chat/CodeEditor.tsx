@@ -2,324 +2,312 @@
 
 import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronRight, FileCode } from 'lucide-react';
+import { ChevronRight, FileCode, X, Save, Loader2 } from 'lucide-react';
 import { shikiToMonaco } from '@shikijs/monaco';
 import { createHighlighter } from 'shiki';
 import { useTheme } from 'next-themes';
+import { useFileTabStore } from '@/store/fileTabStore';
+import { Button } from '@/components/ui/button';
+import type { WebContainer } from '@webcontainer/api';
+import type { Monaco } from '@monaco-editor/react';
 
 const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
-interface Tab {
-  name: string;
-  content: string;
-  language: string;
-  path: string;
-  modified?: boolean;
+const themes = ['dark-plus', 'light-plus'];
+const languages = ['tsx', 'jsx', 'css', 'html', 'json', 'ts', 'js', 'toml', 'md', 'yaml', 'sh'];
+
+const getLanguageFromExtension = (filename: string): string => {
+  const ext = filename.split('.').pop()?.toLowerCase();
+  const languageMap: Record<string, string> = {
+    'tsx': 'typescript',
+    'ts': 'typescript',
+    'jsx': 'javascript',
+    'js': 'javascript',
+    'css': 'css',
+    'html': 'html',
+    'json': 'json',
+    'md': 'markdown',
+    'yml': 'yaml',
+    'yaml': 'yaml',
+    'sh': 'shell',
+    'toml': 'toml'
+  };
+  return languageMap[ext || 'javascript'];
+};
+
+const getLanguageIcon = (language: string) => {
+  const iconProps = { size: 14 };
+  const iconMap: Record<string, React.ReactNode> = {
+    'tsx': <FileCode {...iconProps} className="text-blue-400" />,
+    'typescript': <FileCode {...iconProps} className="text-blue-400" />,
+    'css': <FileCode {...iconProps} className="text-purple-400" />,
+    'javascript': <FileCode {...iconProps} className="text-yellow-400" />,
+    'jsx': <FileCode {...iconProps} className="text-yellow-400" />,
+    'html': <FileCode {...iconProps} className="text-orange-400" />,
+    'json': <FileCode {...iconProps} className="text-green-400" />,
+    'markdown': <FileCode {...iconProps} className="text-gray-400" />
+  };
+  return iconMap[language] || <FileCode {...iconProps} className="text-muted-foreground" />;
+};
+
+interface TabProps {
+  tab: {
+    path: string;
+    name: string;
+    modified: boolean;
+    active: boolean;
+  };
+  onTabChange: (path: string) => void;
+  onTabClose: (path: string, e: React.MouseEvent) => void;
 }
 
-const tabs: Tab[] = [
-  {
-    name: 'App.tsx',
-    path: 'todo-app/src/App.tsx',
-    language: 'tsx',
-    modified: true,
-    content: `import { useState } from "react";
-
-interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
-function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState("");
-
-  const handleAddTodo = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newTodo.trim()) {
-      setTodos([...todos, {
-        id: Date.now(),
-        text: newTodo.trim(),
-        completed: false
-      }]);
-      setNewTodo("");
-    }
-  };
-
-  const handleRemove = (idx: number) => {
-    setTodos(todos.filter((_, i) => i !== idx));
-  };
+function Tab({ tab, onTabChange, onTabClose }: TabProps) {
+  const handleClick = () => onTabChange(tab.path);
+  const handleClose = (e: React.MouseEvent) => onTabClose(tab.path, e);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-8">Todo App</h1>
-        
-        <form onSubmit={handleAddTodo} className="flex gap-2 mb-8">
-          <input
-            className="border border-gray-400 rounded px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-zinc-400"
-            type="text"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="Add a new todo..."
-          />
-          <button
-            type="submit"
-            className="px-3 py-2 w-64 bg-black text-white rounded"
-          >
-            Add
-          </button>
-        </form>
+    <motion.div
+      className={cn(
+        "relative flex items-center gap-3 px-4 py-3 text-sm h-max",
+        "transition-[border, width] duration-200 group min-w-0 flex-shrink-0",
+        tab.active
+          ? 'bg-muted/50 text-foreground border-b-2 border-primary'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+      )}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={handleClick}
+    >
 
-        {todos.length === 0 ? (
-          <p className="text-center text-gray-500">No todos yet.</p>
-        ) : (
-          todos.map((todo, idx) => (
-            <div key={todo.id} className="flex items-center justify-between p-2 border-b">
-              <span>{todo.text}</span>
-              <button
-                onClick={() => handleRemove(idx)}
-                className="text-red-500 hover:text-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          ))
-        )}
-      </div>
+      {getLanguageIcon(getLanguageFromExtension(tab.name))}
+      <span className="truncate max-w-[120px]">{tab.name}</span>
+
+      <div className={cn("w-1.5 rounded-full bg-orange-400 transition-height duration-200 mx-auto",
+        tab.modified ? "h-1.5" : "h-0")}
+      />
+
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={handleClose}
+        className="h-4 w-4 hover:bg-destructive/20 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <X size={12} />
+      </Button>
+    </motion.div>
+  );
+};
+
+const Breadcrumb = ({ path }: { path: string }) => {
+  const parts = path.split('/');
+
+  return (
+    <div className="flex items-center gap-1 py-2">
+      {parts.map((part, index) => (
+        <motion.span
+          key={index}
+          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 + index * 0.05 }}
+        >
+          {index < parts.length - 1 ? (
+            <>
+              {part}
+              <ChevronRight size={12} className="text-muted-foreground/50" />
+            </>
+          ) : (
+            <span className="text-foreground">{part}</span>
+          )}
+        </motion.span>
+      ))}
     </div>
   );
-}
+};
 
-export default App;`
-  },
-  {
-    name: 'types.ts',
-    path: 'todo-app/src/types.ts',
-    language: 'typescript',
-    content: `export interface Todo {
-  id: number;
-  text: string;
-  completed: boolean;
-  createdAt: Date;
-}
+export default function CodeEditor({ webContainer }: { webContainer: WebContainer }) {
+  const { fileTabs, setActiveTab, setModified, setFileTabs } = useFileTabStore();
+  const { theme } = useTheme();
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const fileContent = useRef<string>('');
 
-export type TodoFilter = 'all' | 'active' | 'completed';
-
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
-}
-
-export const TODO_STATUSES = {
-  PENDING: 'pending',
-  COMPLETED: 'completed',
-  ARCHIVED: 'archived'
-} as const;
-
-export type TodoStatus = typeof TODO_STATUSES[keyof typeof TODO_STATUSES];`
-  },
-  {
-    name: 'index.css',
-    path: 'todo-app/src/index.css',
-    language: 'css',
-    content: `@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-}
-
-.btn-primary {
-  @apply px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors;
-}
-
-.todo-item {
-  @apply flex items-center justify-between p-4 border-b border-gray-200 hover:bg-gray-50;
-}
-
-.todo-item:last-child {
-  border-bottom: none;
-}
-
-@media (max-width: 768px) {
-  .todo-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-}`
-  }
-];
-
-const themes = ['dark-plus', 'light-plus'];
-const languages = ['tsx', 'jsx', 'css', 'html', 'json', 'ts', 'js', 'toml', 'md'];
-
-export default function CodeEditor() {
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const [code, setCode] = useState(tabs[activeTabIndex].content);
-  const { theme } = useTheme()
-
+  const activeTab = fileTabs.find(tab => tab.active);
   const activeTheme = theme === 'light' ? themes[1] : themes[0];
-  const activeTab = tabs[activeTabIndex];
 
-  const handleTabChange = (index: number) => {
-    setActiveTabIndex(index);
-    setCode(tabs[index].content);
-  };
+  useEffect(() => {
+    if (!activeTab || fileContent.current) {
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
 
-  const getLanguageIcon = (language: string) => {
-    const iconProps = { size: 14 };
-    switch (language) {
-      case 'tsx':
-        return <FileCode {...iconProps} className="text-blue-400" />;
-      case 'typescript':
-        return <FileCode {...iconProps} className="text-blue-300" />;
-      case 'css':
-        return <FileCode {...iconProps} className="text-purple-400" />;
-      case 'javascript':
-      case 'jsx':
-        return <FileCode {...iconProps} className="text-yellow-400" />;
-      default:
-        return <FileCode {...iconProps} className="text-muted-foreground" />;
+    (async () => {
+      try {
+        const content = await webContainer.fs.readFile(activeTab.path, 'utf-8');
+        fileContent.current = content;
+      } catch (err) {
+        console.error('Failed to load file:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load file');
+        fileContent.current = '';
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [activeTab, webContainer]);
+
+
+  const saveFile = async (path: string) => {
+    try {
+      await webContainer.fs.writeFile(path, fileContent.current);
+      setModified(path, false);
+    } catch (err) {
+      console.error('Failed to save file:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save file');
+    }
+  }
+
+  const handleEditorChange = (value?: string) => {
+    if (!value || !activeTab) return;
+
+    fileContent.current = value;
+    if (!activeTab.modified) {
+      setModified(activeTab.path, true);
+    }
+  }
+
+  const handleTabChange = (path: string) => setActiveTab(path);
+
+  const handleTabClose = (path: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const newTabs = fileTabs.filter(tab => tab.path !== path);
+
+    if (newTabs.length === 0) {
+      setFileTabs([]);
+    } else if (activeTab?.path === path) {
+      const lastTab = newTabs[newTabs.length - 1];
+      const updatedTabs = newTabs.map(tab => ({
+        ...tab,
+        active: tab.path === lastTab.path
+      }));
+      setFileTabs(updatedTabs);
+    } else {
+      setFileTabs(newTabs);
+    }
+  }
+
+  const monacoBeforeMount = async (monaco: Monaco) => {
+    try {
+      const highlighter = createHighlighter({
+        themes,
+        langs: languages,
+      });
+
+      languages.forEach((lang) => monaco.languages.register({ id: lang }));
+      shikiToMonaco(await (highlighter), monaco);
+      monaco.editor.setTheme(activeTheme);
+    } catch (error) {
+      console.error('Failed to setup Monaco editor:', error);
     }
   };
+
+
+  if (!activeTab) {
+    return (
+      <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
+        <div className="text-center text-muted-foreground">
+          <FileCode size={48} className="mx-auto mb-4 opacity-50" />
+          <p className="text-lg">No file selected</p>
+          <p className="text-sm">Open a file from the explorer to start editing</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-card border border-border/50 rounded-lg overflow-hidden">
-      <div className="bg-card border-b border-border/50 overflow-x-auto">
-        <div className="flex">
-          {tabs.map((tab, index) => (
-            <motion.button
-              key={tab.path}
-              onClick={() => handleTabChange(index)}
-              className={cn(
-                "relative flex items-center gap-2 px-4 py-3 text-sm border-r border-border/30",
-                "transition-all duration-200 group min-w-0 flex-shrink-0",
-                activeTabIndex === index
-                  ? 'bg-muted/50 text-foreground border-b-2 border-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-              )}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: index * 0.05 }}
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
+      <div className="border-b border-border/50 overflow-x-auto flex overflow-y-hidden relative h-fit">
+        {fileTabs.map((tab) => (
+          <Tab
+            key={tab.path}
+            tab={tab}
+            onTabChange={handleTabChange}
+            onTabClose={handleTabClose}
+          />
+        ))}
+      </div>
+
+      <div className="px-4 bg-muted/20 border-b border-border/30 flex items-center justify-between text-xs">
+        <Breadcrumb path={activeTab.path} />
+
+        <div className="flex items-center gap-2">
+          {isLoading && (
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Loader2 size={12} className="animate-spin" />
+              <span>Loading...</span>
+            </div>
+          )}
+          {activeTab.modified && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => saveFile(activeTab.path)}
+              className="h-6 px-2 text-xs hover:bg-primary/10"
             >
-              {getLanguageIcon(tab.language)}
-              <span className="truncate max-w-[100px]">{tab.name}</span>
-              {tab.modified && (
-                <motion.div
-                  className="w-1.5 h-1.5 rounded-full bg-orange-400"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                />
-              )}
-            </motion.button>
-          ))}
+              <Save size={12} className="mr-1" />
+              Save
+            </Button>
+          )}
         </div>
       </div>
 
-      <motion.div
-        className="px-4 py-2 bg-muted/20 border-b border-border/30 flex items-center gap-1 text-xs"
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        {activeTab.path.split('/').map((part, index, array) => (
-          <motion.span
-            key={index}
-            className="flex items-center gap-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 + index * 0.05 }}
-          >
-            {index < array.length - 1 ? (
-              <>
-                <span className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                  {part}
-                </span>
-                <ChevronRight size={12} className="text-muted-foreground/50" />
-              </>
-            ) : (
-              <span className="text-foreground font-medium">{part}</span>
-            )}
-          </motion.span>
-        ))}
-      </motion.div>
-
-      <motion.div
-        className="flex-1 relative"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
-        <Editor
-          value={code}
-          language={activeTab.language}
-          theme={activeTheme}
-          beforeMount={async (monaco) => {
-            try {
-              const highlighter = await createHighlighter({
-                themes,
-                langs: languages,
-              });
-
-              monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-                skipLibCheck: true,
-              });
-              languages.forEach((lang) => monaco.languages.register({ id: lang }));
-              shikiToMonaco(highlighter, monaco);
-              monaco.editor.setTheme(activeTheme)
-            } catch (error) {
-              console.error('Failed to setup Monaco editor:', error);
-            }
-          }}
-          options={{
-            fontSize: 14,
-            fontFamily: "'Fira Code', 'Monaco', 'Cascadia Code', monospace",
-            fontLigatures: true,
-            lineHeight: 22,
-            minimap: { enabled: true },
-            guides: {
-              bracketPairs: true,
-              indentation: true
-            },
-            quickSuggestionsDelay: 250,
-            autoClosingBrackets: 'always',
-            autoIndent: 'full',
-            padding: { top: 16, bottom: 16 },
-            scrollBeyondLastLine: false,
-            smoothScrolling: true,
-            cursorBlinking: 'smooth',
-            renderLineHighlight: 'all',
-            selectOnLineNumbers: true,
-            automaticLayout: true
-          }}
-        />
-      </motion.div>
+      <div className="flex-1 relative">
+        {error ? (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center text-destructive">
+              <p className="font-medium">Failed to load file</p>
+              <p className="text-sm text-muted-foreground mt-1">{error}</p>
+            </div>
+          </div>
+        ) : isLoading ? (
+          <div className="h-full flex items-center justify-center">
+            <div className="text-center text-muted-foreground">
+              <Loader2 size={32} className="mx-auto mb-4 animate-spin" />
+              <p>Loading file...</p>
+            </div>
+          </div>
+        ) : (
+          <Editor
+            value={fileContent.current}
+            language={getLanguageFromExtension(activeTab.name)}
+            theme={activeTheme}
+            onChange={handleEditorChange}
+            beforeMount={monacoBeforeMount}
+            options={{
+              fontSize: 14,
+              fontFamily: "'Fira Code', 'Monaco', 'Cascadia Code', monospace",
+              fontLigatures: true,
+              lineHeight: 22,
+              minimap: { enabled: false },
+              guides: {
+                bracketPairs: true,
+                indentation: true
+              },
+              autoClosingBrackets: 'always',
+              autoIndent: 'full',
+              padding: { top: 16, bottom: 16 },
+              scrollBeyondLastLine: false,
+              smoothScrolling: true,
+              cursorBlinking: 'smooth',
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 } 

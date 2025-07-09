@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { smoothStream, streamText } from "ai";
 import { google } from '@ai-sdk/google';
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 
 export const maxDuration = 300; // 5 minutes
 

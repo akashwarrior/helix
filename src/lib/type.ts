@@ -3,10 +3,9 @@ export interface ErrorState {
     message: string;
 }
 
-
 export interface FileNode {
     name: string;
     type: 'file' | 'folder';
     children?: FileNode[];
     path: string;
-  }
+}
