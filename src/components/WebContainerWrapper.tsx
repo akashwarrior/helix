@@ -46,9 +46,51 @@ const tabs: Tab[] = [
 export default function WebContainerWrapper() {
     const { isChatOpen, setIsChatOpen } = useIsChatOpen();
     const [activeView, setActiveView] = useState<Tab['name']>('Preview');
-    const { webContainer } = useWebContainer();
+    const { isReady, webContainer } = useWebContainer();
 
     const toggleChat = () => setIsChatOpen(!isChatOpen);
+
+    if (!isReady) {
+        return (
+            <div className="flex-1 flex flex-col min-w-0">
+                <header className="h-14 bg-background/80 backdrop-blur-xl flex items-center justify-between px-3">
+                    <div className="flex items-center gap-4">
+                        <div className="h-9 w-9 bg-muted rounded-md animate-pulse" />
+
+                        <nav className="flex items-center bg-muted/50 rounded-lg p-1 backdrop-blur-sm">
+                            {tabs.map((tab, index) => (
+                                <div
+                                    key={index}
+                                    className="px-3 py-2 flex items-center gap-2"
+                                >
+                                    <div className="h-4 w-4 bg-muted rounded animate-pulse" />
+                                    <div className="hidden sm:block h-4 w-12 bg-muted rounded animate-pulse" />
+                                </div>
+                            ))}
+                        </nav>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <div className="h-9 w-9 bg-muted rounded-md animate-pulse" />
+                        <div className="h-9 w-9 bg-muted rounded-md animate-pulse" />
+                        <div className="h-9 w-20 bg-muted rounded-md animate-pulse" />
+                    </div>
+                </header>
+
+                <main className="flex-1 flex overflow-hidden min-h-0">
+                    <section className="flex-1 bg-background flex flex-col p-6">
+                        <div className="flex flex-col items-center justify-center h-full space-y-4">
+                            <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                            <div className="space-y-2 text-center">
+                                <div className="h-6 w-48 bg-muted rounded animate-pulse mx-auto" />
+                                <div className="h-4 w-64 bg-muted/70 rounded animate-pulse mx-auto" />
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        );
+    }
 
     return (
         <div className="flex-1 flex flex-col min-w-0">

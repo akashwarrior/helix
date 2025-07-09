@@ -178,7 +178,10 @@ const FileTree = ({ webContainer }: { webContainer: WebContainer }) => {
     const expandedCopy = new Set(expandedFolders);
     const filtered = filterFiles(fileTree, expandedCopy, debouncedQuery);
 
-    setExpandedFolders(expandedCopy);
+    if (debouncedQuery) {
+      setExpandedFolders(expandedCopy);
+    }
+
     return filtered;
   }, [debouncedQuery, fileTree, expandedFolders]);
 

@@ -10,7 +10,7 @@ export interface UseWebContainerReturn {
 
 export function useWebContainer(): UseWebContainerReturn {
     const [webContainer, setWebContainer] = useState<WebContainer>();
-    const [isReady, setIsReady] = useState(true);
+    const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const setPreviewUrl = usePreviewUrlStore(state => state.setPreviewUrl)
