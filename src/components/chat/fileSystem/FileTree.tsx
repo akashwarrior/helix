@@ -165,8 +165,8 @@ const FileTree = ({ webContainer }: { webContainer: WebContainer }) => {
           await webContainer.fs.readdir(newPath);
         }
         throw new Error(`${type === 'file' ? 'File' : 'Folder'} already exists`);
-      } catch (error: any) {
-        if (error.message && error.message.includes('already exists')) {
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('already exists')) {
           throw error;
         }
       }

@@ -189,7 +189,7 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
       observer?.disconnect();
       observer = null;
     };
-  }, [webContainer]);
+  }, [webContainer, terminalTheme]);
 
   const clearTerminal = () => {
     if (terminal.current) {

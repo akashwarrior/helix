@@ -4,7 +4,6 @@ export const filterFiles = (nodes: FileNode[], searchQuery: string): { filtered:
   if (!searchQuery) return { filtered: nodes, toExpand: new Set() };
 
   const q = searchQuery.toLowerCase();
-  const result: FileNode[] = [];
   const toExpand = new Set<string>();
 
   const recurse = (currentNodes: FileNode[]): FileNode[] => {
