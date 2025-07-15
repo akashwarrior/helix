@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { useChat } from '@ai-sdk/react';
-import { authClient } from '@/lib/auth-client';
+import { authClient } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/lib/type';
@@ -161,7 +161,7 @@ export default function HelixApp() {
     }
 
     // Cmd/Ctrl + E to enhance
-    if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'e') {
       e.preventDefault();
       handleEnhancePrompt();
     }

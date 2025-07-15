@@ -1,8 +1,8 @@
 import { streamText } from "ai";
 import { model } from "@/lib/model";
-import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/db";
 
 export const maxDuration = 300; // 5 minutes (max duration for free plan)
 
