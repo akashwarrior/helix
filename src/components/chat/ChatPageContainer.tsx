@@ -9,7 +9,7 @@ import { useWebContainer } from '@/hook/useWebContainer';
 import CodeEditor from '@/components/chat/CodeEditor';
 import Terminal from '@/components/chat/Terminal';
 import Preview from '@/components/chat/Preview';
-import FileTree from '@/components/chat/FileTree';
+import FileTree from '@/components/chat/fileSystem/FileTree';
 
 import {
     Code2,
@@ -43,12 +43,14 @@ const tabs: Tab[] = [
 ];
 
 
-export default function WebContainerWrapper() {
+export default function ChatPageContainer() {
     const { isChatOpen, setIsChatOpen } = useIsChatOpen();
-    const [activeView, setActiveView] = useState<Tab['name']>('Preview');
+    const [activeView, setActiveView] = useState<Tab['name']>('Editor');
     const { isReady, webContainer } = useWebContainer();
 
     const toggleChat = () => setIsChatOpen(!isChatOpen);
+
+    console.log(webContainer)
 
     if (!isReady) {
         return (
@@ -94,7 +96,7 @@ export default function WebContainerWrapper() {
 
     return (
         <div className="flex-1 flex flex-col min-w-0">
-            <header className="h-14 bg-background/80 backdrop-blur-xl flex items-center justify-between px-3">
+            <header className="h-14 bg-card/70 backdrop-blur-xl flex items-center justify-between px-3">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
@@ -115,8 +117,8 @@ export default function WebContainerWrapper() {
                                 onClick={() => setActiveView(tab.name)}
                                 className={cn(
                                     'px-3 py-2 text-sm font-medium transition-all flex items-center gap-2',
-                                    activeView === tab.name && 'bg-background shadow-sm text-foreground hover:bg-background/40',
-                                    activeView !== tab.name && 'text-muted-foreground hover:text-foreground'
+                                    activeView === tab.name ? 'bg-background/70 shadow-sm text-foreground hover:bg-background/40'
+                                        : 'text-muted-foreground hover:text-foreground'
                                 )}
                             >
                                 {tab.icon}
@@ -151,7 +153,7 @@ export default function WebContainerWrapper() {
             <main className="flex-1 flex overflow-hidden min-h-0">
                 {activeView === 'Editor' && <FileTree webContainer={webContainer} />}
 
-                <section className="flex-1 bg-background flex flex-col">
+                <section className="flex-1 bg-background flex flex-col overflow-hidden">
                     {activeView === 'Preview' && <Preview />}
                     {activeView === 'Editor' && <CodeEditor webContainer={webContainer} />}
                     {activeView === 'Terminal' && <Terminal webContainer={webContainer} />}

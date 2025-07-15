@@ -9,6 +9,7 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -29,6 +30,8 @@ import {
     Hash,
     Palette,
     Globe,
+    Plus,
+    FolderPlus,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -134,6 +137,19 @@ const SearchHighlight = ({ text, searchQuery }: { text: string; searchQuery: str
     return <span dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
+interface FileTreeNodeProps {
+    node: FileNode;
+    depth: number;
+    isExpanded: boolean;
+    isSelected: boolean;
+    searchQuery: string;
+    onItemClick: (node: FileNode) => void;
+    onCreateFile: (targetDir: string) => void;
+    onCreateFolder: (targetDir: string) => void;
+    onRename: (node: FileNode) => void;
+    onDelete: (node: FileNode) => void;
+}
+
 const FileTreeNode = ({
     node,
     depth,
@@ -141,14 +157,31 @@ const FileTreeNode = ({
     isSelected,
     searchQuery,
     onItemClick,
-}: {
-    node: FileNode;
-    depth: number;
-    isExpanded: boolean;
-    isSelected: boolean;
-    searchQuery: string;
-    onItemClick: (node: FileNode) => void;
-}) => {
+    onCreateFile,
+    onCreateFolder,
+    onRename,
+    onDelete,
+}: FileTreeNodeProps) => {
+
+    const handleCreateFile = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onCreateFile(node.path);
+    };
+
+    const handleCreateFolder = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onCreateFolder(node.path);
+    };
+
+    const handleRename = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onRename(node);
+    };
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onDelete(node);
+    };
 
     return (
         <div
@@ -193,11 +226,36 @@ const FileTreeNode = ({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48 bg-popover/95 backdrop-blur-sm border-border/50">
-                    <DropdownMenuItem className="hover:bg-accent/50 focus:bg-accent/50">
+                    {node.type === 'folder' && (
+                        <>
+                            <DropdownMenuItem
+                                className="hover:bg-accent/50 focus:bg-accent/50"
+                                onClick={handleCreateFile}
+                            >
+                                <Plus size={16} className="mr-2" />
+                                New File
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="hover:bg-accent/50 focus:bg-accent/50"
+                                onClick={handleCreateFolder}
+                            >
+                                <FolderPlus size={16} className="mr-2" />
+                                New Folder
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                        </>
+                    )}
+                    <DropdownMenuItem
+                        className="hover:bg-accent/50 focus:bg-accent/50"
+                        onClick={handleRename}
+                    >
                         <Edit3 size={16} className="mr-2" />
                         Rename
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive">
+                    <DropdownMenuItem
+                        className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
+                        onClick={handleDelete}
+                    >
                         <Trash2 size={16} className="mr-2" />
                         Delete
                     </DropdownMenuItem>

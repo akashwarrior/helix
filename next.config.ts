@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
     parallelServerCompiles: true,
     webpackBuildWorker: true,
   },
+  transpilePackages: ["monaco-editor"],
 
   async headers() {
     return [

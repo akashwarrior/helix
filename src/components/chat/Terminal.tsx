@@ -10,27 +10,27 @@ import type { Terminal as TerminalType, IDisposable } from '@xterm/xterm';
 import '@xterm/xterm/css/xterm.css';
 
 const getTerminalTheme = (theme: string | undefined) => ({
-  background: theme === 'dark' ? '#09090b' : '#ffffff',
-  foreground: theme === 'dark' ? '#f4f4f5' : '#09090b',
-  cursor: theme === 'dark' ? '#f4f4f5' : '#09090b',
-  cursorAccent: theme === 'dark' ? '#09090b' : '#ffffff',
-  selectionBackground: theme === 'dark' ? '#27272a' : '#e4e4e7',
-  black: theme === 'dark' ? '#18181b' : '#71717a',
+  background: '#00000000',
+  foreground: theme !== 'light' ? '#f4f4f5' : '#09090b',
+  cursor: theme !== 'light' ? '#f4f4f5' : '#09090b',
+  cursorAccent: theme !== 'light' ? '#09090b' : '#ffffff',
+  selectionBackground: theme !== 'light' ? '#27272a' : '#e4e4e7',
+  black: theme !== 'light' ? '#18181b' : '#71717a',
   red: '#ef4444',
   green: '#22c55e',
   yellow: '#eab308',
   blue: '#3b82f6',
   magenta: '#a855f7',
   cyan: '#06b6d4',
-  white: theme === 'dark' ? '#f4f4f5' : '#09090b',
-  brightBlack: theme === 'dark' ? '#71717a' : '#a1a1aa',
+  white: theme !== 'light' ? '#f4f4f5' : '#09090b',
+  brightBlack: theme !== 'light' ? '#71717a' : '#a1a1aa',
   brightRed: '#f87171',
   brightGreen: '#4ade80',
   brightYellow: '#facc15',
   brightBlue: '#60a5fa',
   brightMagenta: '#c084fc',
   brightCyan: '#22d3ee',
-  brightWhite: theme === 'dark' ? '#ffffff' : '#18181b',
+  brightWhite: theme !== 'light' ? '#ffffff' : '#18181b',
 });
 
 const TerminalHeader = ({
@@ -42,14 +42,14 @@ const TerminalHeader = ({
   onClear: () => void;
   onRestart: () => void;
 }) => (
-  <div className="px-4 py-2 bg-muted/20 border-b border-border/30 flex items-center justify-between">
+  <div className="px-4 py-2.5 bg-card/50 backdrop-blur-md border-b border-border/20 flex items-center justify-between shadow-sm">
     <div className="flex items-center gap-2">
       <TerminalIcon className="h-4 w-4 text-muted-foreground" />
-      <span className="text-sm font-medium">Terminal</span>
+      <span className="text-sm font-medium bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">Terminal</span>
       {isConnected && (
         <div className="flex items-center gap-1.5">
           <motion.div
-            className="h-2 w-2 bg-green-500 rounded-full"
+            className="h-2 w-2 bg-green-500 rounded-full shadow-sm"
             animate={{ opacity: [1, 0.5, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
@@ -63,7 +63,7 @@ const TerminalHeader = ({
         variant="ghost"
         size="sm"
         onClick={onClear}
-        className="h-7 w-7 p-0 hover:bg-accent/50 hover:scale-105 active:scale-95 transition-all duration-200"
+        className="h-7 w-7 p-0 hover:bg-muted/30 hover:scale-105 active:scale-95 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
         title="Clear Terminal"
       >
         <Trash2 className="h-3 w-3" />
@@ -73,7 +73,7 @@ const TerminalHeader = ({
         variant="ghost"
         size="sm"
         onClick={onRestart}
-        className="h-7 w-7 p-0 hover:bg-accent/50 hover:scale-105 active:scale-95 transition-all duration-200"
+        className="h-7 w-7 p-0 hover:bg-muted/30 hover:scale-105 active:scale-95 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
         title="Restart Shell"
       >
         <RotateCcw className="h-3 w-3" />
@@ -90,8 +90,9 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
   const { theme } = useTheme();
 
   const terminalTheme = getTerminalTheme(theme);
-
-  const clearTerminal = () => terminal.current?.clear();
+  if (terminal.current) {
+    terminal.current.options.theme = terminalTheme;
+  }
 
   const cleanupShell = () => {
     if (inputHandlerRef.current) {
@@ -110,7 +111,7 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
       const process = await webContainer.spawn('bash', [], {
         terminal: {
           cols: terminal.current.cols,
-          rows: terminal.current.rows
+          rows: terminal.current.rows,
         }
       });
 
@@ -148,13 +149,6 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
     }
   };
 
-  const restartShell = async () => {
-    cleanupShell();
-    clearTerminal();
-    terminal.current?.write('\r\n\x1b[33mRestarting shell...\x1b[0m\r\n');
-    startShell();
-  };
-
   useEffect(() => {
     if (!terminalRef.current || terminal.current) return;
     let observer: ResizeObserver | null = null;
@@ -168,18 +162,13 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
         convertEol: true,
         fontFamily: "'Fira Code', 'Monaco', 'Cascadia Code', monospace",
         fontSize: 14,
-        lineHeight: 1.4,
+        lineHeight: 1.5,
         theme: terminalTheme,
-        scrollback: 1000,
-        rows: 24,
-        cols: 80,
       });
 
       const fit = new FitAddon();
       xterm.loadAddon(fit);
       xterm.open(terminalRef.current!);
-      fit.fit();
-
 
       observer = new ResizeObserver(() => {
         fit.fit();
@@ -193,7 +182,6 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
     };
     initTerminal()
 
-
     return () => {
       cleanupShell();
       terminal.current?.dispose();
@@ -203,12 +191,27 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
     };
   }, [webContainer]);
 
+  const clearTerminal = () => {
+    if (terminal.current) {
+      terminal.current.clear();
+    }
+  };
+
+  const restartShell = async () => {
+    cleanupShell();
+    if (terminal.current) {
+      terminal.current.clear();
+      terminal.current.write('\r\n\x1b[33mRestarting shell...\x1b[0m\r\n');
+      await startShell();
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col bg-card border border-border/50 rounded-lg overflow-hidden"
+      className="flex-1 flex flex-col bg-card/70 backdrop-blur-md border border-border/20 rounded-2xl overflow-hidden shadow-lg shadow-black/5 dark:shadow-black/10"
     >
       <TerminalHeader
         isConnected={isConnected}
@@ -216,10 +219,22 @@ export default function Terminal({ webContainer }: { webContainer: WebContainer 
         onRestart={restartShell}
       />
 
-      <div
-        ref={terminalRef}
-        className="w-full p-2 flex-1"
-      />
+      <div className='flex-1 flex flex-col overflow-hidden bg-background/80'>
+        <div
+          ref={terminalRef}
+          className="min-h-0 p-4 flex-1 mb-5"
+        />
+      </div>
+
+      <div className="px-4 py-3 bg-card/30 backdrop-blur-sm border-t border-border/10">
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            {isConnected && <div className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse shadow-sm"></div>}
+            <span className="font-mono">Terminal ready</span>
+          </div>
+          <span className="text-muted-foreground/70">Type commands here ↑</span>
+        </div>
+      </div>
     </motion.div>
   );
 };

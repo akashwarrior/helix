@@ -140,7 +140,7 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
   const activeTheme = theme === 'light' ? themes[1] : themes[0];
 
   useEffect(() => {
-    if (!activeTab || fileContent.current) {
+    if (!activeTab) {
       return;
     }
     setIsLoading(true);
@@ -158,7 +158,7 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
         setIsLoading(false);
       }
     })();
-  }, [activeTab, webContainer]);
+  }, [activeTab?.path, webContainer]);
 
 
   const saveFile = async (path: string) => {
