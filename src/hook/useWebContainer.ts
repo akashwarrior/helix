@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { WebContainer } from '@webcontainer/api';
 import { usePreviewUrlStore } from '@/store/previewUrlStore';
+import type { Code } from '@prisma/client';
 
 export interface UseWebContainerReturn {
     isReady: boolean;
@@ -8,7 +9,7 @@ export interface UseWebContainerReturn {
     webContainer: WebContainer;
 }
 
-export function useWebContainer(): UseWebContainerReturn {
+export function useWebContainer(code: Code[]): UseWebContainerReturn {
     const [webContainer, setWebContainer] = useState<WebContainer>();
     const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -16,6 +17,8 @@ export function useWebContainer(): UseWebContainerReturn {
     const setPreviewUrl = usePreviewUrlStore(state => state.setPreviewUrl)
 
     useEffect(() => {
+        if (code.length === 0) return;
+
         let container: WebContainer;
         (async () => {
             try {
@@ -31,7 +34,7 @@ export function useWebContainer(): UseWebContainerReturn {
         })();
 
         return () => container.teardown();
-    }, []);
+    }, [code]);
 
     return {
         isReady,

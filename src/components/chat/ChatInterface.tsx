@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'motion/react';
-import { useChat } from '@ai-sdk/react';
+import { Message, useChat } from '@ai-sdk/react';
 import { ArrowUp, RotateCcw, Loader2, Check, Clipboard } from 'lucide-react';
 import { useIsChatOpen } from '@/store/isChatOpen';
 
@@ -51,10 +51,11 @@ const LoadingIndicator = () => (
   </div>
 );
 
-export default function ChatInterface() {
+export default function ChatInterface({ initialMessages }: { initialMessages: Message[] }) {
   const isChatOpen = useIsChatOpen(state => state.isChatOpen);
   const { messages, handleInputChange, handleSubmit, status } = useChat({
     api: '/api/chat',
+    initialMessages,
   });
 
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
@@ -80,6 +81,7 @@ export default function ChatInterface() {
     textareaRef.current!.value = '';
     handleSubmit(e);
     adjustTextareaHeight();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleCopy = async (messageId: string, content: string) => {
@@ -92,26 +94,17 @@ export default function ChatInterface() {
     }
   };
 
-  const handleInputChangeWithHeight = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleInputChange(e);
-    adjustTextareaHeight();
-  };
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const isCtrlKey = e.ctrlKey || e.metaKey;
     if (isCtrlKey && e.key === 'Enter') {
       e.preventDefault();
       handleChatSubmit(e);
     }
-
-    if (isCtrlKey && e.key.toLowerCase() === 'e') {
-      e.preventDefault();
-    }
   };
 
   return (
     <div className={cn("border-r border-border/20 overflow-hidden bg-card/70 backdrop-blur-md transition-all duration-300 shadow-lg shadow-black/5 dark:shadow-black/10",
-      isChatOpen ? "w-96" : "w-0")}
+      isChatOpen ? "w-full" : "w-0")}
     >
       <div className="flex flex-col h-full bg-gradient-to-b from-background/80 to-background/95 backdrop-blur-sm">
         <div className="px-6 py-4 border-b border-border/20 bg-card/50 backdrop-blur-md shadow-sm">
@@ -120,7 +113,7 @@ export default function ChatInterface() {
           </h1>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-6 px-4 lg:px-6">
+        <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-6 px-4 lg:px-6 max-w-4xl w-full mx-auto">
           {messages.map(({ id, role, content }) => (
             <div
               key={id}
@@ -162,7 +155,7 @@ export default function ChatInterface() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4">
+        <div className="p-4 max-w-4xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -175,7 +168,10 @@ export default function ChatInterface() {
           >
             <textarea
               ref={textareaRef}
-              onChange={handleInputChangeWithHeight}
+              onChange={(e) => {
+                handleInputChange(e);
+                adjustTextareaHeight();
+              }}
               onKeyDown={handleKeyDown}
               placeholder="Ask Helix anything..."
               className="w-full bg-transparent placeholder:text-muted-foreground/70 text-foreground p-4 pr-12 resize-none focus:outline-none min-h-16 max-h-32 leading-relaxed focus:placeholder-muted-foreground/50"

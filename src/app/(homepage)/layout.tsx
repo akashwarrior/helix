@@ -1,12 +1,15 @@
 import Header from '@/components/home/Header';
 import Sidebar from '@/components/home/Sidebar';
-import { authClient } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export const revalidate = 300; // 5 minutes
 
 export default async function HomeLayout({ children }: { children: React.ReactNode }) {
-  const { data: session } = await authClient.getSession();
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   let projects: { id: string, name: string }[] = [];
   if (session?.user) {
     projects = await prisma.project.findMany({
