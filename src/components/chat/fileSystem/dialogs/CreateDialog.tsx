@@ -11,7 +11,7 @@ interface CreateDialogProps {
   type: 'file' | 'folder';
   targetDir: string;
   onClose: () => void;
-  onCreate: (name: string, targetDir: string) => void;
+  onCreate: (name: string, targetDir: string) => Promise<void>;
 }
 
 export const CreateDialog = ({ isOpen, type, targetDir, onClose, onCreate }: CreateDialogProps) => {
@@ -60,11 +60,12 @@ export const CreateDialog = ({ isOpen, type, targetDir, onClose, onCreate }: Cre
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Input
-              placeholder={type === 'file' ? 'Enter file name (e.g., script.js)' : 'Enter folder name'}
+              autoFocus
+              name='create-input'
               value={name}
+              placeholder={type === 'file' ? 'Enter file name (e.g., script.js)' : 'Enter folder name'}
               onChange={(e) => setName(e.target.value)}
               disabled={isCreating}
-              autoFocus
               className="bg-background/50 border-border/30 focus:border-ring/50 focus:ring-2 focus:ring-ring/20 placeholder:text-muted-foreground/70"
             />
           </div>

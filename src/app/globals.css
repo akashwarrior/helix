@@ -117,10 +117,25 @@
 
   html,
   body {
-    @apply h-full max-h-screen flex flex-col;
+    @apply h-full max-h-screen flex flex-col bg-background text-foreground;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  ::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-muted);
+    min-height: 30px;
+    border-radius: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-primary);
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
   }
 }

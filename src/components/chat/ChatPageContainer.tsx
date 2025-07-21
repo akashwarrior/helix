@@ -4,13 +4,12 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
-import { useIsChatOpen } from '@/store/isChatOpen';
 import { useWebContainer } from '@/hook/useWebContainer';
 import CodeEditor from '@/components/chat/CodeEditor';
 import Terminal from '@/components/chat/Terminal';
 import Preview from '@/components/chat/Preview';
 import FileTree from '@/components/chat/fileSystem/FileTree';
-import type { Code } from '@prisma/client';
+import { useShowWorkBenchStore } from '@/store/showWorkBenchStore';
 
 import {
     Code2,
@@ -18,8 +17,7 @@ import {
     Folder,
     Download,
     ExternalLink,
-    PanelLeftClose,
-    PanelLeftOpen
+    PanelLeftOpen,
 } from 'lucide-react';
 
 
@@ -43,25 +41,23 @@ const tabs: Tab[] = [
     },
 ];
 
-export default function ChatPageContainer({ code }: { code: Code[] }) {
-    const { webContainer, isReady } = useWebContainer(code);
-    const { isChatOpen, setIsChatOpen } = useIsChatOpen();
+export default function ChatPageContainer() {
+    const setShowWorkBench = useShowWorkBenchStore(state => state.setShowWorkBench);
+    const { webContainer } = useWebContainer();
     const [activeView, setActiveView] = useState<Tab['name']>('Preview');
 
-    const toggleChat = () => setIsChatOpen(!isChatOpen);
-
-    return isReady && (
-        <div className="flex-1 flex flex-col min-w-[70%]">
+    return (
+        <div className="flex-1 flex flex-col overflow-hidden">
             <header className="h-14 bg-card/70 backdrop-blur-xl flex items-center justify-between px-3">
                 <div className="flex items-center gap-4">
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={toggleChat}
+                        onClick={() => setShowWorkBench(false)}
                         className="h-9 w-9"
-                        aria-label={isChatOpen ? 'Close chat' : 'Open chat'}
+                        title="Hide Workbench"
                     >
-                        {isChatOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+                        <PanelLeftOpen size={16} />
                     </Button>
 
                     <nav className="flex items-center bg-muted/50 rounded-lg p-1 backdrop-blur-sm">
@@ -112,9 +108,13 @@ export default function ChatPageContainer({ code }: { code: Code[] }) {
                 <section className="flex-1 bg-background flex flex-col overflow-hidden">
                     {activeView === 'Preview' && <Preview />}
                     {activeView === 'Editor' && <CodeEditor webContainer={webContainer} />}
-                    {activeView === 'Terminal' && <Terminal webContainer={webContainer} />}
+                    <div className={cn('flex-1 overflow-hidden flex',
+                        activeView !== 'Terminal' && "hidden",
+                    )}>
+                        {webContainer && <Terminal webContainer={webContainer} />}
+                    </div>
                 </section>
             </main>
-        </div>
+        </div >
     )
 }

@@ -15,7 +15,7 @@ export const useDebouncedSearch = (initialQuery = '') => {
 
         timeoutRef.current = setTimeout(() => {
             setDebouncedQuery(value);
-        }, 100);
+        }, 200);
     }, []);
 
     const clearSearch = useCallback(() => {

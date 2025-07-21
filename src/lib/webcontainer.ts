@@ -1,36 +1,125 @@
 import type { WebContainer } from '@webcontainer/api';
 import type { FileNode } from '@/lib/type';
+import { toast } from 'sonner';
 
+export const createFile = async (webContainer: WebContainer, fileName: string, targetDir: string = '') => {
+    try {
+        if (!fileName || fileName.includes('/') || fileName.includes('\\')) {
+            throw new Error('Invalid file name');
+        }
+        try {
+            await webContainer.fs.readFile(targetDir + '/' + fileName);
+            throw new Error('File already exists');
+        } catch {
+            console.log('File does not exist');
+        }
+
+        await webContainer.fs.writeFile(targetDir + '/' + fileName, '');
+        toast.success(`File "${fileName}" created successfully`);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to create file';
+        toast.error(message);
+        throw error;
+    }
+};
+
+export const createFolder = async (webContainer: WebContainer, folderName: string, targetDir: string = '.') => {
+    try {
+        if (!folderName || folderName.includes('/') || folderName.includes('\\')) {
+            throw new Error('Invalid folder name');
+        }
+        const fullPath = targetDir === '.' ? folderName : `${targetDir}/${folderName}`;
+        try {
+            await webContainer.fs.readdir(fullPath);
+            throw new Error('Folder already exists');
+        } catch {
+            console.log('Folder does not exist');
+        }
+
+        await webContainer.fs.mkdir(fullPath, { recursive: true });
+        toast.success(`Folder "${folderName}" created successfully`);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to create folder';
+        toast.error(message);
+        throw error;
+    }
+};
+
+export const renameItem = async (webContainer: WebContainer, oldPath: string, newName: string) => {
+    try {
+        if (!newName || newName.includes('/') || newName.includes('\\')) {
+            throw new Error('Invalid name');
+        }
+
+        const pathParts = oldPath.split('/');
+        pathParts[pathParts.length - 1] = newName;
+        const newPath = pathParts.join('/');
+
+        try {
+            await webContainer.fs.readFile(newPath, 'utf-8');
+            throw new Error(`File already exists`);
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('already exists')) {
+                throw error;
+            }
+        }
+        try {
+            await webContainer.fs.readdir(newPath);
+            throw new Error(`Folder already exists`);
+        } catch (error) {
+            if (error instanceof Error && error.message.includes('already exists')) {
+                throw error;
+            }
+        }
+
+        await webContainer.fs.rename(oldPath, newPath);
+        toast.success(`${newPath.split('/').pop()} renamed successfully`);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to rename';
+        toast.error(message);
+        throw error;
+    }
+};
+
+export const deleteItem = async (webContainer: WebContainer, path: string) => {
+    try {
+        await webContainer.fs.rm(path, { recursive: true });
+        toast.success(`${path.split('/').pop()} deleted successfully`);
+    } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to delete';
+        toast.error(message);
+        throw error;
+    }
+};
 
 export async function buildFileTree(container: WebContainer, dirPath: string = '.'): Promise<FileNode[]> {
     const files: FileNode[] = [];
-    try {
-        const entries = await container.fs.readdir(dirPath, { withFileTypes: true });
+    const entries = await container.fs.readdir(dirPath);
 
-        for (const entry of entries) {
-            const fullPath = dirPath === '.' ? entry.name : `${dirPath}/${entry.name}`;
+    for (const entry of entries) {
+        const fullPath = dirPath === '.' ? entry : `${dirPath}/${entry}`;
 
-            if (entry.isDirectory()) {
-                const children = await buildFileTree(container, fullPath);
-                files.push({
-                    name: entry.name,
-                    type: 'folder',
-                    path: fullPath,
-                    children,
-                });
-            } else {
-                files.push({
-                    name: entry.name,
-                    type: 'file',
-                    path: fullPath,
-                });
-            }
+        if (!entry.includes('.')) {
+            files.push({
+                name: entry,
+                type: 'folder',
+                path: fullPath,
+            });
+        } else {
+            files.push({
+                name: entry,
+                type: 'file',
+                path: fullPath,
+            });
         }
-    } catch (readError) {
-        console.error(`Error reading directory ${dirPath}:`, readError);
     }
 
-    return files;
+    return files.sort((a, b) => {
+        if (a.type === b.type) {
+            return a.name.localeCompare(b.name);
+        }
+        return b.type.localeCompare(a.type);
+    })
 }
 
 

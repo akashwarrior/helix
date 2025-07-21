@@ -1,17 +1,11 @@
 'use client'
 
 import { cn } from "@/lib/utils";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileNode } from "@/lib/type";
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useFileTabStore } from "@/store/fileTabStore";
+import type { LucideIcon } from 'lucide-react';
 
 import {
     ChevronRight,
@@ -19,9 +13,6 @@ import {
     FileText,
     Folder,
     FolderOpen,
-    MoreHorizontal,
-    Trash2,
-    Edit3,
     FileImage,
     Settings,
     GitBranch,
@@ -30,10 +21,8 @@ import {
     Hash,
     Palette,
     Globe,
-    Plus,
-    FolderPlus,
+    MoreHorizontal,
 } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
 
 const ICON_PROPS = {
     size: 16,
@@ -140,130 +129,108 @@ const SearchHighlight = ({ text, searchQuery }: { text: string; searchQuery: str
 interface FileTreeNodeProps {
     node: FileNode;
     depth: number;
-    isExpanded: boolean;
     isSelected: boolean;
     searchQuery: string;
-    onItemClick: (node: FileNode) => void;
-    onCreateFile: (targetDir: string) => void;
-    onCreateFolder: (targetDir: string) => void;
-    onRename: (node: FileNode) => void;
-    onDelete: (node: FileNode) => void;
+    fetchData: (path: string) => Promise<FileNode[]>;
+    onContextMenu: (e: React.MouseEvent<HTMLButtonElement>, node: FileNode, setNewNode: React.Dispatch<React.SetStateAction<FileNode[] | null>>) => void;
 }
 
 const FileTreeNode = ({
     node,
     depth,
-    isExpanded,
     isSelected,
     searchQuery,
-    onItemClick,
-    onCreateFile,
-    onCreateFolder,
-    onRename,
-    onDelete,
+    fetchData,
+    onContextMenu,
 }: FileTreeNodeProps) => {
+    const addTab = useFileTabStore(state => state.addTab);
+    const [expanded, setExpanded] = useState(false);
+    const [childNodes, setChildNodes] = useState<FileNode[] | null>(null);
 
-    const handleCreateFile = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onCreateFile(node.path);
+    const handleItemClick = () => {
+        if (node.type === 'folder') {
+            setExpanded(prev => !prev);
+        } else {
+            addTab({
+                name: node.name,
+                path: node.path,
+                modified: false,
+            });
+        }
     };
 
-    const handleCreateFolder = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onCreateFolder(node.path);
-    };
+    useEffect(() => {
+        if (searchQuery && node.type === 'folder' && !expanded) {
+            setExpanded(true);
+        }
+        if (expanded) {
+            fetchData(node.path).then(data => {
+                setChildNodes(data);
+            });
+        } else {
+            setChildNodes(null);
+        }
 
-    const handleRename = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onRename(node);
-    };
-
-    const handleDelete = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onDelete(node);
-    };
+        return () => setChildNodes(null);
+    }, [expanded, searchQuery]);
 
     return (
-        <div
-            className={cn(
-                "flex items-center gap-2 px-3 py-2 cursor-pointer group relative transition-all duration-200 ease-out",
-                "hover:bg-accent/50 hover:text-accent-foreground select-none",
-                isSelected
-                    ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-r-2 border-primary/60 shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-            )}
-            style={{ paddingLeft: `${depth * 16 + 12}px` }}
-            onClick={() => onItemClick(node)}
-        >
-            {node.type === 'folder' ? (
-                <FolderIcon name={node.name} isExpanded={isExpanded} isSelected={isSelected} />
-            ) : (
-                <FileIcon name={node.name} />
-            )}
-
-            <span
+        <>
+            <div
                 className={cn(
-                    'text-sm truncate font-medium flex-1 transition-colors duration-200',
-                    isSelected ? 'text-primary font-semibold' : 'group-hover:text-foreground'
+                    "flex items-center gap-2 px-3 py-2 cursor-pointer group relative transition-all duration-200 ease-out",
+                    "hover:bg-accent/50 hover:text-accent-foreground select-none",
+                    isSelected
+                        ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-r-2 border-primary/60 shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
                 )}
+                style={{ paddingLeft: `${depth * 16 + 12}px` }}
+                onClick={handleItemClick}
             >
-                <SearchHighlight text={node.name} searchQuery={searchQuery} />
-            </span>
+                {node.type === 'folder' ? (
+                    <FolderIcon name={node.name} isExpanded={expanded} isSelected={isSelected} />
+                ) : (
+                    <FileIcon name={node.name} />
+                )}
 
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                            "opacity-0 group-hover:opacity-100 h-6 w-6 transition-all duration-200",
-                            "hover:bg-accent/80 hover:scale-105 active:scale-95",
-                            isSelected && "opacity-100"
-                        )}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <MoreHorizontal size={12} />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48 bg-popover/95 backdrop-blur-sm border-border/50">
-                    {node.type === 'folder' && (
-                        <>
-                            <DropdownMenuItem
-                                className="hover:bg-accent/50 focus:bg-accent/50"
-                                onClick={handleCreateFile}
-                            >
-                                <Plus size={16} className="mr-2" />
-                                New File
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                className="hover:bg-accent/50 focus:bg-accent/50"
-                                onClick={handleCreateFolder}
-                            >
-                                <FolderPlus size={16} className="mr-2" />
-                                New Folder
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                        </>
+                <span
+                    className={cn(
+                        'text-sm truncate font-medium flex-1 transition-colors duration-200',
+                        isSelected ? 'text-primary font-semibold' : 'group-hover:text-foreground'
                     )}
-                    <DropdownMenuItem
-                        className="hover:bg-accent/50 focus:bg-accent/50"
-                        onClick={handleRename}
-                    >
-                        <Edit3 size={16} className="mr-2" />
-                        Rename
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                        className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
-                        onClick={handleDelete}
-                    >
-                        <Trash2 size={16} className="mr-2" />
-                        Delete
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
+                >
+                    <SearchHighlight text={node.name} searchQuery={searchQuery} />
+                </span>
+
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                        "opacity-0 group-hover:opacity-100 h-6 w-6 transition-all duration-200",
+                        "hover:bg-accent/80 hover:scale-105 active:scale-95",
+                        isSelected && "opacity-100"
+                    )}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onContextMenu(e, node, setChildNodes);
+                    }}
+                >
+                    <MoreHorizontal size={12} />
+                </Button>
+            </div>
+            {expanded && childNodes?.map((nodes) => (
+                <FileTreeNode
+                    key={nodes.path}
+                    node={nodes}
+                    depth={depth + 1}
+                    isSelected={isSelected}
+                    searchQuery={searchQuery}
+                    fetchData={fetchData}
+                    onContextMenu={onContextMenu}
+                />
+            ))}
+        </>
     );
-};
+}
 
-
-export default memo(FileTreeNode)
+export default memo(FileTreeNode);

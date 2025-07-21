@@ -31,9 +31,9 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/30 via-cyan-500/30 to-purple-500/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-blue-500/30 rounded-full blur-3xl" />
       </div>
       <Header
         isAuthenticated={isAuthenticated}
@@ -44,7 +44,7 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
           menuItems={projects}
           isAuthenticated={isAuthenticated}
         />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden z-10">
           {children}
         </main>
       </div>

@@ -9,69 +9,68 @@ interface Tab {
 
 interface FileTabStore {
     fileTabs: Tab[];
-    setFileTabs: (fileTabs: Tab[]) => void;
     addTab: (tab: Omit<Tab, 'active'>) => void;
     removeTab: (path: string) => void;
     setActiveTab: (path: string) => void;
     setModified: (path: string, modified: boolean) => void;
-    closeAllTabs: () => void;
     getActiveTab: () => Tab | undefined;
 }
 
 export const useFileTabStore = create<FileTabStore>((set, get) => ({
     fileTabs: [],
-    
-    setFileTabs: (fileTabs) => set({ fileTabs }),
-    
+
     addTab: (newTab) => set((state) => {
-        const existingTab = state.fileTabs.find(tab => tab.path === newTab.path);
-        if (existingTab) {
-            const updatedTabs = state.fileTabs.map(tab => ({
+        const existingIndex = state.fileTabs.findIndex(tab => tab.path === newTab.path);
+        let updatedTabs: Tab[];
+        if (existingIndex !== -1) {
+            updatedTabs = state.fileTabs.map((tab, idx) => ({
                 ...tab,
-                active: tab.path === newTab.path
+                active: idx === existingIndex
             }));
-            return { fileTabs: updatedTabs };
         } else {
-            const updatedTabs = state.fileTabs.map(tab => ({ ...tab, active: false }));
-            return { fileTabs: [...updatedTabs, { ...newTab, active: true }] };
+            updatedTabs = state.fileTabs.map(tab => ({ ...tab, active: false }));
+            updatedTabs.push({ ...newTab, active: true, modified: false });
         }
+        return { fileTabs: updatedTabs };
     }),
-    
+
     removeTab: (path) => set((state) => {
+        const idx = state.fileTabs.findIndex(tab => tab.path === path);
+        if (idx === -1) return { fileTabs: state.fileTabs };
+        const wasActive = state.fileTabs[idx].active;
         const newTabs = state.fileTabs.filter(tab => tab.path !== path);
-        
-        const wasActive = state.fileTabs.find(tab => tab.path === path)?.active;
         if (wasActive && newTabs.length > 0) {
-            const lastTab = newTabs[newTabs.length - 1];
+            const newActiveIdx = idx > 0 ? idx - 1 : 0;
             return {
-                fileTabs: newTabs.map(tab => ({
+                fileTabs: newTabs.map((tab, i) => ({
                     ...tab,
-                    active: tab.path === lastTab.path
+                    active: i === newActiveIdx
                 }))
             };
         }
-        
         return { fileTabs: newTabs };
     }),
-    
+
     setActiveTab: (path) => set((state) => {
-        const newTabs = state.fileTabs.map((tab) => ({ 
-            ...tab, 
-            active: tab.path === path 
-        }));
-        return { fileTabs: newTabs };
+        if (!state.fileTabs.some(tab => tab.path === path)) return { fileTabs: state.fileTabs };
+        return {
+            fileTabs: state.fileTabs.map(tab => ({
+                ...tab,
+                active: tab.path === path
+            }))
+        };
     }),
-    
+
     setModified: (path, modified) => set((state) => {
-        const newTabs = state.fileTabs.map((tab) => ({ 
-            ...tab, 
-            modified: tab.path === path ? modified : tab.modified 
-        }));
-        return { fileTabs: newTabs };
+        if (!state.fileTabs.some(tab => tab.path === path)) return { fileTabs: state.fileTabs };
+        return {
+            fileTabs: state.fileTabs.map(tab => ({
+                ...tab,
+                modified: tab.path === path ? modified : tab.modified
+            }))
+        };
     }),
-    
-    closeAllTabs: () => set({ fileTabs: [] }),
-    
+
     getActiveTab: () => {
         const state = get();
         return state.fileTabs.find(tab => tab.active);

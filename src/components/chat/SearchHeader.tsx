@@ -24,8 +24,7 @@ export const SearchHeader = ({
     onCreateFile,
     onCreateFolder
 }: SearchHeaderProps) => (
-    <div
-    >
+    <div>
         <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-foreground tracking-wide">
                 Explorer
@@ -55,6 +54,7 @@ export const SearchHeader = ({
         <div className="relative">
             <Search size={14} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
+                name='search'
                 type="text"
                 placeholder="Search files..."
                 value={searchQuery}

@@ -11,7 +11,7 @@ interface RenameDialogProps {
   isOpen: boolean;
   node: FileNode | null;
   onClose: () => void;
-  onRename: (oldPath: string, newName: string, type: 'file' | 'folder') => void;
+  onRename: (oldPath: string, newName: string, type: 'file' | 'folder') => Promise<void>;
 }
 
 export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogProps) => {
@@ -71,11 +71,12 @@ export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogPr
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">New name:</label>
             <Input
-              placeholder="Enter new name"
+              autoFocus
+              name='rename-input'
               value={name}
+              placeholder="Enter new name"
               onChange={(e) => setName(e.target.value)}
               disabled={isRenaming}
-              autoFocus
               className="bg-background/50 border-border/30 focus:border-ring/50 focus:ring-2 focus:ring-ring/20 placeholder:text-muted-foreground/70"
             />
           </div>

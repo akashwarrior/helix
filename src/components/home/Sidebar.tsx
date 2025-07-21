@@ -45,7 +45,7 @@ export default function Sidebar({ menuItems, isAuthenticated }: SidebarProps) {
                         {menuItems.map(({ id, name }) => (
                             <li key={id}>
                                 <Link
-                                    href={id}
+                                    href={`/chat/${id}`}
                                     className="block px-5 py-2.5 text-primary/90 hover:text-primary hover:bg-primary/5 rounded-lg text-sm truncate"
                                 >
                                     {name}

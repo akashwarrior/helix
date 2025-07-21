@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { ChevronRight, FileCode, X, Save, Loader2 } from 'lucide-react';
 import { shikiToMonaco } from '@shikijs/monaco';
-import { createHighlighter } from 'shiki';
+import { type BundledLanguage, createHighlighter } from 'shiki';
 import { useTheme } from 'next-themes';
 import { useFileTabStore } from '@/store/fileTabStore';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import type { Monaco } from '@monaco-editor/react';
 const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
 const themes = ['dark-plus', 'light-plus'];
-const languages = ['tsx', 'jsx', 'css', 'html', 'json', 'ts', 'js', 'toml', 'md', 'yaml', 'sh'];
+const languages: BundledLanguage[] = ['tsx', 'jsx', 'css', 'html', 'json', 'ts', 'js', 'toml', 'md', 'yaml', 'sh'];
 
 const getLanguageFromExtension = (filename: string): string => {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -129,7 +129,7 @@ const Breadcrumb = ({ path }: { path: string }) => {
 };
 
 export default function CodeEditor({ webContainer }: { webContainer: WebContainer }) {
-  const { fileTabs, setActiveTab, setModified, setFileTabs } = useFileTabStore();
+  const { fileTabs, setActiveTab, setModified, removeTab } = useFileTabStore();
   const { theme } = useTheme();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -184,21 +184,7 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
 
   const handleTabClose = (path: string, e: React.MouseEvent) => {
     e.stopPropagation();
-
-    const newTabs = fileTabs.filter(tab => tab.path !== path);
-
-    if (newTabs.length === 0) {
-      setFileTabs([]);
-    } else if (activeTab?.path === path) {
-      const lastTab = newTabs[newTabs.length - 1];
-      const updatedTabs = newTabs.map(tab => ({
-        ...tab,
-        active: tab.path === lastTab.path
-      }));
-      setFileTabs(updatedTabs);
-    } else {
-      setFileTabs(newTabs);
-    }
+    removeTab(path);
   }
 
   const monacoBeforeMount = async (monaco: Monaco) => {
@@ -206,6 +192,10 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
       const highlighter = createHighlighter({
         themes,
         langs: languages,
+      });
+
+      monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+        skipLibCheck: true,
       });
 
       languages.forEach((lang) => monaco.languages.register({ id: lang }));

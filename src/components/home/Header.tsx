@@ -6,6 +6,7 @@ import { useSidebarStore } from "@/store/sidebarStore";
 import { PanelLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { authClient } from "@/lib/auth";
 
 export default function Header({ isAuthenticated, image }: { isAuthenticated: boolean, image: string }) {
     const toggleSidebar = useSidebarStore(state => state.toggleSidebar);
@@ -31,7 +32,10 @@ export default function Header({ isAuthenticated, image }: { isAuthenticated: bo
                         width={32}
                         height={32}
                         alt="User"
-                        className="rounded-full border border-border"
+                        onClick={() => authClient.signOut({
+                            fetchOptions: { onSuccess: () => router.push("/auth") }
+                        })}
+                        className="rounded-full border border-border cursor-pointer hover:opacity-80 transition-opacity duration-200"
                     />
                 ) : (
                     <Button

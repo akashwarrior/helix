@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/db";
-import type { Code, Message, Project } from "@prisma/client";
+import type { Message, Project } from "@prisma/client";
 
 export default async function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
   const session = await auth.api.getSession({
@@ -17,32 +17,27 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
 
   const { chatId } = await params;
 
-  let chat: Project & { messages: Message[], codes: Code[] } | null = null;
+  let chat: Project & {
+    messages: (Omit<Message, 'projectId'>)[],
+  } | null = null;
 
-  try {
-    chat = await prisma.project.findUnique({
-      where: {
-        id: chatId,
-        userId: session?.user.id,
+  chat = await prisma.project.findUnique({
+    where: {
+      id: chatId,
+      userId: session.user.id,
+    },
+    include: {
+      messages: {
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          role: true,
+        },
+        take: 50,
       },
-      include: {
-        messages: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 50,
-        },
-        codes: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-          take: 1,
-        },
-      }
-    });
-  } catch (error) {
-    console.log(error);
-  }
+    }
+  });
 
   if (!chat) {
     notFound();
@@ -50,8 +45,11 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <ChatInterface initialMessages={chat.messages} />
-      <ChatPageContainer code={chat.codes} />
+      <ChatInterface
+        chatId={chatId}
+        initialMessages={chat.messages}
+      />
+      <ChatPageContainer />
     </div>
   );
 }

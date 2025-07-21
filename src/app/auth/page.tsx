@@ -20,10 +20,7 @@ export default function AuthPage() {
             callbackURL: "/",
             fetchOptions: {
                 onResponse: () => setIsLoading(false),
-                onError: () => {
-                    toast.error("Something went wrong");
-                    setIsLoading(false);
-                },
+                onError: () => { toast.error("Something went wrong") },
             }
         });
     };

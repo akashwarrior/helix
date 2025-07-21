@@ -39,9 +39,9 @@ export default function HelixApp() {
       body?.pipeTo(new WritableStream({
         write(chunk) {
           text = decoder.decode(chunk);
-          if (text[0] !== '0' || text[1] !== ':' || text[2] !== '"') return;
-
-          textarea.value += text.substring(3, text.length - 2);
+          const val = text.split(`0:"`);
+          if (!val[1]?.trim()) return;
+          textarea.value += val[1].split('"')[0];
           handleTextAreaChange(textarea);
         }
       }))

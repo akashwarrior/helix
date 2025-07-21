@@ -10,7 +10,7 @@ interface DeleteDialogProps {
   isOpen: boolean;
   node: FileNode | null;
   onClose: () => void;
-  onDelete: (path: string, type: 'file' | 'folder') => void;
+  onDelete: () => Promise<void>;
 }
 
 export const DeleteDialog = ({ isOpen, node, onClose, onDelete }: DeleteDialogProps) => {
@@ -21,7 +21,7 @@ export const DeleteDialog = ({ isOpen, node, onClose, onDelete }: DeleteDialogPr
 
     setIsDeleting(true);
     try {
-      await onDelete(node.path, node.type);
+      await onDelete();
       onClose();
     } catch (error) {
       console.error('Failed to delete:', error);
@@ -44,16 +44,16 @@ export const DeleteDialog = ({ isOpen, node, onClose, onDelete }: DeleteDialogPr
             <AlertTriangle className="h-5 w-5" />
             Delete {node?.type === 'file' ? 'File' : 'Folder'}
           </DialogTitle>
-          
+
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-destructive/5 border border-destructive/20 rounded-lg backdrop-blur-sm">
-              {node?.type === 'file' ? 
-                <File className="h-4 w-4 text-muted-foreground flex-shrink-0" /> : 
+              {node?.type === 'file' ?
+                <File className="h-4 w-4 text-muted-foreground flex-shrink-0" /> :
                 <Folder className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               }
               <span className="font-mono text-foreground/90 text-sm break-all">{node?.path}</span>
             </div>
-            
+
             <div className="space-y-2 text-sm text-muted-foreground">
               <p>Are you sure you want to delete this {node?.type}?</p>
               {node?.type === 'folder' && (
@@ -67,7 +67,7 @@ export const DeleteDialog = ({ isOpen, node, onClose, onDelete }: DeleteDialogPr
             </div>
           </div>
         </DialogHeader>
-        
+
         <DialogFooter className="gap-3">
           <Button
             type="button"
