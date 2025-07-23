@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'motion/react';
+import { useRef, useState } from "react";
+import { motion, useScroll, useSpring, useTransform } from "motion/react";
 
 const showcaseItems = [
   {
@@ -71,7 +71,6 @@ function MagneticButton() {
   );
 }
 
-
 function MorphingCard() {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -93,9 +92,10 @@ function MorphingCard() {
   );
 }
 
-
 function ParticleField() {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const [particles, setParticles] = useState<
+    Array<{ id: number; x: number; y: number }>
+  >([]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -104,7 +104,7 @@ function ParticleField() {
 
     const newParticle = { id: Date.now() + Math.random(), x, y };
 
-    setParticles(prev => [...prev.slice(-20), newParticle]);
+    setParticles((prev) => [...prev.slice(-20), newParticle]);
   };
 
   return (
@@ -119,7 +119,9 @@ function ParticleField() {
           initial={{ x: particle.x - 4, y: particle.y - 4, scale: 0 }}
           animate={{ scale: [0, 1, 0] }}
           transition={{ duration: 1 }}
-          onAnimationComplete={() => setParticles(prev => prev.filter(p => p.id !== particle.id))}
+          onAnimationComplete={() =>
+            setParticles((prev) => prev.filter((p) => p.id !== particle.id))
+          }
         />
       ))}
       <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
@@ -128,7 +130,6 @@ function ParticleField() {
     </div>
   );
 }
-
 
 function RotatingCube() {
   return (
@@ -155,13 +156,21 @@ function RotatingCube() {
   );
 }
 
-
 function LiquidLoader() {
   return (
     <div className="relative w-32 h-32">
-      <svg viewBox="0 0 100 100" className="w-full h-full will-change-transform">
+      <svg
+        viewBox="0 0 100 100"
+        className="w-full h-full will-change-transform"
+      >
         <defs>
-          <linearGradient id="liquid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id="liquid-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor="#f97316" />
             <stop offset="100%" stopColor="#eab308" />
           </linearGradient>
@@ -190,7 +199,6 @@ function LiquidLoader() {
   );
 }
 
-
 export default function ShowcaseSection() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -216,7 +224,9 @@ export default function ShowcaseSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <span className="text-foreground">Don&apos;t just build websites</span>
+          <span className="text-foreground">
+            Don&apos;t just build websites
+          </span>
           <br />
           <span className="bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
             Build experiences
@@ -236,10 +246,14 @@ export default function ShowcaseSection() {
             whileInView={{ opacity: 1, scale: 1 }}
             whileHover={{ y: -15 }}
           >
-            <h3 className={`text-xl font-semibold mb-2 bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent`}>
+            <h3
+              className={`text-xl font-semibold mb-2 bg-gradient-to-r ${item.gradient} bg-clip-text text-transparent`}
+            >
               {item.title}
             </h3>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">{item.description}</p>
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              {item.description}
+            </p>
 
             <div className="flex-1 flex items-center justify-center">
               <item.component />

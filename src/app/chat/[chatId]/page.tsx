@@ -6,20 +6,26 @@ import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/db";
 import type { Message, Project } from "@prisma/client";
 
-export default async function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
+export default async function ChatPage({
+  params,
+}: {
+  params: Promise<{ chatId: string }>;
+}) {
   const session = await auth.api.getSession({
-    headers: await headers()
+    headers: await headers(),
   });
 
   if (!session) {
-    redirect('/auth');
+    redirect("/auth");
   }
 
   const { chatId } = await params;
 
-  let chat: Project & {
-    messages: (Omit<Message, 'projectId'>)[],
-  } | null = null;
+  let chat:
+    | (Project & {
+        messages: Omit<Message, "projectId">[];
+      })
+    | null = null;
 
   chat = await prisma.project.findUnique({
     where: {
@@ -36,7 +42,7 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
         },
         take: 50,
       },
-    }
+    },
   });
 
   if (!chat) {
@@ -45,10 +51,7 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <ChatInterface
-        chatId={chatId}
-        initialMessages={chat.messages}
-      />
+      <ChatInterface chatId={chatId} initialMessages={chat.messages} />
       <ChatPageContainer />
     </div>
   );

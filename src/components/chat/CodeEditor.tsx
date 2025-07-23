@@ -1,55 +1,71 @@
-'use client';
+"use client";
 
-import dynamic from 'next/dynamic';
-import { cn } from '@/lib/utils';
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'motion/react';
-import { ChevronRight, FileCode, X, Save, Loader2 } from 'lucide-react';
-import { shikiToMonaco } from '@shikijs/monaco';
-import { type BundledLanguage, createHighlighter } from 'shiki';
-import { useTheme } from 'next-themes';
-import { useFileTabStore } from '@/store/fileTabStore';
-import { Button } from '@/components/ui/button';
-import type { WebContainer } from '@webcontainer/api';
-import type { Monaco } from '@monaco-editor/react';
+import dynamic from "next/dynamic";
+import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
+import { ChevronRight, FileCode, X, Save, Loader2 } from "lucide-react";
+import { shikiToMonaco } from "@shikijs/monaco";
+import { type BundledLanguage, createHighlighter } from "shiki";
+import { useTheme } from "next-themes";
+import { useFileTabStore } from "@/store/fileTabStore";
+import { Button } from "@/components/ui/button";
+import type { WebContainer } from "@webcontainer/api";
+import type { Monaco } from "@monaco-editor/react";
 
-const Editor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
+const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
-const themes = ['dark-plus', 'light-plus'];
-const languages: BundledLanguage[] = ['tsx', 'jsx', 'css', 'html', 'json', 'ts', 'js', 'toml', 'md', 'yaml', 'sh'];
+const themes = ["dark-plus", "light-plus"];
+const languages: BundledLanguage[] = [
+  "tsx",
+  "jsx",
+  "css",
+  "html",
+  "json",
+  "ts",
+  "js",
+  "toml",
+  "md",
+  "yaml",
+  "sh",
+];
 
 const getLanguageFromExtension = (filename: string): string => {
-  const ext = filename.split('.').pop()?.toLowerCase();
+  const ext = filename.split(".").pop()?.toLowerCase();
   const languageMap: Record<string, string> = {
-    'tsx': 'typescript',
-    'ts': 'typescript',
-    'jsx': 'javascript',
-    'js': 'javascript',
-    'css': 'css',
-    'html': 'html',
-    'json': 'json',
-    'md': 'markdown',
-    'yml': 'yaml',
-    'yaml': 'yaml',
-    'sh': 'shell',
-    'toml': 'toml'
+    tsx: "typescript",
+    ts: "typescript",
+    jsx: "javascript",
+    js: "javascript",
+    css: "css",
+    html: "html",
+    json: "json",
+    md: "markdown",
+    yml: "yaml",
+    yaml: "yaml",
+    sh: "shell",
+    toml: "toml",
   };
-  return languageMap[ext || 'javascript'];
+  return languageMap[ext || "javascript"];
 };
 
 const getLanguageIcon = (language: string) => {
   const iconProps = { size: 14 };
   const iconMap: Record<string, React.ReactNode> = {
-    'tsx': <FileCode {...iconProps} className="text-blue-400" />,
-    'typescript': <FileCode {...iconProps} className="text-blue-400" />,
-    'css': <FileCode {...iconProps} className="text-purple-400" />,
-    'javascript': <FileCode {...iconProps} className="text-yellow-400" />,
-    'jsx': <FileCode {...iconProps} className="text-yellow-400" />,
-    'html': <FileCode {...iconProps} className="text-orange-400" />,
-    'json': <FileCode {...iconProps} className="text-green-400" />,
-    'markdown': <FileCode {...iconProps} className="text-gray-400" />
+    tsx: <FileCode {...iconProps} className="text-blue-400" />,
+    typescript: <FileCode {...iconProps} className="text-blue-400" />,
+    css: <FileCode {...iconProps} className="text-purple-400" />,
+    javascript: <FileCode {...iconProps} className="text-yellow-400" />,
+    jsx: <FileCode {...iconProps} className="text-yellow-400" />,
+    html: <FileCode {...iconProps} className="text-orange-400" />,
+    json: <FileCode {...iconProps} className="text-green-400" />,
+    markdown: <FileCode {...iconProps} className="text-gray-400" />,
   };
-  return iconMap[language] || <FileCode {...iconProps} className="text-muted-foreground" />;
+  return (
+    iconMap[language] || (
+      <FileCode {...iconProps} className="text-muted-foreground" />
+    )
+  );
 };
 
 interface TabProps {
@@ -73,20 +89,22 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
         "relative flex items-center gap-3 px-4 py-3 text-sm h-max",
         "transition-[border, width] duration-200 group min-w-0 flex-shrink-0",
         tab.active
-          ? 'bg-muted/50 text-foreground border-b-2 border-primary'
-          : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+          ? "bg-muted/50 text-foreground border-b-2 border-primary"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/30",
       )}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
       onClick={handleClick}
     >
-
       {getLanguageIcon(getLanguageFromExtension(tab.name))}
       <span className="truncate max-w-[120px]">{tab.name}</span>
 
-      <div className={cn("w-1.5 rounded-full bg-orange-400 transition-height duration-200 mx-auto",
-        tab.modified ? "h-1.5" : "h-0")}
+      <div
+        className={cn(
+          "w-1.5 rounded-full bg-orange-400 transition-height duration-200 mx-auto",
+          tab.modified ? "h-1.5" : "h-0",
+        )}
       />
 
       <Button
@@ -99,10 +117,10 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
       </Button>
     </motion.div>
   );
-};
+}
 
 const Breadcrumb = ({ path }: { path: string }) => {
-  const parts = path.split('/');
+  const parts = path.split("/");
 
   return (
     <div className="flex items-center gap-1 py-2">
@@ -128,16 +146,20 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor({ webContainer }: { webContainer: WebContainer }) {
+export default function CodeEditor({
+  webContainer,
+}: {
+  webContainer: WebContainer;
+}) {
   const { fileTabs, setActiveTab, setModified, removeTab } = useFileTabStore();
   const { theme } = useTheme();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const fileContent = useRef<string>('');
+  const fileContent = useRef<string>("");
 
-  const activeTab = fileTabs.find(tab => tab.active);
-  const activeTheme = theme === 'light' ? themes[1] : themes[0];
+  const activeTab = fileTabs.find((tab) => tab.active);
+  const activeTheme = theme === "light" ? themes[1] : themes[0];
 
   useEffect(() => {
     if (!activeTab) {
@@ -148,28 +170,27 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
 
     (async () => {
       try {
-        const content = await webContainer.fs.readFile(activeTab.path, 'utf-8');
+        const content = await webContainer.fs.readFile(activeTab.path, "utf-8");
         fileContent.current = content;
       } catch (err) {
-        console.error('Failed to load file:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load file');
-        fileContent.current = '';
+        console.error("Failed to load file:", err);
+        setError(err instanceof Error ? err.message : "Failed to load file");
+        fileContent.current = "";
       } finally {
         setIsLoading(false);
       }
     })();
   }, [activeTab?.path, webContainer]);
 
-
   const saveFile = async (path: string) => {
     try {
       await webContainer.fs.writeFile(path, fileContent.current);
       setModified(path, false);
     } catch (err) {
-      console.error('Failed to save file:', err);
-      setError(err instanceof Error ? err.message : 'Failed to save file');
+      console.error("Failed to save file:", err);
+      setError(err instanceof Error ? err.message : "Failed to save file");
     }
-  }
+  };
 
   const handleEditorChange = (value?: string) => {
     if (!value || !activeTab) return;
@@ -178,14 +199,14 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
     if (!activeTab.modified) {
       setModified(activeTab.path, true);
     }
-  }
+  };
 
   const handleTabChange = (path: string) => setActiveTab(path);
 
   const handleTabClose = (path: string, e: React.MouseEvent) => {
     e.stopPropagation();
     removeTab(path);
-  }
+  };
 
   const monacoBeforeMount = async (monaco: Monaco) => {
     try {
@@ -199,13 +220,12 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
       });
 
       languages.forEach((lang) => monaco.languages.register({ id: lang }));
-      shikiToMonaco(await (highlighter), monaco);
+      shikiToMonaco(await highlighter, monaco);
       monaco.editor.setTheme(activeTheme);
     } catch (error) {
-      console.error('Failed to setup Monaco editor:', error);
+      console.error("Failed to setup Monaco editor:", error);
     }
   };
-
 
   if (!activeTab) {
     return (
@@ -213,7 +233,9 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
         <div className="text-center text-muted-foreground">
           <FileCode size={48} className="mx-auto mb-4 opacity-50" />
           <p className="text-lg">No file selected</p>
-          <p className="text-sm">Open a file from the explorer to start editing</p>
+          <p className="text-sm">
+            Open a file from the explorer to start editing
+          </p>
         </div>
       </div>
     );
@@ -286,18 +308,18 @@ export default function CodeEditor({ webContainer }: { webContainer: WebContaine
               minimap: { enabled: false },
               guides: {
                 bracketPairs: true,
-                indentation: true
+                indentation: true,
               },
-              autoClosingBrackets: 'always',
-              autoIndent: 'full',
+              autoClosingBrackets: "always",
+              autoIndent: "full",
               padding: { top: 16, bottom: 16 },
               scrollBeyondLastLine: false,
               smoothScrolling: true,
-              cursorBlinking: 'smooth',
+              cursorBlinking: "smooth",
             }}
           />
         )}
       </div>
     </div>
   );
-} 
+}

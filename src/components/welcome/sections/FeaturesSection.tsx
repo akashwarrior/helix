@@ -1,19 +1,21 @@
 "use client";
 
-import { useRef } from 'react';
-import { motion, useInView } from 'motion/react';
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
 
 const features = [
   {
     id: 1,
     title: "Interactive by Default",
-    description: "Every element responds to user input with buttery-smooth animations.",
+    description:
+      "Every element responds to user input with buttery-smooth animations.",
     color: "from-cyan-400 to-blue-400",
   },
   {
     id: 2,
     title: "Performance, Perfected",
-    description: "Hardware-accelerated animations that maintain 60fps on any device.",
+    description:
+      "Hardware-accelerated animations that maintain 60fps on any device.",
     color: "from-blue-400 to-purple-400",
   },
   {
@@ -61,17 +63,23 @@ export default function FeaturesSection() {
               animate={isInView ? { opacity: 1 } : {}}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5, delay: index * 0.2 }}
-              className="relative group bg-card/50 rounded-2xl overflow-hidden p-8 h-full transition-transform duration-300 hover:scale-105 border border-border/50 will-change-transform">
-
-              <div className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-20 transition-all duration-500`} />
+              className="relative group bg-card/50 rounded-2xl overflow-hidden p-8 h-full transition-transform duration-300 hover:scale-105 border border-border/50 will-change-transform"
+            >
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-20 transition-all duration-500`}
+              />
 
               <div className="relative z-10">
                 <h3 className="text-2xl font-bold mb-3">
-                  <span className={`bg-gradient-to-r ${feature.color} bg-clip-text text-transparent`}>
+                  <span
+                    className={`bg-gradient-to-r ${feature.color} bg-clip-text text-transparent`}
+                  >
                     {feature.title}
                   </span>
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                <p className="text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
 
                 {feature.id === 1 && (
                   <div className="mt-6 w-full h-3 bg-muted/50 rounded-full opacity-60 group-hover:opacity-100 transition-all duration-300">
@@ -102,4 +110,4 @@ export default function FeaturesSection() {
       </div>
     </section>
   );
-} 
+}

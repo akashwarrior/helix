@@ -7,9 +7,18 @@ import { AlertTriangle } from "lucide-react";
 function LiquidLoader() {
   return (
     <div className="relative w-24 h-24 mx-auto mb-4">
-      <svg viewBox="0 0 100 100" className="w-full h-full will-change-transform">
+      <svg
+        viewBox="0 0 100 100"
+        className="w-full h-full will-change-transform"
+      >
         <defs>
-          <linearGradient id="liquid-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id="liquid-gradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor="#ef4444" />
             <stop offset="100%" stopColor="#f97316" />
           </linearGradient>
@@ -44,7 +53,10 @@ export default function Error({ reset }: { reset: () => void }) {
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-red-600/10 via-orange-600/10 to-transparent" />
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-red-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
       </div>
       <motion.section
         initial={{ opacity: 0, y: 40 }}
@@ -60,7 +72,10 @@ export default function Error({ reset }: { reset: () => void }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <AlertTriangle className="text-red-500 dark:text-red-400 animate-pulse" size={40} />
+            <AlertTriangle
+              className="text-red-500 dark:text-red-400 animate-pulse"
+              size={40}
+            />
             <span className="text-4xl font-bold bg-gradient-to-r from-red-400 to-orange-500 bg-clip-text text-transparent drop-shadow-lg">
               Oops! Error
             </span>
@@ -74,7 +89,12 @@ export default function Error({ reset }: { reset: () => void }) {
             Something went wrong. Please try again or return to the homepage.
           </motion.p>
         </div>
-        <svg className="w-full h-8 mb-2" viewBox="0 0 400 40" fill="none" preserveAspectRatio="none">
+        <svg
+          className="w-full h-8 mb-2"
+          viewBox="0 0 400 40"
+          fill="none"
+          preserveAspectRatio="none"
+        >
           {[...Array(3)].map((_, i) => (
             <motion.path
               key={i}
@@ -100,4 +120,4 @@ export default function Error({ reset }: { reset: () => void }) {
       </motion.section>
     </main>
   );
-} 
+}

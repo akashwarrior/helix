@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from 'motion/react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { motion } from "motion/react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function HeroSection() {
   return (
@@ -10,7 +10,10 @@ export default function HeroSection() {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-blue-600/5 via-purple-600/5 to-transparent" />
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto text-center mt-20">
@@ -45,7 +48,10 @@ export default function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
         >
           <Link href="/auth">
-            <Button size="lg" className="text-lg px-10 py-4 h-auto rounded-full hover:scale-105 transition-all duration-300">
+            <Button
+              size="lg"
+              className="text-lg px-10 py-4 h-auto rounded-full hover:scale-105 transition-all duration-300"
+            >
               Get Started
             </Button>
           </Link>

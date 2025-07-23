@@ -1,30 +1,34 @@
-import Header from '@/components/home/Header';
-import Sidebar from '@/components/home/Sidebar';
-import prisma from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import Header from "@/components/home/Header";
+import Sidebar from "@/components/home/Sidebar";
+import prisma from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const revalidate = 300; // 5 minutes
 
-export default async function HomeLayout({ children }: { children: React.ReactNode }) {
+export default async function HomeLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const session = await auth.api.getSession({
-    headers: await headers()
-  })
-  let projects: { id: string, name: string }[] = [];
+    headers: await headers(),
+  });
+  let projects: { id: string; name: string }[] = [];
   if (session?.user) {
     projects = await prisma.project.findMany({
       where: {
-        userId: session?.user.id
+        userId: session?.user.id,
       },
       select: {
         id: true,
         name: true,
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: "desc",
       },
       take: 10,
-    })
+    });
   }
 
   const isAuthenticated = !!session?.user;
@@ -40,14 +44,9 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
         image={session?.user?.image ?? ""}
       />
       <div className="flex flex-1 h-full">
-        <Sidebar
-          menuItems={projects}
-          isAuthenticated={isAuthenticated}
-        />
-        <main className="flex-1 overflow-hidden z-10">
-          {children}
-        </main>
+        <Sidebar menuItems={projects} isAuthenticated={isAuthenticated} />
+        <main className="flex-1 overflow-hidden z-10">{children}</main>
       </div>
     </div>
   );
-} 
+}
