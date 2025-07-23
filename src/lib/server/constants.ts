@@ -43,12 +43,23 @@ function parseXml(
   }
 
   const message: MessageStore = {
-    id,
+    id: id,
     content: beforeArtifact.trim() || "",
     role: role as Role,
     createdAt: new Date(),
     steps: [],
   };
+
+  const currentMessages = useMessagesStore.getState().messages;
+  let existingMessage = currentMessages.find(m => m.id === message.id);
+
+  if (!existingMessage) {
+    useMessagesStore.getState().updateMessage(message);
+    existingMessage = message;
+  } else if (existingMessage.content !== message.content) {
+    existingMessage.content = message.content;
+    useMessagesStore.getState().updateMessage(existingMessage);
+  }
 
   if (artifactCandidate.trim()) {
     const actionRegex =
@@ -56,30 +67,39 @@ function parseXml(
     let match: RegExpExecArray | null;
 
     while ((match = actionRegex.exec(artifactCandidate)) !== null) {
-      const [fullMatch, type, filePath, content] = match;
-      switch (type) {
-        case "file":
-          if (filePath) {
-            message.steps.push({
-              stepType: StepType.CREATE_FILE,
-              isPending: true,
-              path: filePath,
-              content: content,
-            });
-          }
-          break;
-        case "shell":
-          message.steps.push({
-            stepType: StepType.RUN_SCRIPT,
-            isPending: true,
-            content: content,
-          });
-          break;
+      const [, type, filePath, content] = match;
+      const isArtifactComplete = match[0].trim().endsWith("</Action>");
+
+      const newStep = {
+        stepType: type === "file" ? StepType.CREATE_FILE : StepType.RUN_SCRIPT,
+        isPending: true,
+        content: content,
+        isArtifactComplete,
+        ...(filePath && { path: filePath })
+      };
+
+      // Check if this specific step already exists
+      const stepIndex = existingMessage.steps.findIndex(step =>
+        step.stepType === newStep.stepType &&
+        step.path === newStep.path
+      );
+
+      if (stepIndex === -1) {
+        // Add new step if it doesn't exist
+        existingMessage.steps.push(newStep);
+      } else {
+        // Update existing step only if content or completion status changed
+        const existingStep = existingMessage.steps[stepIndex];
+        if (existingStep.content !== newStep.content ||
+          existingStep.isArtifactComplete !== newStep.isArtifactComplete) {
+          existingMessage.steps[stepIndex] = newStep;
+        }
       }
+
+      // Update the message with the modified steps
+      useMessagesStore.getState().updateMessage(existingMessage);
     }
   }
-
-  useMessagesStore.getState().updateMessage(message);
 }
 
 const allowedHTMLElements = [

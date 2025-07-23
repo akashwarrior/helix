@@ -11,6 +11,7 @@ export interface MessageStore {
     path?: string;
     isPending: boolean;
     content?: string;
+    isArtifactComplete: boolean;
   }>;
 }
 

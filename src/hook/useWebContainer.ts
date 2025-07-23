@@ -16,6 +16,7 @@ export function useWebContainer(): UseWebContainerReturn {
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const containerRef = useRef<WebContainer>();
+  const processingSteps = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -49,16 +50,17 @@ export function useWebContainer(): UseWebContainerReturn {
   }, []);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || processingSteps.current) return;
     const webContainer = containerRef.current;
+    processingSteps.current = true;
 
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role !== "assistant") return;
 
     (async () => {
       for (let idx = 0; idx < lastMessage.steps.length; idx++) {
-        const { content, path, stepType, isPending } = lastMessage.steps[idx];
-        if (!isPending) continue;
+        const { content, path, stepType, isPending, isArtifactComplete } = lastMessage.steps[idx];
+        if (!isPending || !isArtifactComplete) continue;
 
         try {
           if (stepType === StepType.RUN_SCRIPT) {
@@ -90,6 +92,7 @@ export function useWebContainer(): UseWebContainerReturn {
           console.error(`Error in step ${idx + 1}:`, stepError);
         }
       }
+      processingSteps.current = false;
     })();
   }, [ready, messages]);
 
