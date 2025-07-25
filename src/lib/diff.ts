@@ -10,6 +10,7 @@ type FileModifications = Record<string, ModifiedFile>;
 
 // TODO: needs to be refactored
 export function computeFileModifications(
+  // @ts-expect-error - need to fix types
   files,
   modifiedFiles: Map<string, string>,
 ) {

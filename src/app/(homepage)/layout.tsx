@@ -11,27 +11,34 @@ export default async function HomeLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
   let projects: { id: string; name: string }[] = [];
-  if (session?.user) {
-    projects = await prisma.project.findMany({
-      where: {
-        userId: session?.user.id,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 10,
+  let isAuthenticated = false;
+  let userImage = "";
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
     });
+    if (session?.user) {
+      isAuthenticated = true;
+      userImage = session.user.image ?? "";
+      projects = await prisma.project.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 10,
+      });
+    }
+  } catch (error) {
+    console.error(error);
   }
 
-  const isAuthenticated = !!session?.user;
 
   return (
     <div className="flex flex-col flex-1">
@@ -41,7 +48,7 @@ export default async function HomeLayout({
       </div>
       <Header
         isAuthenticated={isAuthenticated}
-        image={session?.user?.image ?? ""}
+        image={userImage}
       />
       <div className="flex flex-1 h-full">
         <Sidebar menuItems={projects} isAuthenticated={isAuthenticated} />
