@@ -1,13 +1,13 @@
 "use client";
 
-import { motion, useScroll, useSpring } from 'motion/react';
+import { motion, useScroll, useSpring } from "motion/react";
 
 export default function ScrollProgressBar() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   });
 
   return (
@@ -16,4 +16,4 @@ export default function ScrollProgressBar() {
       style={{ scaleX }}
     />
   );
-} 
+}

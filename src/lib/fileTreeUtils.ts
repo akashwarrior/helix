@@ -1,19 +1,26 @@
-import { FileNode } from '@/lib/type';
+import { FileNode } from "@/lib/type";
+import { buildFileTree } from "./webcontainer";
+import { WebContainer } from "@webcontainer/api";
 
-export const filterFiles = (nodes: FileNode[], searchQuery: string): { filtered: FileNode[]; toExpand: Set<string> } => {
-  if (!searchQuery) return { filtered: nodes, toExpand: new Set() };
+export const filterFiles = async (
+  searchQuery: string,
+  webcontainer: WebContainer,
+): Promise<FileNode[]> => {
+  const nodes = await buildFileTree(webcontainer);
+  if (!searchQuery) return nodes;
 
   const q = searchQuery.toLowerCase();
   const toExpand = new Set<string>();
 
-  const recurse = (currentNodes: FileNode[]): FileNode[] => {
+  const recurse = async (currentNodes: FileNode[]): Promise<FileNode[]> => {
     const localResult: FileNode[] = [];
 
     for (const node of currentNodes) {
       const matches = node.name.toLowerCase().includes(q);
 
-      if (node.type === 'folder') {
-        const filteredChildren = node.children ? recurse(node.children) : [];
+      if (node.type === "folder") {
+        const children = await buildFileTree(webcontainer, node.path);
+        const filteredChildren = children ? await recurse(children) : [];
 
         if (matches || filteredChildren.length > 0) {
           toExpand.add(node.path);
@@ -27,32 +34,5 @@ export const filterFiles = (nodes: FileNode[], searchQuery: string): { filtered:
     return localResult;
   };
 
-  const filtered = recurse(nodes);
-
-  return { filtered, toExpand };
+  return await recurse(nodes);
 };
-
-export interface FlatNode {
-  node: FileNode;
-  depth: number;
-  isExpanded: boolean;
-}
-
-export const flattenFileTree = (
-  nodes: FileNode[],
-  expandedFolders: Set<string>,
-  depth = 0
-): FlatNode[] => {
-  const result: FlatNode[] = [];
-
-  for (const node of nodes) {
-    const isExpanded = expandedFolders.has(node.path);
-    result.push({ node, depth, isExpanded });
-
-    if (node.type === 'folder' && isExpanded && node.children) {
-      result.push(...flattenFileTree(node.children, expandedFolders, depth + 1));
-    }
-  }
-
-  return result;
-}; 

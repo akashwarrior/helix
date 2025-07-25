@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from 'react';
-import { motion, useInView } from 'motion/react';
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
 
 function FloatingParticles() {
   return [...Array(10)].map((_, i) => (
@@ -25,7 +25,7 @@ function FloatingParticles() {
         repeatDelay: 2,
       }}
     />
-  ))
+  ));
 }
 
 export default function SolutionSection() {
@@ -33,7 +33,10 @@ export default function SolutionSection() {
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+    <section
+      ref={ref}
+      className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden"
+    >
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-blue-600/5 via-purple-600/5 to-transparent" />
         <div className="absolute top-1/4 left-1/3 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
@@ -54,8 +57,9 @@ export default function SolutionSection() {
             </span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Our platform abstracts away the complexity. With intuitive tools and a
-            performance-first architecture, you can design and ship stunning animations with ease.
+            Our platform abstracts away the complexity. With intuitive tools and
+            a performance-first architecture, you can design and ship stunning
+            animations with ease.
           </p>
         </motion.div>
 
@@ -67,7 +71,11 @@ export default function SolutionSection() {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 to-purple-900/10" />
 
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice">
+          <svg
+            className="absolute inset-0 w-full h-full"
+            viewBox="0 0 800 400"
+            preserveAspectRatio="xMidYMid slice"
+          >
             {[0, 1].map((strand) => (
               <motion.path
                 key={strand}
@@ -81,8 +89,12 @@ export default function SolutionSection() {
                 fill="none"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={isInView ? { pathLength: 1, opacity: 1 } : {}}
-                transition={{ duration: 2, delay: 0.5 + strand * 0.2, ease: "easeOut" }}
-                className='will-change-transform'
+                transition={{
+                  duration: 2,
+                  delay: 0.5 + strand * 0.2,
+                  ease: "easeOut",
+                }}
+                className="will-change-transform"
               />
             ))}
 
@@ -124,4 +136,4 @@ export default function SolutionSection() {
       </div>
     </section>
   );
-} 
+}

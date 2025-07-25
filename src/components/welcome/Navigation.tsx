@@ -1,28 +1,31 @@
 "use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import { motion } from "motion/react";
-import { Button } from '@/components/ui/button';
-import { ThemeToggle } from '@/components/theme-toggle';
-import Link from 'next/link';
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import Link from "next/link";
 
 const navItems = [
-  { name: 'Home', href: '#hero' },
-  { name: 'Problem', href: '#problem' },
-  { name: 'Solution', href: '#solution' },
-  { name: 'Features', href: '#features' },
-  { name: 'Showcase', href: '#showcase' },
+  { name: "Home", href: "#hero" },
+  { name: "Problem", href: "#problem" },
+  { name: "Solution", href: "#solution" },
+  { name: "Features", href: "#features" },
+  { name: "Showcase", href: "#showcase" },
 ];
 
 export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleMobileMenuToggle = () => setIsMobileMenuOpen(prev => !prev);
+  const handleMobileMenuToggle = () => setIsMobileMenuOpen((prev) => !prev);
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
     e.preventDefault();
     const target = document.querySelector(href);
-    target?.scrollIntoView({ behavior: 'smooth' });
+    target?.scrollIntoView({ behavior: "smooth" });
     handleMobileMenuToggle();
   };
 
@@ -84,12 +87,21 @@ export default function Navigation() {
               className="p-2 text-muted-foreground hover:text-foreground transition-colors"
               onClick={handleMobileMenuToggle}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeWidth={2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                  d={
+                    isMobileMenuOpen
+                      ? "M6 18L18 6M6 6l12 12"
+                      : "M4 6h16M4 12h16M4 18h16"
+                  }
                 />
               </svg>
             </button>
@@ -103,7 +115,7 @@ export default function Navigation() {
         initial={{ opacity: 0, x: "100%" }}
         animate={{
           opacity: isMobileMenuOpen ? 1 : 0,
-          x: isMobileMenuOpen ? 0 : "100%"
+          x: isMobileMenuOpen ? 0 : "100%",
         }}
         transition={{ type: "spring", bounce: 0, duration: 0.4 }}
         style={{ pointerEvents: isMobileMenuOpen ? "auto" : "none" }}

@@ -1,21 +1,36 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Loader2, Edit3, File, Folder } from 'lucide-react';
-import { FileNode } from '@/lib/type';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Loader2, Edit3, File, Folder } from "lucide-react";
+import { FileNode } from "@/lib/type";
 
 interface RenameDialogProps {
   isOpen: boolean;
   node: FileNode | null;
   onClose: () => void;
-  onRename: (oldPath: string, newName: string, type: 'file' | 'folder') => void;
+  onRename: (
+    oldPath: string,
+    newName: string,
+    type: "file" | "folder",
+  ) => Promise<void>;
 }
 
-export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogProps) => {
-  const [name, setName] = useState('');
+export const RenameDialog = ({
+  isOpen,
+  node,
+  onClose,
+  onRename,
+}: RenameDialogProps) => {
+  const [name, setName] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
 
   useEffect(() => {
@@ -33,7 +48,7 @@ export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogPr
       await onRename(node.path, name.trim(), node.type);
       onClose();
     } catch (error) {
-      console.error('Failed to rename:', error);
+      console.error("Failed to rename:", error);
     } finally {
       setIsRenaming(false);
     }
@@ -41,7 +56,7 @@ export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogPr
 
   const handleClose = () => {
     if (!isRenaming) {
-      setName('');
+      setName("");
       onClose();
     }
   };
@@ -52,34 +67,42 @@ export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogPr
         <DialogHeader className="space-y-3">
           <DialogTitle className="flex items-center gap-2 text-lg font-medium bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
             <Edit3 className="h-5 w-5 text-foreground" />
-            Rename {node?.type === 'file' ? 'File' : 'Folder'}
+            Rename {node?.type === "file" ? "File" : "Folder"}
           </DialogTitle>
-          
+
           <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border/20 backdrop-blur-sm">
-            {node?.type === 'file' ? 
-              <File className="h-4 w-4 text-muted-foreground flex-shrink-0" /> : 
+            {node?.type === "file" ? (
+              <File className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            ) : (
               <Folder className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            }
+            )}
             <div className="min-w-0 flex-1">
-              <p className="text-xs text-muted-foreground mb-1">Current name:</p>
-              <p className="font-mono text-foreground/90 text-sm break-all">{node?.path}</p>
+              <p className="text-xs text-muted-foreground mb-1">
+                Current name:
+              </p>
+              <p className="font-mono text-foreground/90 text-sm break-all">
+                {node?.path}
+              </p>
             </div>
           </div>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">New name:</label>
+            <label className="text-sm font-medium text-foreground">
+              New name:
+            </label>
             <Input
-              placeholder="Enter new name"
+              autoFocus
+              name="rename-input"
               value={name}
+              placeholder="Enter new name"
               onChange={(e) => setName(e.target.value)}
               disabled={isRenaming}
-              autoFocus
               className="bg-background/50 border-border/30 focus:border-ring/50 focus:ring-2 focus:ring-ring/20 placeholder:text-muted-foreground/70"
             />
           </div>
-          
+
           <DialogFooter className="gap-3">
             <Button
               type="button"
@@ -103,4 +126,4 @@ export const RenameDialog = ({ isOpen, node, onClose, onRename }: RenameDialogPr
       </DialogContent>
     </Dialog>
   );
-}; 
+};

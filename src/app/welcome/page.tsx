@@ -1,18 +1,18 @@
-import HeroSection from '@/components/welcome/sections/HeroSection';
-import ProblemSection from '@/components/welcome/sections/ProblemSection';
-import SolutionSection from '@/components/welcome/sections/SolutionSection';
-import FeaturesSection from '@/components/welcome/sections/FeaturesSection';
-import ShowcaseSection from '@/components/welcome/sections/ShowcaseSection';
-import CTASection from '@/components/welcome/sections/CTASection';
-import Navigation from '@/components/welcome/Navigation';
-import ScrollProgressBar from '@/components/welcome/ScrollProgressBar';
+import HeroSection from "@/components/welcome/sections/HeroSection";
+import ProblemSection from "@/components/welcome/sections/ProblemSection";
+import SolutionSection from "@/components/welcome/sections/SolutionSection";
+import FeaturesSection from "@/components/welcome/sections/FeaturesSection";
+import ShowcaseSection from "@/components/welcome/sections/ShowcaseSection";
+import CTASection from "@/components/welcome/sections/CTASection";
+import Navigation from "@/components/welcome/Navigation";
+import ScrollProgressBar from "@/components/welcome/ScrollProgressBar";
 
 export default async function Welcome() {
   return (
     <>
       <Navigation />
       <ScrollProgressBar />
-      <main className='will-change-transform'>
+      <main className="will-change-transform">
         <div className="relative z-10">
           <div id="hero">
             <HeroSection />

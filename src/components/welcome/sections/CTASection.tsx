@@ -1,20 +1,27 @@
 "use client";
 
-import { useRef } from 'react';
-import { motion, useInView } from 'motion/react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { useRef } from "react";
+import { motion, useInView } from "motion/react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function CTASection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
-    <section ref={ref} className="relative min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden">
+    <section
+      ref={ref}
+      className="relative min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-20 overflow-hidden"
+    >
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-blue-600/10 via-purple-600/5 to-transparent" />
 
-        <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
+        <svg
+          className="absolute inset-0 w-full h-full opacity-30"
+          viewBox="0 0 1200 600"
+          preserveAspectRatio="xMidYMid slice"
+        >
           <defs>
             <linearGradient id="cta-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#60a5fa" stopOpacity="0" />
@@ -31,16 +38,20 @@ export default function CTASection() {
               strokeWidth="2"
               fill="none"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={isInView ? {
-                pathLength: [0, 1, 1, 0],
-                opacity: [0, 1, 1, 0],
-                x: [0, 100, 100, 200]
-              } : {}}
+              animate={
+                isInView
+                  ? {
+                      pathLength: [0, 1, 1, 0],
+                      opacity: [0, 1, 1, 0],
+                      x: [0, 100, 100, 200],
+                    }
+                  : {}
+              }
               transition={{
                 duration: 8,
                 delay: i * 0.5,
                 repeat: Infinity,
-                ease: "linear"
+                ease: "linear",
               }}
             />
           ))}
@@ -77,7 +88,10 @@ export default function CTASection() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <Button size="lg" className="text-lg px-12 py-5 h-auto relative overflow-hidden group rounded-full hover:scale-105 transition-transform duration-300">
+            <Button
+              size="lg"
+              className="text-lg px-12 py-5 h-auto relative overflow-hidden group rounded-full hover:scale-105 transition-transform duration-300"
+            >
               <span className="relative z-10">Get Started</span>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
             </Button>
@@ -141,4 +155,4 @@ export default function CTASection() {
       </div>
     </section>
   );
-} 
+}

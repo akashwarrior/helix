@@ -43,8 +43,8 @@ model Project {
 }
 
 enum Role {
-  USER
-  ASSISTANT
+  user
+  assistant
 }
 
 model Message {
