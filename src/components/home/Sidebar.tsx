@@ -53,17 +53,16 @@ const MenuItems = () => {
       icon={<FolderOpen size={32} />}
       title="No projects yet"
       description={["Start building your first website by", " creating a new project"]}
-      children={
-        <Button
-          variant="outline"
-          onClick={toggleSidebar}
-          className="flex items-center gap-2 text-xs font-medium truncate"
-        >
-          <Plus size={14} />
-          Create Project
-        </Button>
-      }
-    />
+    >
+      <Button
+        variant="outline"
+        onClick={toggleSidebar}
+        className="flex items-center gap-2 text-xs font-medium truncate"
+      >
+        <Plus size={14} />
+        Create Project
+      </Button>
+    </EmptyState>
   }
 
   return (
@@ -114,12 +113,11 @@ export default function Sidebar({ openAuthModal }: { openAuthModal: () => void }
             icon={<LogIn size={32} />}
             title="Welcome to Helix"
             description={["Sign in to access your projects and start", " building amazing websites"]}
-            children={
-              <Button onClick={openAuthModal}>
-                Login
-              </Button>
-            }
-          />
+          >
+            <Button onClick={openAuthModal}>
+              Login
+            </Button>
+          </EmptyState>
         ) : (
           <MenuItems />
         )}
