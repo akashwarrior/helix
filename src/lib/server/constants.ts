@@ -78,17 +78,14 @@ function parseXml(
         ...(filePath && { path: filePath })
       };
 
-      // Check if this specific step already exists
       const stepIndex = existingMessage.steps.findIndex(step =>
         step.stepType === newStep.stepType &&
         step.path === newStep.path
       );
 
       if (stepIndex === -1) {
-        // Add new step if it doesn't exist
         existingMessage.steps.push(newStep);
-      } else {
-        // Update existing step only if content or completion status changed
+      } else if (newStep.isArtifactComplete && newStep.isPending) {
         const existingStep = existingMessage.steps[stepIndex];
         if (existingStep.content !== newStep.content ||
           existingStep.isArtifactComplete !== newStep.isArtifactComplete) {
@@ -96,7 +93,6 @@ function parseXml(
         }
       }
 
-      // Update the message with the modified steps
       useMessagesStore.getState().updateMessage(existingMessage);
     }
   }

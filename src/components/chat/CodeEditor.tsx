@@ -49,25 +49,6 @@ const getLanguageFromExtension = (filename: string): string => {
   return languageMap[ext || "javascript"];
 };
 
-const getLanguageIcon = (language: string) => {
-  const iconProps = { size: 14 };
-  const iconMap: Record<string, React.ReactNode> = {
-    tsx: <FileCode {...iconProps} className="text-blue-400" />,
-    typescript: <FileCode {...iconProps} className="text-blue-400" />,
-    css: <FileCode {...iconProps} className="text-purple-400" />,
-    javascript: <FileCode {...iconProps} className="text-yellow-400" />,
-    jsx: <FileCode {...iconProps} className="text-yellow-400" />,
-    html: <FileCode {...iconProps} className="text-orange-400" />,
-    json: <FileCode {...iconProps} className="text-green-400" />,
-    markdown: <FileCode {...iconProps} className="text-gray-400" />,
-  };
-  return (
-    iconMap[language] || (
-      <FileCode {...iconProps} className="text-muted-foreground" />
-    )
-  );
-};
-
 interface TabProps {
   tab: {
     path: string;
@@ -97,7 +78,13 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
       transition={{ duration: 0.2 }}
       onClick={handleClick}
     >
-      {getLanguageIcon(getLanguageFromExtension(tab.name))}
+      <FileCode
+        size={16}
+        className={cn(
+          "flex-shrink-0",
+          tab.active ? "text-primary" : "text-muted-foreground",
+        )}
+      />
       <span className="truncate max-w-[120px]">{tab.name}</span>
 
       <div
@@ -146,11 +133,7 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor({
-  webContainer,
-}: {
-  webContainer: WebContainer;
-}) {
+export default function CodeEditor({ webContainer }: { webContainer: WebContainer }) {
   const { fileTabs, setActiveTab, setModified, removeTab } = useFileTabStore();
   const { theme } = useTheme();
 
@@ -242,8 +225,8 @@ export default function CodeEditor({
   }
 
   return (
-    <div className="h-full flex flex-col bg-card border border-border/50 rounded-lg overflow-hidden">
-      <div className="border-b border-border/50 overflow-x-auto flex overflow-y-hidden relative h-fit">
+    <div className="h-full flex flex-col bg-card border border-border/50 overflow-hidden">
+      <div className="border-b border-border/50 overflow-x-auto flex overflow-y-hidden relative h-fit [&::-webkit-scrollbar]:hidden">
         {fileTabs.map((tab) => (
           <Tab
             key={tab.path}

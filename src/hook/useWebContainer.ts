@@ -52,10 +52,11 @@ export function useWebContainer(): UseWebContainerReturn {
   useEffect(() => {
     if (!containerRef.current || processingSteps.current) return;
     const webContainer = containerRef.current;
-    processingSteps.current = true;
 
     const lastMessage = messages[messages.length - 1];
     if (lastMessage?.role !== "assistant") return;
+
+    processingSteps.current = true;
 
     (async () => {
       for (let idx = 0; idx < lastMessage.steps.length; idx++) {

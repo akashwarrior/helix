@@ -6,7 +6,7 @@ import { useSidebarStore } from "@/store/sidebarStore";
 import { useSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useProjectList } from "@/hook/useProjectList";
+import { useChatList } from "@/hook/useChtatList";
 
 interface EmptyStateProps {
   icon: React.ReactNode;
@@ -39,7 +39,7 @@ const EmptyState = ({ icon, title, description, children }: EmptyStateProps) => 
 
 const MenuItems = () => {
   const toggleSidebar = useSidebarStore(state => state.toggleSidebar);
-  const { projects, hasMore, isLoading, loadMore } = useProjectList();
+  const { chats, hasMore, isLoading, loadMore } = useChatList();
 
   const handleScroll = (e: React.UIEvent<HTMLUListElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
@@ -48,7 +48,7 @@ const MenuItems = () => {
     }
   };
 
-  if (projects.length === 0) {
+  if (chats.length === 0 && !isLoading) {
     return <EmptyState
       icon={<FolderOpen size={32} />}
       title="No projects yet"
@@ -70,26 +70,34 @@ const MenuItems = () => {
       className="space-y-1 overflow-y-auto"
       onScroll={handleScroll}
     >
-      {isLoading ? (
+      {chats.map(
+        ({ id, name }) =>
+          <li key={id}>
+            <Link
+              href={`/chat/${id}`}
+              className="block px-5 py-2.5 text-primary/90 hover:text-primary hover:bg-primary/5 rounded-lg text-sm truncate"
+            >
+              {name}
+            </Link>
+          </li>
+      )}
+
+      {isLoading && (
         Array.from({ length: 10 }).map(
           (_, index) => (
-            <div
-              key={index}
-              className="py-5 bg-primary/5 rounded-lg text-sm truncate animate-pulse"
-            />
-          ))
-      ) : (
-        projects.map(
-          ({ id, name }) =>
-            <li key={id}>
-              <Link
-                href={`/chat/${id}`}
-                className="block px-5 py-2.5 text-primary/90 hover:text-primary hover:bg-primary/5 rounded-lg text-sm truncate"
-              >
-                {name}
-              </Link>
+            <li
+              key={`skeleton-${index}`}
+              className="py-2.5 px-5 rounded-lg animate-pulse"
+            >
+              <div
+                className="h-4 bg-primary/10 rounded-md"
+                style={{
+                  width: `${60 + (index % 3) * 15}%`
+                }}
+              />
             </li>
-        ))}
+          ))
+      )}
     </ul>
   )
 }
@@ -104,7 +112,7 @@ export default function Sidebar({ openAuthModal }: { openAuthModal: () => void }
       <aside
         className={cn(
           "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/30 backdrop-blur-sm md:bg-transparent transition-all duration-300",
-          isOpen ? "min-w-72 md:min-w-68" : "w-0 -translate-x-full",
+          isOpen ? "w-72! md:w-68!" : "w-0 -translate-x-full",
           "px-3 pt-20 pb-8 flex flex-col justify-center overflow-hidden",
         )}
       >

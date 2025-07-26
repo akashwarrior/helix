@@ -1,8 +1,9 @@
+import type { NextRequest } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -12,7 +13,7 @@ export async function GET(req: Request) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const skip = parseInt(req.headers.get("skip") || "0");
+    const skip = parseInt(req.nextUrl.searchParams.get('skip') || "0", 10);
 
     const chats = await prisma.project.findMany({
       orderBy: {
@@ -24,10 +25,8 @@ export async function GET(req: Request) {
       select: {
         id: true,
         name: true,
-        createdAt: true,
-        updatedAt: true,
       },
-      skip: skip || 0,
+      skip: skip,
       take: 15,
     });
 
@@ -38,7 +37,7 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const session = await auth.api.getSession({
       headers: await headers(),

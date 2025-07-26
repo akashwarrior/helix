@@ -4,7 +4,6 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import prisma from "@/lib/db";
-import type { Message, Project } from "@prisma/client";
 
 export default async function ChatPage({
   params,
@@ -21,13 +20,7 @@ export default async function ChatPage({
 
   const { chatId } = await params;
 
-  let chat:
-    | (Project & {
-        messages: Omit<Message, "projectId">[];
-      })
-    | null = null;
-
-  chat = await prisma.project.findUnique({
+  const chat = await prisma.project.findUnique({
     where: {
       id: chatId,
       userId: session.user.id,

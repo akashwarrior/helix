@@ -1,3 +1,4 @@
+import type { NextRequest } from "next/server";
 import { streamText, TextPart } from "ai";
 import { model } from "@/lib/server/model";
 import { headers } from "next/headers";
@@ -9,7 +10,7 @@ import { systemPrompt } from "@/lib/server/prompt";
 export const maxDuration = 300; // 5 minutes (max duration for free plan)
 
 export async function POST(
-    req: Request,
+    req: NextRequest,
     { params }: { params: Promise<{ chatId: string }> }
 ) {
     const { chatId } = await params

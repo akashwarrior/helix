@@ -29,11 +29,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
-export default function FileTree({
-  webContainer,
-}: {
-  webContainer: WebContainer;
-}) {
+export default function FileTree({ webContainer }: { webContainer: WebContainer }) {
   const { fileTabs } = useFileTabStore();
   const [fileTree, setFileTree] = useState<FileNode[]>([]);
   const [createDialog, setCreateDialog] = useState<{
@@ -137,7 +133,7 @@ export default function FileTree({
 
   return (
     <>
-      <Card className="h-full w-[280px] p-0 gap-0 flex flex-col">
+      <Card className="h-full w-[280px] p-0 gap-0 flex flex-col rounded-none">
         <CardHeader className="px-4 py-2 shadow-sm flex-shrink-0">
           <SearchHeader
             searchQuery={searchQuery}
@@ -164,12 +160,11 @@ export default function FileTree({
               fileTree.map((node) => (
                 <FileTreeNode
                   key={node.path}
-                  depth={0}
+                  depth={0.5}
                   node={node}
                   fetchData={fetchData}
                   isSelected={
-                    fileTabs.find((tab) => tab.path === node.path)?.active ??
-                    false
+                    fileTabs.find((tab) => tab.path === node.path)?.active ?? false
                   }
                   searchQuery={debouncedQuery}
                   onContextMenu={onContextMenu}

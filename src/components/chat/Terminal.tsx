@@ -34,11 +34,7 @@ const getTerminalTheme = (theme: string | undefined) => ({
   brightWhite: theme !== "light" ? "#ffffff" : "#18181b",
 });
 
-export default function Terminal({
-  webContainer,
-}: {
-  webContainer: WebContainer;
-}) {
+export default function Terminal({ webContainer }: { webContainer: WebContainer }) {
   const { theme } = useTheme();
   const [isConnected, setIsConnected] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -149,11 +145,11 @@ export default function Terminal({
     };
   }, [webContainer]);
 
+
   const restartShell = async () => {
-    if (!terminal.current) return;
     cleanupShell();
-    terminal.current.clear();
-    terminal.current.writeln("\r\n\x1b[33mRestarting shell...\x1b[0m");
+    terminal.current?.clear();
+    terminal.current?.writeln("\r\n\x1b[33mRestarting shell...\x1b[0m");
     await startShell();
   };
 
@@ -162,7 +158,7 @@ export default function Terminal({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col backdrop-blur-md border border-border/20 rounded-2xl overflow-hidden shadow-lg shadow-black/5 dark:shadow-black/10"
+      className="flex-1 flex flex-col backdrop-blur-md border border-border/20 overflow-hidden shadow-lg shadow-black/5 dark:shadow-black/10"
     >
       <div className="px-4 py-2.5 bg-card/50 backdrop-blur-md border-b border-border/20 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
