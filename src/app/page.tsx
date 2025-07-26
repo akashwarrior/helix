@@ -96,7 +96,7 @@ export default function Home() {
     }
 
     try {
-      const input = textAreaRef.current?.value.trim()!;
+      const input = textAreaRef.current!.value.trim();
       originalPromptRef.current = input;
       setError({ type: null, message: "" });
       await append({
@@ -146,7 +146,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [{ role: "user", content: input }],
+          content: input,
         }),
       });
 

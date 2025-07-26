@@ -61,9 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${font.className} antialiased relative bg-background dark:bg-[#151515]`}
-      >
+      <body className={`${font.className} antialiased relative`}>
         <Toaster />
         <ThemeProvider
           attribute="class"
