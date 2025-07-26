@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
-const inter = Inter({
+const font = Host_Grotesk({
   subsets: ["latin"],
   preload: true,
 });
@@ -59,19 +61,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* <script
-          crossOrigin="anonymous"
-          src="//unpkg.com/react-scan/dist/auto.global.js"
-        ></script> */}
-      </head>
-      <body className={`${inter.className} antialiased`}>
+      <body
+        className={`${font.className} antialiased relative bg-background dark:bg-[#151515]`}
+      >
         <Toaster />
-        <ThemeProvider attribute="class" enableSystem>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
         </ThemeProvider>
-        {/* <SpeedInsights />
-        <Analytics /> */}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
