@@ -43,26 +43,28 @@ const MenuItems = () => {
 
   const handleScroll = (e: React.UIEvent<HTMLUListElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore) {
+    if (scrollTop + clientHeight >= scrollHeight - 15 && hasMore) {
       loadMore();
     }
   };
 
   if (chats.length === 0 && !isLoading) {
-    return <EmptyState
-      icon={<FolderOpen size={32} />}
-      title="No projects yet"
-      description={["Start building your first website by", " creating a new project"]}
-    >
-      <Button
-        variant="outline"
-        onClick={toggleSidebar}
-        className="flex items-center gap-2 text-xs font-medium truncate"
+    return (
+      <EmptyState
+        icon={<FolderOpen size={32} />}
+        title="No projects yet"
+        description={["Start building your first website by", " creating a new project"]}
       >
-        <Plus size={14} />
-        Create Project
-      </Button>
-    </EmptyState>
+        <Button
+          variant="outline"
+          onClick={toggleSidebar}
+          className="flex items-center gap-2 text-xs font-medium truncate"
+        >
+          <Plus size={14} />
+          Create Project
+        </Button>
+      </EmptyState>
+    );
   }
 
   return (
@@ -112,8 +114,8 @@ export default function Sidebar({ openAuthModal }: { openAuthModal: () => void }
       <aside
         className={cn(
           "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/30 backdrop-blur-sm md:bg-transparent transition-all duration-300",
-          isOpen ? "w-72! md:w-68!" : "w-0 -translate-x-full",
-          "px-3 pt-20 pb-8 flex flex-col justify-center overflow-hidden",
+          isOpen ? "w-72 md:w-68" : "w-0 -translate-x-full",
+          "px-3 pt-20 pb-8 flex flex-col justify-center overflow-hidden max-w-11/12",
         )}
       >
         {!isAuthenticated ? (

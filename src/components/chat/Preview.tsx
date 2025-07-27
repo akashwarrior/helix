@@ -269,7 +269,6 @@ export default function Preview() {
 
   const handleRestart = () => {
     setError(null);
-    console.log("Restarting dev server...");
     handleRefresh();
   };
 

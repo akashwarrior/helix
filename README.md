@@ -1,215 +1,179 @@
-# Helix – The Future of Website Building   
+<p align="center">
+  <img src="public/logo.png" alt="Zero Logo" width="64"/>
+</p>
 
-Create jaw-dropping **3D websites** with AI-powered design guidance and simplicity. Helix lets anyone from solo makers to large teams ship immersive, performant and smoother web experiences in minutes.
-  
-![Helix Logo](public/logo.png)
+# Helix
 
----  
+Transform your ideas into full-stack intelligent apps and publish with a single click
 
-## Table of Contents
+## What is Helix?
 
-1. [About Helix](#about-helix)
+Helix is an open-source AI powered website builder that lets anyone from solo makers to large teams ship immersive, performant and smoother web experiences in minutes..
 
-2. [Live Preview](#live-preview)
+## Why Helix?
 
-3. [Key Features](#key-features)
+Most website builder today are either **closed-source**, or **build bad designs**.
+Helix is different:
 
-4. [Tech Stack](#tech-stack)
-
-5. [Getting Started](#getting-started)
-
-6. [Project Structure](#project-structure)
-
-7. [Available Scripts](#available-scripts)
-
-8. [Contributing](#contributing)
-
-9. [License](#license)
-
-10. [Support](#support)
-
----  
-
-## Live Preview
-
-Experience the landing page live at **https://helix.akashgupta.tech**.
-
----  
-
-## Key Features
-
-- ⚡️ **AI-Assisted Design** – Receive layout, colour and more suggestions in real-time.
-- 📱 **Responsive by Default** – Tailwind-driven utility classes ensure a perfect fit on every device.
-- 🚀 **Performance First** – Built on Next.js App Router with Server Components for lightning-fast loads.
-- 🛠️ **Export Anywhere** – Deploy to Vercel with one click or generate build files to deploy anywhere.
-
----  
-
-## About Helix
-
-Helix is an open-source landing page for an upcoming SaaS platform that aims to **democratise 3D website creation**. Powered by AI design recommendations and modern component libraries, Helix removes the barriers between your imagination and the final production site.  
-
-> "Design cosmic grade sites without touching a single line of code." – *The Helix Team*
-
-
-### Why Helix?
-
-* **AI-Assisted Design** – Receive layout, colour, and copy suggestions generated on-the-fly.
-
-* **Performance First** – Built on top of Next.js App Router & React Server Components for blazing-fast loads.
-
-* **Export Anywhere** – Deploy to Vercel with one click or export fully-typed code bundles.
-
----
+- ✅ **Open-Source** – No hidden agendas, fully transparent.
+- 🦾 **AI Driven** - Build your product  with Agents & LLMs.
+- 🔒 **Data Privacy First** – Helix does not track, collect, or sell your data in any way.
+- ⚙️ **Self-Hosting Freedom** – Run your own website builder with ease.
+- 🚀 **Developer-Friendly** – Built with extensibility and integrations in mind.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | [Next.js 15](https://nextjs.org/) (App Router) |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS, PostCSS |
-| Animation | motion/react, GSAP |
-| Database | PostgreSQL (via Prisma ORM) |
-| Tooling | PNPM / NPM scripts, Vercel for deployment |
+Helix is built with modern and reliable technologies:
 
----
+- **Frontend**: Next.js, React, TypeScript, TailwindCSS, Shadcn UI
+- **Backend**: Node.js, Prisma ORM
+- **Database**: PostgreSQL
+- **Authentication**: Better Auth, Google OAuth
 
 ## Getting Started
 
-These instructions will set up the project on your local machine for development and testing.
-
-
 ### Prerequisites
 
-- Node.js ^18 (or later)
+**Required Versions:**
 
-- pnpm, npm or yarn package manager
+- [Node.js](https://nodejs.org/en/download) (v18 or higher)
+- [npm](https://www.npmjs.com) (v10 or higher)
+- [Docker](https://docs.docker.com/engine/install/) (v20 or higher)
 
-- PostgreSQL 15+ instance (local or remote) and a valid `DATABASE_URL` environment variable
-  
+Before running the application, you'll need to configure environment variables. For more details on environment variables, see the [Environment Variables](#environment-variables) section.
 
-### Installation
+### Setup Options
 
-```bash
+1. **Clone and Install**
 
-git  clone  https://github.com/akashwarrior/helix.git
+   ```bash
+   # Clone the repository
+   git clone https://github.com/akashwarrior/helix.git
+   cd helix
 
-cd  helix
+   # Install dependencies
+   npm install
 
-npm  install  # or pnpm install / yarn install
+   # Start database locally
+   docker run -d 
+    --name helix-db 
+    -e POSTGRES_USER=postgres 
+    -e POSTGRES_PASSWORD=mysecretpassword 
+    -e POSTGRES_DB=helix 
+    -p 5432:5432 postgres
+   ```
 
-```
+2. **Set Up Environment**
 
-### Running the Dev Server
+   - Run `npm run env` to setup your environment variables
+   - Start the database with the provided [setup](#database-setup)
+   - Initialize the database: `npm run db:migrate --dev`
 
-```bash
+3. **Start the App**
 
-# Ensure DATABASE_URL is set in .env before proceeding
+   ```bash
+   npm run dev
+   ```
 
-npm  run  dev  # starts on http://localhost:3000
+4. **Open in Browser**
 
-```
+   Visit [http://localhost:3000](http://localhost:3000)
+   </details>
 
-If this is your first time running the project (or whenever you change the Prisma schema) execute:
+### Environment Setup
 
-```bash
+1. **Better Auth Setup**
 
-npx prisma migrate dev --name init   # creates & applies migrations
+   - Open the `.env` file and change the BETTER_AUTH_SECRET to a random string. (Use `openssl rand -hex 32` to generate a 32 character string)
 
-npx prisma generate                  # regenerates the typed Prisma Client
+     ```env
+     BETTER_AUTH_SECRET=your_secret_key
+     ```
 
-```
+2. **Google OAuth Setup**
 
-The page hot-reloads as you edit files under `src/`.
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project
+   - Add the following APIs in your Google Cloud Project: [People API](https://console.cloud.google.com/apis/library/people.googleapis.com), [Gmail API](https://console.cloud.google.com/apis/library/gmail.googleapis.com)
+     - Use the links above and click 'Enable' or
+     - Go to 'APIs and Services' > 'Enable APIs and Services' > Search for 'Google People API' and click 'Enable'
+     - Go to 'APIs and Services' > 'Enable APIs and Services' > Search for 'Gmail API' and click 'Enable'
+   - Enable the Google OAuth2 API
+   - Create OAuth 2.0 credentials (Web application type)
+   - Add authorized redirect URIs:
+     - Development:
+       - `http://localhost:3000/api/auth/callback/google`
+     - Production:
+       - `https://your-production-url/api/auth/callback/google`
+   - Add to `.env`:
 
-  
+     ```env
+     GOOGLE_CLIENT_ID=your_client_id
+     GOOGLE_CLIENT_SECRET=your_client_secret
+     ```
 
-### Building for Production
+   - Add yourself as a test user:
 
-```bash
+     - Go to [`Audience`](https://console.cloud.google.com/auth/audience)
+     - Under 'Test users' click 'Add Users'
+     - Add your email and click 'Save'
 
-npm  run  build:production
+> [!WARNING]
+> The authorized redirect URIs in Google Cloud Console must match **exactly** what you configure in the `.env`, including the protocol (http/https), domain, and path.
 
-npm  start  # Runs the built app
+### Environment Variables
 
-```
+Run `npm run env` to setup your environment variables. It will copy the `.env.example` file to `.env` and fill in the variables for you.
 
----  
+### Database Setup
 
-## Project Structure
+Helix uses PostgreSQL for storing data. Here's how to set it up:
 
-```
-helix/
+1. **Start the Database**
 
-├─ public/ # assets (logo, icons, favicons)
+   Run this command to start a local PostgreSQL instance:
 
-├─ src/
+   ```bash
+   docker run -d 
+    --name helix-db 
+    -e POSTGRES_USER=postgres 
+    -e POSTGRES_PASSWORD=mysecretpassword 
+    -e POSTGRES_DB=helix 
+    -p 5432:5432 postgres
+   ```
 
-│ ├─ app/ # Next.js app-router entrypoints
+   This creates a database with:
 
-│ │ ├─ layout.tsx # Root layout
+   - Name: `helix`
+   - Username: `postgres`
+   - Password: `mysecretpassword`
+   - Port: `5432`
 
-│ │ ├─ page.tsx # Landing page
+2. **Set Up Database Connection**
 
-│ │ └─ ... # Loading, error boundaries
+   Make sure your database connection string is in `.env` file.
 
-│ ├─ components/ # Reusable React components
+   For local development use:
 
-│ ├─ utils/ # Helper utilities & animation configs
+   ```
+   DATABASE_URL="postgresql://postgres:mysecretpassword@localhost:5432/helix"
+   ```
 
-│ ├─ prisma/ # Prisma schema & migrations
+3. **Database Commands**
 
-│ ├─ generated/ # Generated Prisma Client (do **not** edit manually)
+   - **Create migration files** (after schema changes):
 
-│ ├─ global.css # (Tailwind CSS)
+     ```bash
+     npm run db:generate
+     ```
 
-├─ eslint.config.mjs # Lint rules
+   - **Apply migrations**:
 
-└─ next.config.ts # Framework config
+     ```bash
+     npm run db:migrate
+     ```
 
-```
-
----
-
-## Available Scripts
-
-| Script | Purpose |
-|--------|---------|
-| `dev` | Start the development server |
-| `build` | Create an optimised production build |
-| `start` | Serve the production build |
-| `lint` | Run ESLint & TypeScript checks |
-
----    
-
-## Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the repository
-
-2. Create your feature branch (`git checkout -b feat/some-feature`)
-
-3. Commit your changes (`git commit -m 'feat: add some feature'`)
-
-4. Push to the branch (`git push origin feat/some-feature`)
-
-5. Open a Pull Request
-
-See the [open issues](https://github.com/akashwarrior/helix/issues) for a full list of proposed features (and known issues).
-
----
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----  
-
-## Support
-
-If you enjoy this project and would like to support its development, please ⭐ star the repo and share it with others.
-
-
-For inquiries, ping `@skyGuptaCS` on X.
+   - **View database content**:
+     ```bash
+     npm run db:studio
+     ```

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       take: 15,
     });
 
-    return Response.json({ chats }, { status: 200 });
+    return Response.json(chats, { status: 200 });
   } catch (error) {
     console.log(error);
     return Response.json({ message: "Internal Server Error" }, { status: 500 });
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     const chat = await prisma.project.create({
       data: {
-        name: "New Chat",
+        name: "New Chat" + Date.now(),
         messages: {
           create: {
             role: "user",

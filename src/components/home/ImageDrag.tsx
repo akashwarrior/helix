@@ -16,18 +16,14 @@ interface UploadedImage {
 
 interface ImageUploadContextType {
   uploadedImages: UploadedImage[];
-  setUploadedImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>;
   isDragOver: boolean;
   setIsDragOver: React.Dispatch<React.SetStateAction<boolean>>;
   fileInputRef: React.RefObject<HTMLInputElement>;
   handleImageUpload: (files: FileList | null) => void;
   removeImage: (id: string) => void;
-  setError: (error: ErrorState) => void;
 }
 
-const ImageUploadContext = createContext<ImageUploadContextType | undefined>(
-  undefined,
-);
+const ImageUploadContext = createContext<ImageUploadContextType | null>(null);
 
 const useImageUpload = () => {
   const context = useContext(ImageUploadContext);
@@ -37,13 +33,12 @@ const useImageUpload = () => {
   return context;
 };
 
-function ImageUpload({
-  children,
-  setError,
-}: {
+interface ImageUploadProps {
   children: React.ReactNode;
   setError: (error: ErrorState) => void;
-}) {
+}
+
+function ImageUpload({ children, setError }: ImageUploadProps) {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -106,13 +101,11 @@ function ImageUpload({
     <ImageUploadContext.Provider
       value={{
         uploadedImages,
-        setUploadedImages,
         isDragOver,
         setIsDragOver,
         fileInputRef,
         handleImageUpload,
         removeImage,
-        setError,
       }}
     >
       {children}
@@ -193,15 +186,13 @@ function ImageUploadPreview() {
   );
 }
 
-function ImageUploadContent({
-  children,
-  className,
-}: {
+interface ImageUploadContentProps {
   children: React.ReactNode;
   className?: string;
-}) {
-  const { isDragOver, setIsDragOver, handleImageUpload, fileInputRef } =
-    useImageUpload();
+}
+
+function ImageUploadContent({ children, className }: ImageUploadContentProps) {
+  const { isDragOver, setIsDragOver, handleImageUpload, fileInputRef } = useImageUpload();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -222,9 +213,7 @@ function ImageUploadContent({
 
   return (
     <div
-      className={cn(
-        "relative",
-        className,
+      className={cn(className, "relative",
         isDragOver ? "border-primary/50 bg-primary/5" : "border-border/50",
       )}
       onDragOver={handleDragOver}

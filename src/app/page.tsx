@@ -35,6 +35,7 @@ export default function Home() {
   const [isFinalSubmitting, setIsFinalSubmitting] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
 
+  const uploadTriggerRef = useRef<HTMLButtonElement>(null);
   const originalPromptRef = useRef<string | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const authButtonRef = useRef<HTMLButtonElement>(null);
@@ -164,14 +165,20 @@ export default function Home() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+    const isCtrlKey = e.ctrlKey || e.metaKey;
+    if (isCtrlKey && e.key === "Enter") {
       e.preventDefault();
       handleFinalSubmit();
     }
 
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "e") {
+    if (isCtrlKey && e.key.toLowerCase() === "e") {
       e.preventDefault();
       handleEnhancePrompt();
+    }
+
+    if (isCtrlKey && e.key.toLowerCase() === "u") {
+      e.preventDefault();
+      uploadTriggerRef.current?.click();
     }
   };
 
@@ -286,8 +293,9 @@ export default function Home() {
                 <div className="flex items-center gap-2">
                   <ImageUploadTrigger>
                     <Button
-                      variant="ghost"
+                      ref={uploadTriggerRef}
                       size="icon"
+                      variant="ghost"
                       disabled={isLoading}
                       title="Upload images (⌘U)"
                       className="hover:bg-muted/30 focus:ring-2 focus:ring-primary/20 group"
@@ -300,8 +308,8 @@ export default function Home() {
                   </ImageUploadTrigger>
 
                   <Button
-                    variant="ghost"
                     size="icon"
+                    variant="ghost"
                     onClick={handleEnhancePrompt}
                     disabled={isEmpty || isLoading}
                     title="Enhance prompt (⌘E)"
@@ -318,13 +326,13 @@ export default function Home() {
 
                   {originalPromptRef.current && !isLoading && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
+                      initial={{ scale: 0.8, rotate: 90 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      exit={{ scale: 0.8, rotate: 90 }}
                     >
                       <Button
-                        variant="ghost"
                         size="icon"
+                        variant="ghost"
                         onClick={handleRevert}
                         title="Revert to original prompt"
                         className="hover:bg-muted/30 focus:ring-2 focus:ring-primary/20 group"
@@ -363,6 +371,7 @@ export default function Home() {
                   onClick={handleFinalSubmit}
                   disabled={isEmpty || isLoading || isFinalSubmitting}
                   className="text-sm font-medium transition-all duration-200"
+                  title="Start building (⌘Enter)"
                 >
                   {isFinalSubmitting ? (
                     <Loader2 size={18} className="animate-spin" />

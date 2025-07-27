@@ -13,8 +13,8 @@ export const useChatList = () => {
         { revalidateFirstPage: false }
     );
 
-    const chats = data?.flatMap(page => page.chats) || [];
-    const hasMore = data?.[data.length - 1]?.chats.length === ITEMS_PER_PAGE;
+    const chats = data?.flat() || [];
+    const hasMore = ((chats.length || 1) % ITEMS_PER_PAGE) === 0;
 
     const loadMore = () => {
         if (hasMore && !isValidating) {
