@@ -113,11 +113,27 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    text-rendering: optimizeLegibility;
   }
 
   html,
   body {
-    @apply h-full max-h-screen flex flex-col bg-background text-foreground;
+    @apply h-full flex flex-col bg-background text-foreground;
+  }
+
+  .home-container {
+    background: radial-gradient(1920px 100% at bottom, rgba(255, 77, 0, 0.45) 0%, rgba(0, 87, 255, 0.5) 50%, transparent 100%);
+    mask-image: radial-gradient(1920px 100% at bottom, #000 0%, rgba(0, 0, 0, 0.5) 50%, transparent 100%);
+  }
+
+  ::selection {
+    background-color: var(--accent);
+    color: var(--foreground);
+  }
+
+  .dark ::selection {
+    background-color: var(--accent);
+    color: var(--foreground);
   }
 
   ::-webkit-scrollbar {
@@ -137,5 +153,46 @@
 
   ::-webkit-scrollbar-track {
     background-color: transparent;
+  }
+
+  /* Theme Transition */
+  ::view-transition-group(root) {
+    will-change: transform;
+    animation-duration: 0.7s;
+    animation-timing-function: var(--expo-out);
+  }
+
+  ::view-transition-new(root) {
+    animation-name: reveal-light;
+  }
+
+  ::view-transition-old(root),
+  .dark::view-transition-old(root) {
+    animation: none;
+    z-index: -1;
+  }
+
+  .dark::view-transition-new(root) {
+    animation-name: reveal-dark;
+  }
+
+  @keyframes reveal-dark {
+    from {
+      clip-path: polygon(50% -71%, -50% 71%, -50% 71%, 50% -71%);
+    }
+
+    to {
+      clip-path: polygon(50% -71%, -50% 71%, 50% 171%, 171% 50%);
+    }
+  }
+
+  @keyframes reveal-light {
+    from {
+      clip-path: polygon(171% 50%, 50% 171%, 50% 171%, 171% 50%);
+    }
+
+    to {
+      clip-path: polygon(171% 50%, 50% 171%, -50% 71%, 50% -71%);
+    }
   }
 }

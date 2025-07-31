@@ -5,144 +5,21 @@ import { memo, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FileNode } from "@/lib/type";
 import { useFileTabStore } from "@/store/fileTabStore";
-import type { LucideIcon } from "lucide-react";
 
 import {
   ChevronRight,
-  FileCode,
-  FileText,
   Folder,
   FolderOpen,
-  FileImage,
-  Settings,
-  GitBranch,
-  Package,
-  Braces,
-  Hash,
-  Palette,
-  Globe,
   MoreHorizontal,
+  FileCode,
 } from "lucide-react";
 
-const ICON_PROPS = {
-  size: 16,
-  className: "ml-4 text-muted-foreground",
-};
-
-const FILE_ICON_MAP: Record<string, { icon: LucideIcon; className: string }> = {
-  "package.json": { icon: Package, className: "text-red-400" },
-  "package-lock.json": { icon: Package, className: "text-red-300" },
-  "tsconfig.json": { icon: Settings, className: "text-blue-400" },
-  "jsconfig.json": { icon: Settings, className: "text-blue-400" },
-};
-
-const EXTENSION_ICON_MAP: Record<
-  string,
-  { icon: LucideIcon; className: string }
-> = {
-  tsx: { icon: FileCode, className: "text-blue-400" },
-  jsx: { icon: FileCode, className: "text-cyan-400" },
-  ts: { icon: FileCode, className: "text-blue-500" },
-  js: { icon: FileCode, className: "text-yellow-400" },
-  json: { icon: Braces, className: "text-orange-400" },
-  css: { icon: Palette, className: "text-purple-400" },
-  scss: { icon: Palette, className: "text-purple-400" },
-  sass: { icon: Palette, className: "text-purple-400" },
-  html: { icon: Globe, className: "text-orange-300" },
-  md: { icon: Hash, className: "text-blue-300" },
-  ico: { icon: FileImage, className: "text-green-400" },
-  png: { icon: FileImage, className: "text-green-400" },
-  jpg: { icon: FileImage, className: "text-green-400" },
-  jpeg: { icon: FileImage, className: "text-green-400" },
-  svg: { icon: FileImage, className: "text-green-400" },
-  gitignore: { icon: GitBranch, className: "text-red-400" },
-};
-
-const FOLDER_COLORS: Record<string, { expanded: string; collapsed: string }> = {
-  components: { expanded: "text-blue-400", collapsed: "text-blue-300" },
-  hooks: { expanded: "text-green-400", collapsed: "text-green-300" },
-  lib: { expanded: "text-purple-400", collapsed: "text-purple-300" },
-  utils: { expanded: "text-purple-400", collapsed: "text-purple-300" },
-  types: { expanded: "text-cyan-400", collapsed: "text-cyan-300" },
-  public: { expanded: "text-orange-400", collapsed: "text-orange-300" },
-  src: { expanded: "text-yellow-400", collapsed: "text-yellow-300" },
-};
-
-const FileIcon = memo(({ name }: { name: string }) => {
-  const ext = name.split(".").pop()?.toLowerCase();
-  const fileName = name.toLowerCase();
-
-  if (fileName.endsWith(".d.ts")) {
-    return <FileCode {...ICON_PROPS} className="text-blue-300" />;
-  }
-  if (fileName.includes("tailwind.config")) {
-    return <Palette {...ICON_PROPS} className="text-cyan-400" />;
-  }
-  if (fileName.includes("vite.config") || fileName.includes("webpack.config")) {
-    return <Settings {...ICON_PROPS} className="text-purple-400" />;
-  }
-
-  const fileIconConfig = FILE_ICON_MAP[fileName];
-  if (fileIconConfig) {
-    const Icon = fileIconConfig.icon;
-    return <Icon {...ICON_PROPS} className={fileIconConfig.className} />;
-  }
-
-  const extIconConfig = ext ? EXTENSION_ICON_MAP[ext] : null;
-  if (extIconConfig) {
-    const Icon = extIconConfig.icon;
-    return <Icon {...ICON_PROPS} className={extIconConfig.className} />;
-  }
-
-  return <FileText {...ICON_PROPS} />;
-});
-FileIcon.displayName = "FileIcon";
-
-const FolderIcon = memo(
-  ({
-    name,
-    isExpanded,
-    isSelected,
-  }: {
-    name: string;
-    isExpanded: boolean;
-    isSelected: boolean;
-  }) => {
-    const folderName = name.toLowerCase();
-    const colorConfig = FOLDER_COLORS[folderName];
-    const className = colorConfig
-      ? isExpanded
-        ? colorConfig.expanded
-        : colorConfig.collapsed
-      : "text-muted-foreground";
-
-    const Icon = isExpanded ? FolderOpen : Folder;
-    return (
-      <>
-        <ChevronRight
-          size={12}
-          className={cn(
-            "transition-all duration-200",
-            isSelected
-              ? "text-primary/80"
-              : "text-muted-foreground group-hover:text-foreground",
-            isExpanded ? "rotate-90" : "rotate-0",
-          )}
-        />
-        <Icon size={16} className={className} />
-      </>
-    );
-  },
-);
-FolderIcon.displayName = "FolderIcon";
-
-const SearchHighlight = ({
-  text,
-  searchQuery,
-}: {
+interface SearchHighlightProps {
   text: string;
   searchQuery: string;
-}) => {
+}
+
+const SearchHighlight = ({ text, searchQuery }: SearchHighlightProps) => {
   if (!searchQuery) return <>{text}</>;
 
   const regex = new RegExp(
@@ -223,13 +100,29 @@ const FileTreeNode = ({
         onClick={handleItemClick}
       >
         {node.type === "folder" ? (
-          <FolderIcon
-            name={node.name}
-            isExpanded={expanded}
-            isSelected={isSelected}
-          />
+          <>
+            <ChevronRight
+              size={12}
+              className={cn(
+                "transition-all duration-200",
+                expanded ? "rotate-90" : "rotate-0",
+              )}
+            />
+            {expanded ? (
+              <FolderOpen
+                size={20}
+                fill="currentColor"
+                stroke="background"
+              />
+            ) : (
+              <Folder
+                size={16}
+                fill="currentColor"
+              />
+            )}
+          </>
         ) : (
-          <FileIcon name={node.name} />
+          <FileCode size={16} />
         )}
 
         <span
@@ -270,7 +163,8 @@ const FileTreeNode = ({
             fetchData={fetchData}
             onContextMenu={onContextMenu}
           />
-        ))}
+        ))
+      }
     </>
   );
 };

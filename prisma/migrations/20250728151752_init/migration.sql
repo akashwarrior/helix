@@ -37,16 +37,6 @@ CREATE TABLE "Message" (
 );
 
 -- CreateTable
-CREATE TABLE "Code" (
-    "id" TEXT NOT NULL,
-    "code" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "projectId" TEXT NOT NULL,
-
-    CONSTRAINT "Code_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "session" (
     "id" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
@@ -95,6 +85,15 @@ CREATE TABLE "verification" (
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
 
 -- CreateIndex
+CREATE INDEX "user_email_idx" ON "user"("email");
+
+-- CreateIndex
+CREATE INDEX "Project_userId_idx" ON "Project"("userId");
+
+-- CreateIndex
+CREATE INDEX "Message_projectId_idx" ON "Message"("projectId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "session_token_key" ON "session"("token");
 
 -- AddForeignKey
@@ -102,9 +101,6 @@ ALTER TABLE "Project" ADD CONSTRAINT "Project_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Code" ADD CONSTRAINT "Code_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;

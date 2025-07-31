@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Terminal as TerminalIcon, RotateCcw, Trash2 } from "lucide-react";
 import type { Terminal as TerminalType, IDisposable } from "@xterm/xterm";
-import type { WebContainer, WebContainerProcess } from "@webcontainer/api";
+import type { WebContainerProcess } from "@webcontainer/api";
+import { useWebContainerStore } from "@/store/webContainerStore";
 import "@xterm/xterm/css/xterm.css";
 
 const getTerminalTheme = (theme: string | undefined) => ({
@@ -34,17 +35,14 @@ const getTerminalTheme = (theme: string | undefined) => ({
   brightWhite: theme !== "light" ? "#ffffff" : "#18181b",
 });
 
-export default function Terminal({
-  webContainer,
-}: {
-  webContainer: WebContainer;
-}) {
+export default function Terminal() {
   const { theme } = useTheme();
   const [isConnected, setIsConnected] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
   const terminal = useRef<TerminalType | null>(null);
   const inputHandlerRef = useRef<IDisposable | null>(null);
   const processRef = useRef<WebContainerProcess | null>(null);
+  const webContainer = useWebContainerStore((state) => state.webContainer);
 
   const terminalTheme = getTerminalTheme(theme);
   if (terminal.current) {
@@ -66,7 +64,7 @@ export default function Terminal({
   };
 
   const startShell = async () => {
-    if (!terminal.current) return;
+    if (!terminal.current || !webContainer) return;
     cleanupShell();
     try {
       terminal.current.writeln("Starting shell session...");
@@ -78,7 +76,9 @@ export default function Terminal({
         },
       });
 
-      processRef.current = process;
+      if (process) {
+        processRef.current = process;
+      }
       setIsConnected(true);
 
       inputHandlerRef.current = terminal.current.onData((data: string) => {
@@ -149,11 +149,11 @@ export default function Terminal({
     };
   }, [webContainer]);
 
+
   const restartShell = async () => {
-    if (!terminal.current) return;
     cleanupShell();
-    terminal.current.clear();
-    terminal.current.writeln("\r\n\x1b[33mRestarting shell...\x1b[0m");
+    terminal.current?.clear();
+    terminal.current?.writeln("\r\n\x1b[33mRestarting shell...\x1b[0m");
     await startShell();
   };
 
@@ -162,7 +162,7 @@ export default function Terminal({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex-1 flex flex-col backdrop-blur-md border border-border/20 rounded-2xl overflow-hidden shadow-lg shadow-black/5 dark:shadow-black/10"
+      className="flex-1 flex flex-col backdrop-blur-md border border-border/20 overflow-hidden shadow-lg shadow-black/5 dark:shadow-black/10"
     >
       <div className="px-4 py-2.5 bg-card/50 backdrop-blur-md border-b border-border/20 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">

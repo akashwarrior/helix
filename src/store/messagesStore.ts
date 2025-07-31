@@ -26,13 +26,12 @@ interface MessagesStore {
 export const useMessagesStore = create<MessagesStore>((set) => ({
   messages: [],
   updateMessage: (updatedMessage) =>
-    set((state) => ({
-      messages: state.messages
-        .filter((message) => message.id !== updatedMessage.id)
-        .concat(updatedMessage),
-    })),
-  addMessage: (message) =>
-    set((state) => ({ messages: [...state.messages, message] })),
+    set((state) => {
+      const messages = [...state.messages];
+      messages[messages.length - 1] = updatedMessage;
+      return { messages };
+    }),
+  addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
   removeMessage: (id) =>
     set((state) => ({
       messages: state.messages.filter((message) => message.id !== id),

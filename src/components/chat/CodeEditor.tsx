@@ -2,20 +2,20 @@
 
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion } from "motion/react";
-import { ChevronRight, FileCode, X, Save, Loader2 } from "lucide-react";
+import { ChevronRight, FileCode, X, Save } from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
-import { type BundledLanguage, createHighlighter } from "shiki";
+import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
 import { useFileTabStore } from "@/store/fileTabStore";
 import { Button } from "@/components/ui/button";
-import type { WebContainer } from "@webcontainer/api";
 import type { Monaco } from "@monaco-editor/react";
+import { useWebContainerStore } from "@/store/webContainerStore";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
-const themes = ["dark-plus", "light-plus"];
+const themes: BundledTheme[] = ["vitesse-dark", "vitesse-light"];
 const languages: BundledLanguage[] = [
   "tsx",
   "jsx",
@@ -49,25 +49,6 @@ const getLanguageFromExtension = (filename: string): string => {
   return languageMap[ext || "javascript"];
 };
 
-const getLanguageIcon = (language: string) => {
-  const iconProps = { size: 14 };
-  const iconMap: Record<string, React.ReactNode> = {
-    tsx: <FileCode {...iconProps} className="text-blue-400" />,
-    typescript: <FileCode {...iconProps} className="text-blue-400" />,
-    css: <FileCode {...iconProps} className="text-purple-400" />,
-    javascript: <FileCode {...iconProps} className="text-yellow-400" />,
-    jsx: <FileCode {...iconProps} className="text-yellow-400" />,
-    html: <FileCode {...iconProps} className="text-orange-400" />,
-    json: <FileCode {...iconProps} className="text-green-400" />,
-    markdown: <FileCode {...iconProps} className="text-gray-400" />,
-  };
-  return (
-    iconMap[language] || (
-      <FileCode {...iconProps} className="text-muted-foreground" />
-    )
-  );
-};
-
 interface TabProps {
   tab: {
     path: string;
@@ -97,7 +78,13 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
       transition={{ duration: 0.2 }}
       onClick={handleClick}
     >
-      {getLanguageIcon(getLanguageFromExtension(tab.name))}
+      <FileCode
+        size={16}
+        className={cn(
+          "flex-shrink-0",
+          tab.active ? "text-primary" : "text-muted-foreground",
+        )}
+      />
       <span className="truncate max-w-[120px]">{tab.name}</span>
 
       <div
@@ -146,49 +133,26 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor({
-  webContainer,
-}: {
-  webContainer: WebContainer;
-}) {
+export default function CodeEditor() {
   const { fileTabs, setActiveTab, setModified, removeTab } = useFileTabStore();
   const { theme } = useTheme();
-
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const fileContent = useRef<string>("");
+  const webContainer = useWebContainerStore((state) => state.webContainer);
 
   const activeTab = fileTabs.find((tab) => tab.active);
   const activeTheme = theme === "light" ? themes[1] : themes[0];
 
   useEffect(() => {
-    if (!activeTab) {
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-
-    (async () => {
-      try {
-        const content = await webContainer.fs.readFile(activeTab.path, "utf-8");
+    if (webContainer && activeTab) {
+      webContainer.fs.readFile(activeTab.path, "utf-8").then((content) => {
         fileContent.current = content;
-      } catch (err) {
-        console.error("Failed to load file:", err);
-        setError(err instanceof Error ? err.message : "Failed to load file");
-        fileContent.current = "";
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-  }, [activeTab?.path, webContainer]);
+      });
+    }
+  }, [webContainer, activeTab, fileContent]);
 
   const saveFile = async (path: string) => {
-    try {
+    if (webContainer) {
       await webContainer.fs.writeFile(path, fileContent.current);
-      setModified(path, false);
-    } catch (err) {
-      console.error("Failed to save file:", err);
-      setError(err instanceof Error ? err.message : "Failed to save file");
     }
   };
 
@@ -242,8 +206,8 @@ export default function CodeEditor({
   }
 
   return (
-    <div className="h-full flex flex-col bg-card border border-border/50 rounded-lg overflow-hidden">
-      <div className="border-b border-border/50 overflow-x-auto flex overflow-y-hidden relative h-fit">
+    <div className="h-full flex flex-col bg-card border border-border/50 overflow-hidden">
+      <div className="border-b border-border/50 overflow-x-auto flex overflow-y-hidden relative h-fit [&::-webkit-scrollbar]:hidden">
         {fileTabs.map((tab) => (
           <Tab
             key={tab.path}
@@ -258,12 +222,6 @@ export default function CodeEditor({
         <Breadcrumb path={activeTab.path} />
 
         <div className="flex items-center gap-2">
-          {isLoading && (
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <Loader2 size={12} className="animate-spin" />
-              <span>Loading...</span>
-            </div>
-          )}
           {activeTab.modified && (
             <Button
               variant="ghost"
@@ -279,46 +237,26 @@ export default function CodeEditor({
       </div>
 
       <div className="flex-1 relative">
-        {error ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center text-destructive">
-              <p className="font-medium">Failed to load file</p>
-              <p className="text-sm text-muted-foreground mt-1">{error}</p>
-            </div>
-          </div>
-        ) : isLoading ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <Loader2 size={32} className="mx-auto mb-4 animate-spin" />
-              <p>Loading file...</p>
-            </div>
-          </div>
-        ) : (
-          <Editor
-            value={fileContent.current}
-            language={getLanguageFromExtension(activeTab.name)}
-            theme={activeTheme}
-            onChange={handleEditorChange}
-            beforeMount={monacoBeforeMount}
-            options={{
-              fontSize: 14,
-              fontFamily: "'Fira Code', 'Monaco', 'Cascadia Code', monospace",
-              fontLigatures: true,
-              lineHeight: 22,
-              minimap: { enabled: false },
-              guides: {
-                bracketPairs: true,
-                indentation: true,
-              },
-              autoClosingBrackets: "always",
-              autoIndent: "full",
-              padding: { top: 16, bottom: 16 },
-              scrollBeyondLastLine: false,
-              smoothScrolling: true,
-              cursorBlinking: "smooth",
-            }}
-          />
-        )}
+        <Editor
+          value={fileContent.current}
+          language={getLanguageFromExtension(activeTab.name)}
+          theme={activeTheme}
+          onChange={handleEditorChange}
+          beforeMount={monacoBeforeMount}
+          options={{
+            fontSize: 13.5,
+            fontLigatures: true,
+            lineHeight: 22,
+            minimap: { enabled: false },
+            autoClosingBrackets: "always",
+            autoIndent: "full",
+            padding: { top: 16, bottom: 16 },
+            scrollBeyondLastLine: false,
+            smoothScrolling: true,
+            cursorBlinking: "smooth",
+            cursorSmoothCaretAnimation: "on",
+          }}
+        />
       </div>
     </div>
   );

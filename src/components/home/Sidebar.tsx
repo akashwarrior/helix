@@ -1,84 +1,135 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { Button } from "@/components/ui/button";
 import { Plus, LogIn, FolderOpen } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebarStore";
+import { useSession } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useChatList } from "@/hook/useChtatList";
 
-interface SidebarProps {
-  menuItems: { id: string; name: string }[];
-  isAuthenticated: boolean;
+interface EmptyStateProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string[];
+  children: React.ReactNode;
 }
 
-export default function Sidebar({ menuItems, isAuthenticated }: SidebarProps) {
+const EmptyState = ({ icon, title, description, children }: EmptyStateProps) => {
+  return (
+    <div className="text-center px-2 h-full flex flex-col justify-center pb-20">
+      <div className="text-primary/40 mx-auto mb-4">
+        {icon}
+      </div>
+      <h3 className="text font-medium text-primary mb-2 truncate">
+        {title}
+      </h3>
+      {description.map((line, index) => (
+        <p
+          key={index}
+          className="text-xs text-primary/70 leading-relaxed truncate">
+          {line}
+        </p>
+      ))}
+      <br />
+      {children}
+    </div>
+  )
+}
+
+const MenuItems = () => {
+  const toggleSidebar = useSidebarStore(state => state.toggleSidebar);
+  const { chats, hasMore, isLoading, loadMore } = useChatList();
+
+  const handleScroll = (e: React.UIEvent<HTMLUListElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollTop + clientHeight >= scrollHeight - 15 && hasMore) {
+      loadMore();
+    }
+  };
+
+  if (chats.length === 0 && !isLoading) {
+    return (
+      <EmptyState
+        icon={<FolderOpen size={32} />}
+        title="No projects yet"
+        description={["Start building your first website by", " creating a new project"]}
+      >
+        <Button
+          variant="outline"
+          onClick={toggleSidebar}
+          className="flex items-center gap-2 text-xs font-medium truncate"
+        >
+          <Plus size={14} />
+          Create Project
+        </Button>
+      </EmptyState>
+    );
+  }
+
+  return (
+    <ul
+      className="space-y-1 overflow-y-auto mb-auto"
+      onScroll={handleScroll}
+    >
+      {chats.map(
+        ({ id, name }) =>
+          <li key={id}>
+            <Link
+              href={`/chat/${id}`}
+              className="block px-5 py-2.5 text-primary/90 hover:text-primary hover:bg-primary/5 rounded-lg text-sm truncate"
+            >
+              {name}
+            </Link>
+          </li>
+      )}
+
+      {isLoading && (
+        Array.from({ length: 10 }).map(
+          (_, index) => (
+            <li
+              key={`skeleton-${index}`}
+              className="py-2.5 px-5 rounded-lg animate-pulse"
+            >
+              <div
+                className="h-4 bg-primary/10 rounded-md"
+                style={{
+                  width: `${60 + (index % 3) * 15}%`
+                }}
+              />
+            </li>
+          ))
+      )}
+    </ul>
+  )
+}
+
+export default function Sidebar({ openAuthModal }: { openAuthModal: () => void }) {
   const { isOpen, toggleSidebar } = useSidebarStore();
+  const { data: session } = useSession();
+  const isAuthenticated = !!session?.user;
 
   return (
     <>
       <aside
         className={cn(
-          "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background md:bg-transparent transition-all duration-300",
-          isOpen ? "w-72" : "w-0 -translate-x-full",
-          "px-3 pt-20 pb-8",
+          "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/25 backdrop-blur-sm transition-all duration-300",
+          isOpen ? "w-72 md:w-68" : "w-0 -translate-x-full",
+          "px-3 pt-20 pb-8 flex flex-col justify-center overflow-hidden max-w-11/12",
         )}
       >
         {!isAuthenticated ? (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center px-2 py-8"
+          <EmptyState
+            icon={<LogIn size={32} />}
+            title="Welcome to Helix"
+            description={["Sign in to access your projects and start", " building amazing websites"]}
           >
-            <LogIn size={32} className="text-primary/40 mx-auto mb-4" />
-            <h3 className="text-sm font-medium text-primary mb-2 truncate">
-              Welcome to Helix
-            </h3>
-            <p className="text-xs text-primary/70 mb-6 leading-relaxed truncate">
-              Sign in to access your projects and <br /> start building amazing
-              websites
-            </p>
-            <Link
-              href="/auth"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium rounded-lg transition-all duration-200 truncate"
-            >
-              <LogIn size={14} />
-              Sign In
-            </Link>
-          </motion.div>
-        ) : menuItems.length > 0 ? (
-          <ul className="space-y-1">
-            {menuItems.map(({ id, name }) => (
-              <li key={id}>
-                <Link
-                  href={`/chat/${id}`}
-                  className="block px-5 py-2.5 text-primary/90 hover:text-primary hover:bg-primary/5 rounded-lg text-sm truncate"
-                >
-                  {name}
-                </Link>
-              </li>
-            ))}
-          </ul>
+            <Button onClick={openAuthModal}>
+              Login
+            </Button>
+          </EmptyState>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center px-2 py-8"
-          >
-            <FolderOpen size={32} className="text-primary/40 mx-auto mb-4" />
-            <h3 className="text-sm font-medium text-primary mb-2 truncate">
-              No projects yet
-            </h3>
-            <p className="text-xs text-primary/70 mb-6 leading-relaxed truncate">
-              Start building your first website by <br /> creating a new project
-            </p>
-            <button
-              onClick={toggleSidebar}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-medium rounded-lg transition-all duration-200 truncate"
-            >
-              <Plus size={14} />
-              Create Project
-            </button>
-          </motion.div>
+          <MenuItems />
         )}
       </aside>
 

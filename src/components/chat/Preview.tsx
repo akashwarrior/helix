@@ -15,7 +15,6 @@ import {
   Globe,
   Home,
   Download,
-  Share,
   AlertCircle,
   Loader2,
 } from "lucide-react";
@@ -28,21 +27,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const MenuDropDown = ({
-  onRefresh,
-  onRestart,
-  isRefreshing,
-}: {
+interface MenuDropDownProps {
   onRefresh: () => void;
   onRestart: () => void;
   isRefreshing: boolean;
-}) => (
+}
+
+const MenuDropDown = ({ onRefresh, onRestart, isRefreshing }: MenuDropDownProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 text-muted-foreground hover:text-white"
+        className="h-8 w-8 text-muted-foreground hover:text-foreground/85"
       >
         <MoreVertical size={16} />
       </Button>
@@ -64,17 +61,13 @@ const MenuDropDown = ({
         <Download size={14} className="text-green-400" />
         Download
       </DropdownMenuItem>
-      <DropdownMenuItem>
-        <Share size={14} className="text-purple-400" />
-        Share
-      </DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 );
 
 const LoadingOverlay = ({ progress }: { progress: number }) => (
   <motion.div
-    className="absolute inset-0 bg-white/95 backdrop-blur-sm z-10 flex items-center justify-center"
+    className="absolute inset-0 z-10 flex items-center justify-center"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
@@ -105,13 +98,7 @@ const LoadingOverlay = ({ progress }: { progress: number }) => (
   </motion.div>
 );
 
-const ErrorState = ({
-  error,
-  onRetry,
-}: {
-  error: string;
-  onRetry: () => void;
-}) => (
+const ErrorState = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
   <motion.div
     className="h-full flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100"
     initial={{ opacity: 0 }}
@@ -163,17 +150,15 @@ const ErrorState = ({
   </motion.div>
 );
 
-const TopBar = ({
-  onRefresh,
-  onRestart,
-  isRefreshing,
-}: {
+interface TopBarProps {
   onRefresh: () => void;
   onRestart: () => void;
   isRefreshing: boolean;
-}) => (
+}
+
+const TopBar = ({ onRefresh, onRestart, isRefreshing }: TopBarProps) => (
   <motion.div
-    className="h-12 bg-gradient-to-r from-neutral-900/90 to-neutral-800/90 backdrop-blur-sm border-b border-neutral-700/50 flex items-center justify-between px-4"
+    className="h-12 flex items-center justify-between px-4 border-b"
     initial={{ opacity: 0, y: -10 }}
     animate={{ opacity: 1, y: 0 }}
   >
@@ -188,21 +173,21 @@ const TopBar = ({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-white"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground/85"
         >
           <ChevronLeft size={16} />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-white"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground/85"
         >
           <ChevronRight size={16} />
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-white"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground/85"
           onClick={onRefresh}
           disabled={isRefreshing}
         >
@@ -211,16 +196,16 @@ const TopBar = ({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-white"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground/85"
         >
           <Home size={16} />
         </Button>
       </div>
 
       {/* Address bar*/}
-      <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-1.5 min-w-[200px] border border-neutral-700/50">
+      <div className="flex items-center gap-2 bg-card rounded-lg px-3 py-1.5 min-w-[200px] border border-neutral-700/50">
         <Globe size={14} className="text-blue-400" />
-        <span className="text-sm text-white font-mono">localhost:3000</span>
+        <span className="text-sm font-mono">localhost:3000</span>
       </div>
     </div>
     <MenuDropDown
@@ -269,7 +254,6 @@ export default function Preview() {
 
   const handleRestart = () => {
     setError(null);
-    console.log("Restarting dev server...");
     handleRefresh();
   };
 
@@ -278,7 +262,7 @@ export default function Preview() {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] border border-neutral-800/50 relative overflow-hidden">
+    <div className="h-full flex flex-col border relative overflow-hidden">
       <TopBar
         onRefresh={handleRefresh}
         onRestart={handleRestart}
@@ -287,22 +271,7 @@ export default function Preview() {
 
       <div className="flex-1 bg-white relative overflow-hidden">
         {loading.isLoading ? (
-          <>
-            <motion.div
-              className="h-1 bg-neutral-800"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${loading.progress}%` }}
-                transition={{ duration: 0.1 }}
-              />
-            </motion.div>
-            <LoadingOverlay progress={loading.progress} />
-          </>
+          <LoadingOverlay progress={loading.progress} />
         ) : error ? (
           <ErrorState error={error} onRetry={handleRefresh} />
         ) : (
