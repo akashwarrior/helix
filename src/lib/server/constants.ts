@@ -50,49 +50,39 @@ function parseXml(
     steps: [],
   };
 
+  const actionRegex = /<Action\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?\s*>([\s\S]*?)(?:<\/Action>|$)/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = actionRegex.exec(artifactCandidate)) !== null) {
+    const [, type, filePath, content] = match;
+    const isArtifactComplete = match[0].trim().endsWith("</Action>");
+
+    const newStep = {
+      stepType: type === "file" ? StepType.CREATE_FILE : StepType.RUN_SCRIPT,
+      isPending: true,
+      content: content,
+      isArtifactComplete,
+      ...(filePath && { path: filePath })
+    };
+    message.steps.push(newStep);
+  }
+
   const currentMessages = useMessagesStore.getState().messages;
   let existingMessage = currentMessages.find(m => m.id === message.id);
 
   if (!existingMessage) {
-    useMessagesStore.getState().updateMessage(message);
-    existingMessage = message;
-  } else if (existingMessage.content !== message.content) {
-    existingMessage.content = message.content;
-    useMessagesStore.getState().updateMessage(existingMessage);
-  }
-
-  if (artifactCandidate.trim()) {
-    const actionRegex =
-      /<Action\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?\s*>([\s\S]*?)(?:<\/Action>|$)/g;
-    let match: RegExpExecArray | null;
-
-    while ((match = actionRegex.exec(artifactCandidate)) !== null) {
-      const [, type, filePath, content] = match;
-      const isArtifactComplete = match[0].trim().endsWith("</Action>");
-
-      const newStep = {
-        stepType: type === "file" ? StepType.CREATE_FILE : StepType.RUN_SCRIPT,
-        isPending: true,
-        content: content,
-        isArtifactComplete,
-        ...(filePath && { path: filePath })
-      };
-
-      const stepIndex = existingMessage.steps.findIndex(step =>
-        step.stepType === newStep.stepType &&
-        step.path === newStep.path
-      );
-
-      if (stepIndex === -1) {
-        existingMessage.steps.push(newStep);
-      } else if (newStep.isArtifactComplete && newStep.isPending) {
-        const existingStep = existingMessage.steps[stepIndex];
-        if (existingStep.content !== newStep.content ||
-          existingStep.isArtifactComplete !== newStep.isArtifactComplete) {
-          existingMessage.steps[stepIndex] = newStep;
+    useMessagesStore.getState().addMessage(message);
+  } else {
+    if (existingMessage.steps.length !== message.steps.length || existingMessage.content !== message.content) {
+      existingMessage.content = message.content;
+      message.steps.forEach((step, index) => {
+        const existingStep = existingMessage?.steps[index];
+        if (!existingStep) {
+          existingMessage.steps.push(step);
+        } else if (!existingStep.isArtifactComplete && step.isArtifactComplete) {
+          existingMessage.steps[index] = step;
         }
-      }
-
+      });
       useMessagesStore.getState().updateMessage(existingMessage);
     }
   }

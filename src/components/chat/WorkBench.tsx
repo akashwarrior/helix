@@ -13,26 +13,24 @@ export default function WorkBench() {
   const activeView = useHeaderOptionStore(state => state.activeView);
 
   return (
-    <div className={cn(
-      "flex flex-col overflow-hidden w-0 transition-all duration-150",
+    <section className={cn(
+      "flex m-1.5 rounded-lg bg-secondary/70 overflow-hidden w-0 transition-all duration-150",
       activeView && (!isChatOpen ? "w-full" : "w-[70%]"),
     )}>
-      <section className="flex-1 flex overflow-hidden min-h-0 m-1.5 rounded-lg bg-secondary/70">
-        {activeView === "Editor" && <FileTree />}
+      {activeView === "Editor" && <FileTree />}
 
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {activeView === "Preview" && <Preview />}
-          {activeView === "Editor" && <CodeEditor />}
-          <div
-            className={cn(
-              "flex-1 overflow-hidden flex",
-              activeView !== "Terminal" && "hidden",
-            )}
-          >
-            <Terminal />
-          </div>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {activeView === "Preview" && <Preview />}
+        {activeView === "Editor" && <CodeEditor />}
+        <div
+          className={cn(
+            "flex-1 overflow-hidden flex",
+            activeView !== "Terminal" && "hidden",
+          )}
+        >
+          <Terminal />
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

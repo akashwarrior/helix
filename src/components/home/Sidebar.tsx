@@ -69,7 +69,7 @@ const MenuItems = () => {
 
   return (
     <ul
-      className="space-y-1 overflow-y-auto"
+      className="space-y-1 overflow-y-auto mb-auto"
       onScroll={handleScroll}
     >
       {chats.map(
@@ -113,7 +113,7 @@ export default function Sidebar({ openAuthModal }: { openAuthModal: () => void }
     <>
       <aside
         className={cn(
-          "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/30 backdrop-blur-sm md:bg-transparent transition-all duration-300",
+          "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/25 backdrop-blur-sm transition-all duration-300",
           isOpen ? "w-72 md:w-68" : "w-0 -translate-x-full",
           "px-3 pt-20 pb-8 flex flex-col justify-center overflow-hidden max-w-11/12",
         )}
