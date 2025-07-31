@@ -68,7 +68,7 @@ function parseXml(
   }
 
   const currentMessages = useMessagesStore.getState().messages;
-  let existingMessage = currentMessages.find(m => m.id === message.id);
+  const existingMessage = currentMessages.find(m => m.id === message.id);
 
   if (!existingMessage) {
     useMessagesStore.getState().addMessage(message);

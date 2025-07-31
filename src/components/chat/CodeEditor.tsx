@@ -148,9 +148,12 @@ export default function CodeEditor() {
         fileContent.current = content;
       });
     }
-  }, [webContainer, activeTab]);
+  }, [webContainer, activeTab, fileContent]);
 
   const saveFile = async (path: string) => {
+    if (webContainer) {
+      await webContainer.fs.writeFile(path, fileContent.current);
+    }
   };
 
   const handleEditorChange = (value?: string) => {

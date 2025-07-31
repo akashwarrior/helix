@@ -125,7 +125,7 @@ export default function FileTree() {
       }
       return [];
     },
-    [],
+    [webContainer],
   );
   const onContextMenu = useCallback(
     (
