@@ -94,10 +94,6 @@ Before running the application, you'll need to configure environment variables. 
 
    - Go to [Google Cloud Console](https://console.cloud.google.com)
    - Create a new project
-   - Add the following APIs in your Google Cloud Project: [People API](https://console.cloud.google.com/apis/library/people.googleapis.com), [Gmail API](https://console.cloud.google.com/apis/library/gmail.googleapis.com)
-     - Use the links above and click 'Enable' or
-     - Go to 'APIs and Services' > 'Enable APIs and Services' > Search for 'Google People API' and click 'Enable'
-     - Go to 'APIs and Services' > 'Enable APIs and Services' > Search for 'Gmail API' and click 'Enable'
    - Enable the Google OAuth2 API
    - Create OAuth 2.0 credentials (Web application type)
    - Add authorized redirect URIs:
