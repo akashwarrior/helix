@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { usePreviewUrlStore } from "@/store/previewUrlStore";
@@ -228,7 +228,7 @@ export default function Preview() {
   const simulateLoading = () => {
     let progress = 0;
     const interval = setInterval(() => {
-      progress += Math.random() * 30;
+      progress += Math.random() * 5;
       const clampedProgress = Math.min(progress, 100);
 
       setLoading((prev) => ({ ...prev, progress: clampedProgress }));
@@ -240,7 +240,7 @@ export default function Preview() {
           setLoading({ isLoading: false, progress: 0 });
         }, 200);
       }
-    }, 100);
+    }, 50);
 
     return interval;
   };
@@ -260,6 +260,13 @@ export default function Preview() {
   const handleIframeError = () => {
     setError("Failed to load preview. Please check your code for errors.");
   };
+
+  useEffect(() => {
+    if (previewUrl) {
+      const loadingInterval = simulateLoading();
+      return () => clearInterval(loadingInterval);
+    }
+  }, [previewUrl]);
 
   return (
     <div className="h-full flex flex-col border relative overflow-hidden">

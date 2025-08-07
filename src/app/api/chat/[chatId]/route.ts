@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import type { Prisma } from "@prisma/client";
-import { systemPrompt } from "@/lib/server/prompt";
+import { systemPrompt } from "@/lib/server/systemPrompt";
 
 export const maxDuration = 300; // 5 minutes (max duration for free plan)
 
@@ -36,27 +36,27 @@ export async function POST(
                     </UserMessage>
                 `,
             }],
-            onFinish: async (message) => {
-                const msgs: Prisma.MessageCreateManyInput[] = [];
+            // onFinish: async (message) => {
+            //     const msgs: Prisma.MessageCreateManyInput[] = [];
 
-                if (messages.length > 1) {
-                    msgs.push({
-                        content: messages[messages.length - 1].content,
-                        role: "user",
-                        projectId: chatId,
-                    });
-                }
+            //     if (messages.length > 1) {
+            //         msgs.push({
+            //             content: messages[messages.length - 1].content,
+            //             role: "user",
+            //             projectId: chatId,
+            //         });
+            //     }
 
-                msgs.push({
-                    content: (message.response.messages[0].content[0] as TextPart).text,
-                    role: "assistant",
-                    projectId: chatId,
-                });
+            //     msgs.push({
+            //         content: (message.response.messages[0].content[0] as TextPart).text,
+            //         role: "assistant",
+            //         projectId: chatId,
+            //     });
 
-                await prisma.message.createMany({
-                    data: msgs,
-                });
-            },
+            //     await prisma.message.createMany({
+            //         data: msgs,
+            //     });
+            // },
         });
 
         return result.toDataStreamResponse();

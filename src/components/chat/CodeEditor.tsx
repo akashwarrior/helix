@@ -1,10 +1,8 @@
-"use client";
-
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { ChevronRight, FileCode, X, Save } from "lucide-react";
+import { ChevronRight, FileCode, X, Save, FileText, Braces } from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
@@ -12,6 +10,7 @@ import { useFileTabStore } from "@/store/fileTabStore";
 import { Button } from "@/components/ui/button";
 import type { Monaco } from "@monaco-editor/react";
 import { useWebContainerStore } from "@/store/webContainerStore";
+import { toast } from "sonner";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -41,12 +40,8 @@ const getLanguageFromExtension = (filename: string): string => {
     html: "html",
     json: "json",
     md: "markdown",
-    yml: "yaml",
-    yaml: "yaml",
-    sh: "shell",
-    toml: "toml",
   };
-  return languageMap[ext || "javascript"];
+  return languageMap[ext || ""] || "javascript";
 };
 
 interface TabProps {
@@ -64,10 +59,25 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
   const handleClick = () => onTabChange(tab.path);
   const handleClose = (e: React.MouseEvent) => onTabClose(tab.path, e);
 
+  const getFileIcon = (filename: string) => {
+    const language = getLanguageFromExtension(filename);
+
+    if (["typescript", "javascript"].includes(language)) {
+      return <Braces size={16} className="flex-shrink-0" />;
+    }
+    if (["json", "yaml", "toml"].includes(language)) {
+      return <Braces size={16} className="flex-shrink-0" />;
+    }
+    if (["markdown", "plaintext"].includes(language)) {
+      return <FileText size={16} className="flex-shrink-0" />;
+    }
+    return <FileCode size={16} className="flex-shrink-0" />;
+  };
+
   return (
     <motion.div
       className={cn(
-        "relative flex items-center gap-3 px-4 py-3 text-sm h-max",
+        "relative flex items-center gap-3 px-4 py-3 text-sm h-max cursor-pointer",
         "transition-[border, width] duration-200 group min-w-0 flex-shrink-0",
         tab.active
           ? "bg-muted/50 text-foreground border-b-2 border-primary"
@@ -77,20 +87,19 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
       onClick={handleClick}
+      title={tab.path}
     >
-      <FileCode
-        size={16}
-        className={cn(
-          "flex-shrink-0",
-          tab.active ? "text-primary" : "text-muted-foreground",
-        )}
-      />
+      <div className={cn(
+        tab.active ? "text-primary" : "text-muted-foreground",
+      )}>
+        {getFileIcon(tab.name)}
+      </div>
       <span className="truncate max-w-[120px]">{tab.name}</span>
 
       <div
         className={cn(
-          "w-1.5 rounded-full bg-orange-400 transition-height duration-200 mx-auto",
-          tab.modified ? "h-1.5" : "h-0",
+          "w-1.5 rounded-full bg-orange-400 transition-all duration-200 mx-auto",
+          tab.modified ? "h-1.5 opacity-100" : "h-0 opacity-0",
         )}
       />
 
@@ -107,21 +116,26 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
 }
 
 const Breadcrumb = ({ path }: { path: string }) => {
-  const parts = path.split("/");
+  const parts = path.split("/").filter(Boolean);
 
   return (
     <div className="flex items-center gap-1 py-2">
       {parts.map((part, index) => (
         <motion.span
-          key={index}
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 + index * 0.05 }}
+          key={`${index}-${part}`}
+          className={cn(
+            "flex items-center gap-1 transition-colors cursor-pointer text-xs",
+            index < parts.length - 1
+              ? "text-muted-foreground hover:text-foreground"
+              : "text-foreground font-medium"
+          )}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 + index * 0.05 }}
         >
           {index < parts.length - 1 ? (
             <>
-              {part}
+              <span className="hover:text-primary transition-colors">{part}</span>
               <ChevronRight size={12} className="text-muted-foreground/50" />
             </>
           ) : (
@@ -136,30 +150,59 @@ const Breadcrumb = ({ path }: { path: string }) => {
 export default function CodeEditor() {
   const { fileTabs, setActiveTab, setModified, removeTab } = useFileTabStore();
   const { theme } = useTheme();
-  const fileContent = useRef<string>("");
+  const [fileContent, setFileContent] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const webContainer = useWebContainerStore((state) => state.webContainer);
 
   const activeTab = fileTabs.find((tab) => tab.active);
   const activeTheme = theme === "light" ? themes[1] : themes[0];
 
+  // Load file content when active tab changes
   useEffect(() => {
-    if (webContainer && activeTab) {
-      webContainer.fs.readFile(activeTab.path, "utf-8").then((content) => {
-        fileContent.current = content;
-      });
-    }
-  }, [webContainer, activeTab, fileContent]);
+    const loadFileContent = async () => {
+      if (!webContainer || !activeTab) {
+        setFileContent("");
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const content = await webContainer.fs.readFile(activeTab.path, "utf-8");
+        setFileContent(content);
+      } catch (err) {
+        console.error("Failed to read file:", err);
+        setError(`Failed to read file: ${activeTab.path}`);
+        setFileContent("");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadFileContent();
+  }, [webContainer, activeTab?.path]);
 
   const saveFile = async (path: string) => {
-    if (webContainer) {
-      await webContainer.fs.writeFile(path, fileContent.current);
+    if (!webContainer || !fileContent) return;
+
+    try {
+      await webContainer.fs.writeFile(path, fileContent);
+      setModified(path, false);
+      toast.success(`File saved: ${path.split('/').pop()}`);
+    } catch (err) {
+      console.error("Failed to save file:", err);
+      const errorMessage = `Failed to save file: ${path.split('/').pop()}`;
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   const handleEditorChange = (value?: string) => {
-    if (!value || !activeTab) return;
+    if (value === undefined || !activeTab) return;
 
-    fileContent.current = value;
+    setFileContent(value);
     if (!activeTab.modified) {
       setModified(activeTab.path, true);
     }
@@ -172,22 +215,62 @@ export default function CodeEditor() {
     removeTab(path);
   };
 
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (activeTab && activeTab.modified) {
+          saveFile(activeTab.path);
+        }
+      }
+      // Close tab with Ctrl+W
+      if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+        e.preventDefault();
+        if (activeTab) {
+          handleTabClose(activeTab.path, e as any);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [activeTab]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (!activeTab?.modified) return;
+
+    const autoSaveTimeout = setTimeout(() => {
+      if (activeTab.modified) {
+        saveFile(activeTab.path);
+        toast.success("Auto-saved", { duration: 1000 });
+      }
+    }, 30000); // Auto-save after 30 seconds of inactivity
+
+    return () => clearTimeout(autoSaveTimeout);
+  }, [fileContent, activeTab?.path]);
+
   const monacoBeforeMount = async (monaco: Monaco) => {
     try {
-      const highlighter = createHighlighter({
+      const highlighter = await createHighlighter({
         themes,
         langs: languages,
       });
 
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
         skipLibCheck: true,
+        allowSyntheticDefaultImports: true,
+        esModuleInterop: true,
+        jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
       });
 
       languages.forEach((lang) => monaco.languages.register({ id: lang }));
-      shikiToMonaco(await highlighter, monaco);
+      shikiToMonaco(highlighter, monaco);
       monaco.editor.setTheme(activeTheme);
     } catch (error) {
       console.error("Failed to setup Monaco editor:", error);
+      setError("Failed to initialize code editor");
     }
   };
 
@@ -200,6 +283,29 @@ export default function CodeEditor() {
           <p className="text-sm">
             Open a file from the explorer to start editing
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
+        <div className="text-center text-muted-foreground">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-lg">Loading file...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
+        <div className="text-center text-destructive">
+          <FileCode size={48} className="mx-auto mb-4 opacity-50" />
+          <p className="text-lg">Error loading file</p>
+          <p className="text-sm">{error}</p>
         </div>
       </div>
     );
@@ -233,12 +339,15 @@ export default function CodeEditor() {
               Save
             </Button>
           )}
+          <span className="text-xs text-muted-foreground">
+            {getLanguageFromExtension(activeTab.name)}
+          </span>
         </div>
       </div>
 
       <div className="flex-1 relative">
         <Editor
-          value={fileContent.current}
+          value={fileContent}
           language={getLanguageFromExtension(activeTab.name)}
           theme={activeTheme}
           onChange={handleEditorChange}
@@ -255,8 +364,25 @@ export default function CodeEditor() {
             smoothScrolling: true,
             cursorBlinking: "smooth",
             cursorSmoothCaretAnimation: "on",
+            wordWrap: "on",
+            renderWhitespace: "selection",
           }}
         />
+      </div>
+
+      {/* Status Bar */}
+      <div className="border-t border-border/30 bg-muted/20 px-4 py-1 flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center gap-4">
+          <span>Lines: {fileContent.split('\n').length}</span>
+          <span>Size: {new Blob([fileContent]).size} bytes</span>
+          <span className="capitalize">{getLanguageFromExtension(activeTab.name)}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {activeTab.modified && (
+            <span className="text-orange-400">● Unsaved changes</span>
+          )}
+          <span>UTF-8</span>
+        </div>
       </div>
     </div>
   );
