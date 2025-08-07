@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
@@ -16,10 +16,17 @@ interface ChatInputProps {
 }
 
 export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
-  const { messages: msgs, input, handleInputChange, handleSubmit, status } = useChat({
+  const {
+    messages: msgs,
+    input,
+    handleInputChange,
+    handleSubmit,
+    status,
+  } = useChat({
     api: `/api/chat/${chatId}`,
     initialMessages: initialMessages.length === 1 ? [] : initialMessages,
-    initialInput: initialMessages.length === 1 ? initialMessages[0].content : "",
+    initialInput:
+      initialMessages.length === 1 ? initialMessages[0].content : "",
     onError: (error) => {
       console.error(error);
     },
@@ -109,5 +116,5 @@ export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
         </Button>
       </div>
     </motion.div>
-  )
+  );
 }

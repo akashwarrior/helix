@@ -149,7 +149,6 @@ export default function Terminal() {
     };
   }, [webContainer]);
 
-
   const restartShell = async () => {
     cleanupShell();
     terminal.current?.clear();

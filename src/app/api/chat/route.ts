@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const skip = parseInt(req.nextUrl.searchParams.get('skip') || "0", 10);
+    const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0", 10);
 
     const chats = await prisma.project.findMany({
       orderBy: {

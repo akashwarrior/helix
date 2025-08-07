@@ -26,7 +26,8 @@ export default function AuthPage() {
           toast.error("Something went wrong");
           setIsLoading(false);
         },
-      });
+      },
+    );
   };
 
   return (
@@ -207,7 +208,8 @@ export default function AuthPage() {
           >
             <div
               onClick={() => router.back()}
-              className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+              className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+            >
               <ArrowLeft
                 size={16}
                 className="group-hover:-translate-x-1 transition-transform"

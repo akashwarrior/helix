@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, ChevronDown, ChevronRight, Loader2 } from 'lucide-react';
-import { StepType } from '@/lib/server/constants';
-import type { Step } from '@/store/messagesStore';
+import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { CheckCircle2, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { StepType } from "@/lib/server/constants";
+import type { Step } from "@/store/messagesStore";
 
 interface StepListProps {
   messageId: string;
@@ -13,14 +13,18 @@ interface StepListProps {
   title?: string;
 }
 
-export default function StepList({ messageId, steps, title = 'Build plan' }: StepListProps) {
+export default function StepList({
+  messageId,
+  steps,
+  title = "Build plan",
+}: StepListProps) {
   const [isOpen, setIsOpen] = useState(true);
   const pending = steps.some((s) => s.isPending);
 
   return (
     <motion.div
       initial={{ opacity: 0, width: 0 }}
-      animate={{ opacity: 1, width: 'auto' }}
+      animate={{ opacity: 1, width: "auto" }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
       className="mt-4 overflow-hidden bg-card border rounded-xl backdrop-blur-sm"
     >
@@ -32,9 +36,15 @@ export default function StepList({ messageId, steps, title = 'Build plan' }: Ste
       >
         <div className="flex items-center gap-2">
           {isOpen ? (
-            <ChevronDown size={16} className="text-muted-foreground group-hover:text-foreground" />
+            <ChevronDown
+              size={16}
+              className="text-muted-foreground group-hover:text-foreground"
+            />
           ) : (
-            <ChevronRight size={16} className="text-muted-foreground group-hover:text-foreground" />
+            <ChevronRight
+              size={16}
+              className="text-muted-foreground group-hover:text-foreground"
+            />
           )}
         </div>
 
@@ -44,27 +54,27 @@ export default function StepList({ messageId, steps, title = 'Build plan' }: Ste
 
         <div
           className={cn(
-            'w-2 h-2 rounded-full',
-            pending ? 'bg-cyan-400 animate-pulse' : 'bg-muted-foreground',
+            "w-2 h-2 rounded-full",
+            pending ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground",
           )}
-          aria-label={pending ? 'In progress' : 'Complete'}
+          aria-label={pending ? "In progress" : "Complete"}
         />
       </button>
 
-      <AnimatePresence mode='wait'>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <ul className="px-4 pb-3 pt-1 space-y-2" aria-live="polite">
               {steps.map((step, index) => {
                 const isCommand = step.stepType === StepType.RUN_COMMAND;
                 const text = isCommand
-                  ? `${step.isPending ? 'Running' : 'Executed'} ${step.command}`
-                  : `${step.isPending ? 'Creating' : 'Created'} ${step.filePath}`;
+                  ? `${step.isPending ? "Running" : "Executed"} ${step.command}`
+                  : `${step.isPending ? "Creating" : "Created"} ${step.filePath}`;
 
                 return (
                   <motion.li
@@ -83,7 +93,9 @@ export default function StepList({ messageId, steps, title = 'Build plan' }: Ste
                     </div>
 
                     <div className="relative">
-                      <span className="text-muted-foreground truncate">{text}</span>
+                      <span className="text-muted-foreground truncate">
+                        {text}
+                      </span>
                       {step.isPending && (
                         <motion.span
                           className="absolute inset-0 bg-clip-text text-transparent truncate"

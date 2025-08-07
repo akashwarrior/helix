@@ -5,9 +5,4 @@ const authClient = createAuthClient({
   //you can pass client configuration here
 });
 
-export const {
-  signIn,
-  signOut,
-  signUp,
-  useSession,
-} = authClient;
+export const { signIn, signOut, signUp, useSession } = authClient;

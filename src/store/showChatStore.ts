@@ -7,5 +7,5 @@ interface showChatStore {
 
 export const useShowChatStore = create<showChatStore>((set) => ({
   isChatOpen: true,
-  toggleChat: () => set(state => ({ isChatOpen: !state.isChatOpen })),
+  toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 }));

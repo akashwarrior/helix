@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Header from "@/components/home/Header";
 import Sidebar from "@/components/home/Sidebar";
@@ -70,7 +70,6 @@ export default function Home() {
   });
 
   const isLoading = status === "streaming" || status === "submitted";
-
 
   const handleTextAreaChange = (textarea: HTMLTextAreaElement) => {
     textarea.style.height = "auto";
@@ -184,7 +183,6 @@ export default function Home() {
 
   const openAuthDialog = () => authButtonRef.current?.click();
 
-
   return (
     <div className="flex flex-col flex-1">
       <div className="home-container fixed inset-0 z-0 overflow-hidden" />
@@ -215,7 +213,8 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="text-lg text-muted-foreground max-w-md mx-auto"
             >
-              Transform ideas into full-stack intelligent apps in a snap. Publish with a click.
+              Transform ideas into full-stack intelligent apps in a snap.
+              Publish with a click.
             </motion.p>
           </div>
 
@@ -283,7 +282,9 @@ export default function Home() {
                       ))}
                     </div>
                     <span className="text-xs text-muted-foreground font-medium animate-pulse">
-                      {status === "streaming" ? "Enhancing..." : "Processing..."}
+                      {status === "streaming"
+                        ? "Enhancing..."
+                        : "Processing..."}
                     </span>
                   </div>
                 )}
@@ -384,9 +385,7 @@ export default function Home() {
           </div>
           {!isAuthenticated && (
             <AuthDialog
-              trigger={
-                <Button ref={authButtonRef} className="hidden" />
-              }
+              trigger={<Button ref={authButtonRef} className="hidden" />}
             />
           )}
         </motion.main>

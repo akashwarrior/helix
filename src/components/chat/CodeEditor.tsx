@@ -2,7 +2,14 @@ import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { ChevronRight, FileCode, X, Save, FileText, Braces } from "lucide-react";
+import {
+  ChevronRight,
+  FileCode,
+  X,
+  Save,
+  FileText,
+  Braces,
+} from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
@@ -89,9 +96,9 @@ function Tab({ tab, onTabChange, onTabClose }: TabProps) {
       onClick={handleClick}
       title={tab.path}
     >
-      <div className={cn(
-        tab.active ? "text-primary" : "text-muted-foreground",
-      )}>
+      <div
+        className={cn(tab.active ? "text-primary" : "text-muted-foreground")}
+      >
         {getFileIcon(tab.name)}
       </div>
       <span className="truncate max-w-[120px]">{tab.name}</span>
@@ -127,7 +134,7 @@ const Breadcrumb = ({ path }: { path: string }) => {
             "flex items-center gap-1 transition-colors cursor-pointer text-xs",
             index < parts.length - 1
               ? "text-muted-foreground hover:text-foreground"
-              : "text-foreground font-medium"
+              : "text-foreground font-medium",
           )}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -135,7 +142,9 @@ const Breadcrumb = ({ path }: { path: string }) => {
         >
           {index < parts.length - 1 ? (
             <>
-              <span className="hover:text-primary transition-colors">{part}</span>
+              <span className="hover:text-primary transition-colors">
+                {part}
+              </span>
               <ChevronRight size={12} className="text-muted-foreground/50" />
             </>
           ) : (
@@ -190,10 +199,10 @@ export default function CodeEditor() {
     try {
       await webContainer.fs.writeFile(path, fileContent);
       setModified(path, false);
-      toast.success(`File saved: ${path.split('/').pop()}`);
+      toast.success(`File saved: ${path.split("/").pop()}`);
     } catch (err) {
       console.error("Failed to save file:", err);
-      const errorMessage = `Failed to save file: ${path.split('/').pop()}`;
+      const errorMessage = `Failed to save file: ${path.split("/").pop()}`;
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -210,7 +219,7 @@ export default function CodeEditor() {
 
   const handleTabChange = (path: string) => setActiveTab(path);
 
-  const handleTabClose = (path: string, e: React.MouseEvent) => {
+  const handleTabClose = (path: string, e: React.MouseEvent | KeyboardEvent) => {
     e.stopPropagation();
     removeTab(path);
   };
@@ -218,23 +227,23 @@ export default function CodeEditor() {
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
         e.preventDefault();
         if (activeTab && activeTab.modified) {
           saveFile(activeTab.path);
         }
       }
       // Close tab with Ctrl+W
-      if ((e.ctrlKey || e.metaKey) && e.key === 'w') {
+      if ((e.ctrlKey || e.metaKey) && e.key === "w") {
         e.preventDefault();
         if (activeTab) {
-          handleTabClose(activeTab.path, e as any);
+          handleTabClose(activeTab.path, e);
         }
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [activeTab]);
 
   // Auto-save functionality
@@ -373,9 +382,11 @@ export default function CodeEditor() {
       {/* Status Bar */}
       <div className="border-t border-border/30 bg-muted/20 px-4 py-1 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
-          <span>Lines: {fileContent.split('\n').length}</span>
+          <span>Lines: {fileContent.split("\n").length}</span>
           <span>Size: {new Blob([fileContent]).size} bytes</span>
-          <span className="capitalize">{getLanguageFromExtension(activeTab.name)}</span>
+          <span className="capitalize">
+            {getLanguageFromExtension(activeTab.name)}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {activeTab.modified && (

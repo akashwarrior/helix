@@ -52,10 +52,11 @@ export default function FileTree() {
     x: 0,
     y: 0,
     node: null,
-    setNewNode: () => { },
+    setNewNode: () => {},
   });
 
-  const { searchQuery, debouncedQuery, handleSearchChange, clearSearch } = useDebouncedSearch();
+  const { searchQuery, debouncedQuery, handleSearchChange, clearSearch } =
+    useDebouncedSearch();
   const webContainer = useWebContainerStore((state) => state.webContainer);
 
   useEffect(() => {
@@ -178,7 +179,8 @@ export default function FileTree() {
                   node={node}
                   fetchData={fetchData}
                   isSelected={
-                    fileTabs.find((tab) => tab.path === node.path)?.active ?? false
+                    fileTabs.find((tab) => tab.path === node.path)?.active ??
+                    false
                   }
                   searchQuery={debouncedQuery}
                   onContextMenu={onContextMenu}
@@ -251,7 +253,7 @@ export default function FileTree() {
               webContainer,
               name,
               menuDropdownOpen.node?.path || ".",
-            )
+            );
           }
         }}
       />
@@ -262,7 +264,11 @@ export default function FileTree() {
         onClose={handleCloseRenameDialog}
         onRename={async (newName) => {
           if (webContainer) {
-            await renameItem(webContainer, menuDropdownOpen.node?.name || ".", newName)
+            await renameItem(
+              webContainer,
+              menuDropdownOpen.node?.name || ".",
+              newName,
+            );
           }
         }}
       />
@@ -273,7 +279,7 @@ export default function FileTree() {
         onClose={handleCloseDeleteDialog}
         onDelete={async () => {
           if (webContainer) {
-            await deleteItem(webContainer, menuDropdownOpen.node!.path)
+            await deleteItem(webContainer, menuDropdownOpen.node!.path);
           }
         }}
       />

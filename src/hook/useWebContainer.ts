@@ -10,7 +10,9 @@ export interface UseWebContainerReturn {
 
 export function useWebContainer(): UseWebContainerReturn {
   const setPreviewUrl = usePreviewUrlStore((state) => state.setPreviewUrl);
-  const setWebContainer = useWebContainerStore((state) => state.setWebContainer);
+  const setWebContainer = useWebContainerStore(
+    (state) => state.setWebContainer,
+  );
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const containerRef = useRef<WebContainer>();
@@ -23,12 +25,17 @@ export function useWebContainer(): UseWebContainerReturn {
           workdirName: "helix",
         });
 
-        containerRef.current.on("server-ready", (port, url) => setPreviewUrl(url));
+        containerRef.current.on("server-ready", (port, url) =>
+          setPreviewUrl(url),
+        );
         setWebContainer(containerRef.current);
         setIsReady(true);
-
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to initialize WebContainer");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to initialize WebContainer",
+        );
       }
     })();
 

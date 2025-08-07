@@ -7,7 +7,11 @@ import ChatInput from "@/components/chat/ChatInput";
 import WorkBench from "@/components/chat/WorkBench";
 import prisma from "@/lib/db";
 
-export default async function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
+export default async function ChatPage({
+  params,
+}: {
+  params: Promise<{ chatId: string }>;
+}) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -53,10 +57,7 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
           </main>
 
           <div className="p-4 max-w-3xl mx-auto w-full">
-            <ChatInput
-              chatId={chatId}
-              initialMessages={project.messages}
-            />
+            <ChatInput chatId={chatId} initialMessages={project.messages} />
           </div>
         </div>
 

@@ -122,8 +122,18 @@
   }
 
   .home-container {
-    background: radial-gradient(1920px 100% at bottom, rgba(255, 77, 0, 0.45) 0%, rgba(0, 87, 255, 0.5) 50%, transparent 100%);
-    mask-image: radial-gradient(1920px 100% at bottom, #000 0%, rgba(0, 0, 0, 0.5) 50%, transparent 100%);
+    background: radial-gradient(
+      1920px 100% at bottom,
+      rgba(255, 77, 0, 0.45) 0%,
+      rgba(0, 87, 255, 0.5) 50%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      1920px 100% at bottom,
+      #000 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      transparent 100%
+    );
   }
 
   ::selection {

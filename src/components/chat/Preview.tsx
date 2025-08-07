@@ -33,7 +33,11 @@ interface MenuDropDownProps {
   isRefreshing: boolean;
 }
 
-const MenuDropDown = ({ onRefresh, onRestart, isRefreshing }: MenuDropDownProps) => (
+const MenuDropDown = ({
+  onRefresh,
+  onRestart,
+  isRefreshing,
+}: MenuDropDownProps) => (
   <DropdownMenu>
     <DropdownMenuTrigger asChild>
       <Button
@@ -98,7 +102,13 @@ const LoadingOverlay = ({ progress }: { progress: number }) => (
   </motion.div>
 );
 
-const ErrorState = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
+const ErrorState = ({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) => (
   <motion.div
     className="h-full flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100"
     initial={{ opacity: 0 }}

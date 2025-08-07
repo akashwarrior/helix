@@ -31,19 +31,26 @@ export function parseXml(response: string): {
 
   if (artifactStartIndex !== -1) {
     beforeArtifact = response.substring(0, artifactStartIndex);
-    const artifactEndIndex = response.indexOf(ARTIFACT_TAG_CLOSE, artifactStartIndex);
+    const artifactEndIndex = response.indexOf(
+      ARTIFACT_TAG_CLOSE,
+      artifactStartIndex,
+    );
 
     // Prefer to start right after the closing '>' of the opening <Artifact ...>
     const artifactOpenEnd = response.indexOf(">", artifactStartIndex);
 
     if (artifactEndIndex !== -1) {
       artifactCandidate = response.substring(
-        artifactOpenEnd !== -1 ? artifactOpenEnd + 1 : artifactStartIndex + ARTIFACT_TAG_OPEN.length,
+        artifactOpenEnd !== -1
+          ? artifactOpenEnd + 1
+          : artifactStartIndex + ARTIFACT_TAG_OPEN.length,
         artifactEndIndex,
       );
     } else {
       artifactCandidate = response.substring(
-        artifactOpenEnd !== -1 ? artifactOpenEnd + 1 : artifactStartIndex + ARTIFACT_TAG_OPEN.length,
+        artifactOpenEnd !== -1
+          ? artifactOpenEnd + 1
+          : artifactStartIndex + ARTIFACT_TAG_OPEN.length,
       );
     }
   } else {
