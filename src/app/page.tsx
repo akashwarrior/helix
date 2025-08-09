@@ -203,9 +203,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-5xl md:text-6xl font-bold mb-4"
+              className="text-5xl md:text-6xl font-medium mb-4 text-accent-foreground"
             >
-              Meet Helix
+              Meet <span className="brand-gradient-text font-bold">Helix</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -213,7 +213,7 @@ export default function Home() {
               transition={{ delay: 0.2 }}
               className="text-lg text-muted-foreground max-w-md mx-auto"
             >
-              Transform ideas into full-stack intelligent apps in a snap.
+              Transform ideas into full-stack intelligent apps in a snap and
               Publish with a click.
             </motion.p>
           </div>

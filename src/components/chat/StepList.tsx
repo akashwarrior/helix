@@ -105,7 +105,7 @@ export default function StepList({
                             backgroundSize: "200% 100%",
                           }}
                           animate={{
-                            backgroundPosition: ["100% 0%", "0% 0%"],
+                            backgroundPosition: ["110% 0%", "-10% 0%"],
                           }}
                           transition={{
                             duration: 1.5,

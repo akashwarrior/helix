@@ -78,7 +78,7 @@ const MenuItems = () => {
         <li key={id}>
           <Link
             href={`/chat/${id}`}
-            className="block px-5 py-2.5 text-primary/90 hover:text-primary hover:bg-primary/5 rounded-lg text-sm truncate"
+            className="block px-5 py-2.5 rounded-lg text-sm truncate"
           >
             {name}
           </Link>

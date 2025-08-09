@@ -50,14 +50,17 @@ export default async function ChatPage({
 
       <main className="flex-1 flex overflow-hidden w-full">
         <div className="overflow-hidden transition-all duration-150 h-full flex flex-col flex-1">
-          <main className="flex flex-col flex-1 overflow-y-auto">
-            <div className="flex-1 py-6 flex flex-col gap-6 px-2 max-w-3xl mx-auto w-full">
+          <main className="flex flex-col flex-1 overflow-y-auto [scrollbar-width:none]">
+            <div className="flex-1 py-3 flex flex-col gap-6 pl-2 pr-3 text-sm max-w-3xl mx-auto w-full">
               <ChatMessages />
             </div>
           </main>
 
           <div className="p-4 max-w-3xl mx-auto w-full">
-            <ChatInput chatId={chatId} initialMessages={project.messages} />
+            <ChatInput
+              chatId={chatId}
+              initialMessages={project.messages}
+            />
           </div>
         </div>
 

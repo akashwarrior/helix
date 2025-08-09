@@ -18,8 +18,8 @@ export default function Header({ openAuthModal }: HeaderProps) {
   const isAuthenticated = !!session?.user;
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex items-center justify-between md:justify-start gap-17 p-6 pl-10 h-20 z-50">
-      <h1 className="text-2xl font-bold">Helix</h1>
+    <header className="fixed top-4 left-0 right-0 mx-3 flex items-center justify-between md:justify-start gap-17 pr-6 pl-10 h-16 z-50">
+      <h1 className="text-2xl font-bold brand-gradient-text tracking-tight">Helix</h1>
 
       <Button size="icon" variant="ghost" onClick={toggleSidebar}>
         <PanelLeft size={18} />

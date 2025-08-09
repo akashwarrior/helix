@@ -19,14 +19,35 @@ export default function WorkBench() {
         activeView && (!isChatOpen ? "w-full" : "w-[70%]"),
       )}
     >
-      {activeView === "Editor" && <FileTree />}
+      <div
+        className={cn(
+          "overflow-hidden flex",
+          activeView !== "Editor" && "hidden",
+        )}
+      >
+        <FileTree />
+      </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {activeView === "Preview" && <Preview />}
-        {activeView === "Editor" && <CodeEditor />}
+      <div className="flex-1 flex overflow-hidden">
         <div
           className={cn(
-            "flex-1 overflow-hidden flex",
+            "flex-1 overflow-hidden flex-col",
+            activeView !== "Preview" && "hidden",
+          )}
+        >
+          <Preview />
+        </div>
+        <div
+          className={cn(
+            "flex-1 overflow-hidden flex-col",
+            activeView !== "Editor" && "hidden",
+          )}
+        >
+          <CodeEditor />
+        </div>
+        <div
+          className={cn(
+            "flex-1 overflow-hidden flex-col",
             activeView !== "Terminal" && "hidden",
           )}
         >

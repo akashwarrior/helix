@@ -20,14 +20,31 @@ export interface ParsedAction {
 export function parseXml(response: string): {
   beforeArtifact: string;
   actions: ParsedAction[];
+  title?: string;
 } {
   if (!response) {
-    return { beforeArtifact: "", actions: [] };
+    return { beforeArtifact: "", actions: [], title: "Untitled" };
   }
+  let title: string | undefined;
 
   const artifactStartIndex = response.indexOf(ARTIFACT_TAG_OPEN);
   let beforeArtifact = "";
   let artifactCandidate = "";
+
+  const artifactRegex = /<Artifact\b([^>]*)>([\s\S]*?)(?:<\/Artifact>|$)/g;
+  const artifactMatch = artifactRegex.exec(response);
+  if (artifactMatch) {
+    const [, rawAttrs] = artifactMatch;
+    const attrRegex = /(\w+)="([^"]*)"/g;
+    let attrMatch: RegExpExecArray | null;
+    while ((attrMatch = attrRegex.exec(rawAttrs)) !== null) {
+      const key = attrMatch[1];
+      const value = attrMatch[2];
+      if (key === "title") {
+        title = value;
+      }
+    }
+  }
 
   if (artifactStartIndex !== -1) {
     beforeArtifact = response.substring(0, artifactStartIndex);
@@ -36,7 +53,6 @@ export function parseXml(response: string): {
       artifactStartIndex,
     );
 
-    // Prefer to start right after the closing '>' of the opening <Artifact ...>
     const artifactOpenEnd = response.indexOf(">", artifactStartIndex);
 
     if (artifactEndIndex !== -1) {
@@ -83,7 +99,7 @@ export function parseXml(response: string): {
     actions.push({ type: actionType, filePath, content, isComplete });
   }
 
-  return { beforeArtifact: beforeArtifact.trim(), actions };
+  return { beforeArtifact: beforeArtifact.trim(), actions, title };
 }
 
 const allowedHTMLElements = [

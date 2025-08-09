@@ -38,7 +38,7 @@ export function processXmlResponse(
   role: Role,
 ): void {
   if (!response) return;
-  const { beforeArtifact, actions } = parseXml(response);
+  const { beforeArtifact, actions, title } = parseXml(response);
 
   const message: MessageStore = {
     id,
@@ -46,6 +46,7 @@ export function processXmlResponse(
     role: role as "user" | "assistant" | "data",
     createdAt: new Date(),
     steps: actions.map(createStepFromAction),
+    title: title || "Build plan",
   };
 
   const existingMessage = useMessagesStore

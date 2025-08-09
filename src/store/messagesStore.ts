@@ -25,6 +25,7 @@ export interface MessageStore {
   role: "user" | "assistant" | "data";
   createdAt: Date;
   steps: Step[];
+  title: string;
 }
 
 interface MessagesStore {
