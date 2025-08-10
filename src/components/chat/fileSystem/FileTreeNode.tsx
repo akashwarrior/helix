@@ -109,16 +109,9 @@ const FileTreeNode = ({
               )}
             />
             {expanded ? (
-              <FolderOpen
-                size={20}
-                fill="currentColor"
-                stroke="background"
-              />
+              <FolderOpen size={20} fill="currentColor" stroke="background" />
             ) : (
-              <Folder
-                size={16}
-                fill="currentColor"
-              />
+              <Folder size={16} fill="currentColor" />
             )}
           </>
         ) : (
@@ -163,8 +156,7 @@ const FileTreeNode = ({
             fetchData={fetchData}
             onContextMenu={onContextMenu}
           />
-        ))
-      }
+        ))}
     </>
   );
 };

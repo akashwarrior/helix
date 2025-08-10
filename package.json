@@ -12,6 +12,7 @@
     "env": "copy .env.example .env",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
     "db:studio": "prisma studio"
   },
   "dependencies": {

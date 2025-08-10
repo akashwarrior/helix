@@ -192,7 +192,8 @@ interface ImageUploadContentProps {
 }
 
 function ImageUploadContent({ children, className }: ImageUploadContentProps) {
-  const { isDragOver, setIsDragOver, handleImageUpload, fileInputRef } = useImageUpload();
+  const { isDragOver, setIsDragOver, handleImageUpload, fileInputRef } =
+    useImageUpload();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -213,7 +214,9 @@ function ImageUploadContent({ children, className }: ImageUploadContentProps) {
 
   return (
     <div
-      className={cn(className, "relative",
+      className={cn(
+        className,
+        "relative",
         isDragOver ? "border-primary/50 bg-primary/5" : "border-border/50",
       )}
       onDragOver={handleDragOver}

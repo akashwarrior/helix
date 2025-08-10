@@ -1,26 +1,50 @@
-import { MessageStore, useMessagesStore } from "@/store/messagesStore";
-import type { Role } from "@prisma/client";
-
 const MODIFICATIONS_TAG_NAME = "file_modifications";
 
 enum StepType {
-  CREATE_FILE = "create_file",
-  RUN_SCRIPT = "run_script",
+  CREATE_FILE = "CREATE_FILE",
+  DELETE_FILE = "DELETE_FILE",
+  UPDATE_FILE = "UPDATE_FILE",
+  RUN_COMMAND = "RUN_COMMAND",
 }
 
-const ARTIFACT_TAG_OPEN = "<Artifact>";
+const ARTIFACT_TAG_OPEN = "<Artifact";
 const ARTIFACT_TAG_CLOSE = "</Artifact>";
 
-function parseXml(
-  response: string,
-  id: string,
-  role: "user" | "assistant" | "data" | "system",
-): void {
-  if (!response) return;
+export interface ParsedAction {
+  type: "shell" | "file";
+  filePath?: string;
+  content: string;
+  isComplete: boolean;
+}
+
+export function parseXml(response: string): {
+  beforeArtifact: string;
+  actions: ParsedAction[];
+  title?: string;
+} {
+  if (!response) {
+    return { beforeArtifact: "", actions: [], title: "Untitled" };
+  }
+  let title: string | undefined;
 
   const artifactStartIndex = response.indexOf(ARTIFACT_TAG_OPEN);
   let beforeArtifact = "";
   let artifactCandidate = "";
+
+  const artifactRegex = /<Artifact\b([^>]*)>([\s\S]*?)(?:<\/Artifact>|$)/g;
+  const artifactMatch = artifactRegex.exec(response);
+  if (artifactMatch) {
+    const [, rawAttrs] = artifactMatch;
+    const attrRegex = /(\w+)="([^"]*)"/g;
+    let attrMatch: RegExpExecArray | null;
+    while ((attrMatch = attrRegex.exec(rawAttrs)) !== null) {
+      const key = attrMatch[1];
+      const value = attrMatch[2];
+      if (key === "title") {
+        title = value;
+      }
+    }
+  }
 
   if (artifactStartIndex !== -1) {
     beforeArtifact = response.substring(0, artifactStartIndex);
@@ -28,64 +52,54 @@ function parseXml(
       ARTIFACT_TAG_CLOSE,
       artifactStartIndex,
     );
+
+    const artifactOpenEnd = response.indexOf(">", artifactStartIndex);
+
     if (artifactEndIndex !== -1) {
       artifactCandidate = response.substring(
-        artifactStartIndex + ARTIFACT_TAG_OPEN.length,
+        artifactOpenEnd !== -1
+          ? artifactOpenEnd + 1
+          : artifactStartIndex + ARTIFACT_TAG_OPEN.length,
         artifactEndIndex,
       );
     } else {
       artifactCandidate = response.substring(
-        artifactStartIndex + ARTIFACT_TAG_OPEN.length,
+        artifactOpenEnd !== -1
+          ? artifactOpenEnd + 1
+          : artifactStartIndex + ARTIFACT_TAG_OPEN.length,
       );
     }
   } else {
     beforeArtifact = response;
   }
 
-  const message: MessageStore = {
-    id: id,
-    content: beforeArtifact.trim() || "",
-    role: role as Role,
-    createdAt: new Date(),
-    steps: [],
-  };
-
-  const actionRegex = /<Action\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?\s*>([\s\S]*?)(?:<\/Action>|$)/g;
+  const actionRegex = /<Action\b([^>]*)>([\s\S]*?)(?:<\/Action>|$)/g;
+  const actions: ParsedAction[] = [];
   let match: RegExpExecArray | null;
 
   while ((match = actionRegex.exec(artifactCandidate)) !== null) {
-    const [, type, filePath, content] = match;
-    const isArtifactComplete = match[0].trim().endsWith("</Action>");
+    const [, rawAttrs, content] = match;
+    const isComplete = match[0].trim().endsWith("</Action>");
 
-    const newStep = {
-      stepType: type === "file" ? StepType.CREATE_FILE : StepType.RUN_SCRIPT,
-      isPending: true,
-      content: content,
-      isArtifactComplete,
-      ...(filePath && { path: filePath })
-    };
-    message.steps.push(newStep);
-  }
-
-  const currentMessages = useMessagesStore.getState().messages;
-  const existingMessage = currentMessages.find(m => m.id === message.id);
-
-  if (!existingMessage) {
-    useMessagesStore.getState().addMessage(message);
-  } else {
-    if (existingMessage.steps.length !== message.steps.length || existingMessage.content !== message.content) {
-      existingMessage.content = message.content;
-      message.steps.forEach((step, index) => {
-        const existingStep = existingMessage?.steps[index];
-        if (!existingStep) {
-          existingMessage.steps.push(step);
-        } else if (!existingStep.isArtifactComplete && step.isArtifactComplete) {
-          existingMessage.steps[index] = step;
-        }
-      });
-      useMessagesStore.getState().updateMessage(existingMessage);
+    let actionType: "shell" | "file" = "file";
+    let filePath: string | undefined = undefined;
+    const attrRegex = /(\w+)="([^"]*)"/g;
+    let attrMatch: RegExpExecArray | null;
+    while ((attrMatch = attrRegex.exec(rawAttrs)) !== null) {
+      const key = attrMatch[1];
+      const value = attrMatch[2];
+      if (key === "type") {
+        const normalized = value.toLowerCase();
+        actionType = normalized === "shell" ? "shell" : "file";
+      } else if (key === "filePath") {
+        filePath = value;
+      }
     }
+
+    actions.push({ type: actionType, filePath, content, isComplete });
   }
+
+  return { beforeArtifact: beforeArtifact.trim(), actions, title };
 }
 
 const allowedHTMLElements = [
@@ -139,4 +153,10 @@ const allowedHTMLElements = [
   "var",
 ];
 
-export { MODIFICATIONS_TAG_NAME, allowedHTMLElements, parseXml, StepType };
+export {
+  MODIFICATIONS_TAG_NAME,
+  allowedHTMLElements,
+  StepType,
+  ARTIFACT_TAG_OPEN,
+  ARTIFACT_TAG_CLOSE,
+};
