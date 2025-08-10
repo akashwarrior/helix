@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -82,10 +81,7 @@ export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={cn(
-        "relative rounded-2xl transition-all duration-300 bg-card/70 border backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/10",
-        "focus-within:shadow-primary/10 focus-within:shadow-lg focus-within:border-ring/50",
-      )}
+      className="relative rounded-2xl transition-all duration-300 bg-card/60 border border-muted-foreground/10 backdrop-blur-md focus-within:shadow-lg"
     >
       <textarea
         name="chat-input"

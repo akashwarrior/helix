@@ -45,22 +45,20 @@ export default async function ChatPage({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-card/50">
+    <div className="flex h-screen overflow-hidden flex-col relative">
+      <div className="home-container fixed inset-0 z-0 overflow-hidden" />
       <ChatHeader title={project.name} />
 
-      <main className="flex-1 flex overflow-hidden w-full">
+      <main className="flex-1 flex overflow-hidden w-full z-10">
         <div className="overflow-hidden transition-all duration-150 h-full flex flex-col flex-1">
           <main className="flex flex-col flex-1 overflow-y-auto [scrollbar-width:none]">
-            <div className="flex-1 py-3 flex flex-col gap-6 pl-2 pr-3 text-sm max-w-3xl mx-auto w-full">
+            <div className="flex-1 py-6 flex flex-col gap-4 md:gap-6 px-3 text-sm max-w-3xl mx-auto w-full">
               <ChatMessages />
             </div>
           </main>
 
           <div className="p-4 max-w-3xl mx-auto w-full">
-            <ChatInput
-              chatId={chatId}
-              initialMessages={project.messages}
-            />
+            <ChatInput chatId={chatId} initialMessages={project.messages} />
           </div>
         </div>
 

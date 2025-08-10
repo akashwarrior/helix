@@ -219,7 +219,10 @@ export default function CodeEditor() {
 
   const handleTabChange = (path: string) => setActiveTab(path);
 
-  const handleTabClose = (path: string, e: React.MouseEvent | KeyboardEvent) => {
+  const handleTabClose = (
+    path: string,
+    e: React.MouseEvent | KeyboardEvent,
+  ) => {
     e.stopPropagation();
     removeTab(path);
   };

@@ -43,7 +43,7 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(0.985 0 0);
+  --background: oklch(262.16 0.02 260);
   --foreground: oklch(0.25 0.03 263.85);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
@@ -78,11 +78,10 @@
   --brand-from: #4991e5;
   --brand-via: #39bdd6;
   --brand-to: #3bd4cb;
-  --glass-surface: linear-gradient(180deg, #aab6c83b, #90a0b91a, #5d759b11);
 }
 
 .dark {
-  --background: oklch(0.15 0.02 260);
+  --background: oklch(0.18 0.01 262.16);
   --foreground: oklch(0.87 0 249.35);
   --card: oklch(0.19 0.02 264.76);
   --card-foreground: oklch(0.985 0 0);
@@ -113,7 +112,6 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --glass-surface: linear-gradient(180deg, #def4ff0f, #abbcc50d, #5d676d1a);
 }
 
 @layer base {
@@ -124,24 +122,100 @@
 
   html,
   body {
-    @apply h-full flex flex-col bg-background text-foreground;
+    @apply h-full relative flex flex-col bg-background text-foreground;
+  }
+
+  .msg-assistant::before {
+    content: "";
+    position: absolute;
+    left: -1px;
+    top: 8px;
+    bottom: 8px;
+    width: 3px;
+    border-radius: 2px;
+    background-image: linear-gradient(
+      180deg,
+      var(--brand-from),
+      var(--brand-to)
+    );
+    opacity: 0.65;
+  }
+
+  .home-container::before {
+    content: "";
+    position: absolute;
+    inset: -10%;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      color-mix(in oklab, var(--brand-from) 12%, transparent) 36%,
+      color-mix(in oklab, var(--brand-via) 28%, transparent) 50%,
+      color-mix(in oklab, var(--brand-to) 12%, transparent) 64%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    opacity: 0.42;
+  }
+
+  .home-container::after {
+    content: "";
+    position: absolute;
+    inset: -10%;
+    background:
+      radial-gradient(
+        1200px 600px at 50% 115%,
+        color-mix(in oklab, var(--brand-via) 16%, transparent) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        900px 420px at -10% 0%,
+        color-mix(in oklab, var(--brand-from) 14%, transparent) 0%,
+        transparent 70%
+      ),
+      radial-gradient(
+        800px 360px at 110% 14%,
+        color-mix(in oklab, var(--brand-to) 12%, transparent) 0%,
+        transparent 75%
+      ),
+      repeating-conic-gradient(
+        from 210deg at 50% 50%,
+        rgba(0, 0, 0, 0) 0deg 14deg,
+        color-mix(in oklab, var(--brand-from) 18%, transparent) 14deg 16deg,
+        rgba(0, 0, 0, 0) 16deg 28deg
+      ),
+      repeating-conic-gradient(
+        from 210deg at 50% 50%,
+        rgba(0, 0, 0, 0) 0deg 12deg,
+        color-mix(in oklab, var(--brand-to) 16%, transparent) 12deg 13deg,
+        rgba(0, 0, 0, 0) 13deg 24deg
+      );
+    background-blend-mode: screen, screen, screen, screen, screen;
+    mask-image: radial-gradient(
+      135% 95% at 50% 48%,
+      transparent 30%,
+      black 42%,
+      black 58%,
+      transparent 70%
+    );
+    pointer-events: none;
+    opacity: 0.4;
   }
 
   .brand-gradient-text {
-    background-image: linear-gradient(90deg, var(--brand-from), var(--brand-via), var(--brand-to));
+    background-image: linear-gradient(
+      90deg,
+      var(--brand-from),
+      var(--brand-via),
+      var(--brand-to)
+    );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   ::selection {
-    background-color: var(--accent);
-    color: var(--accent-foreground);
-  }
-
-  .dark ::selection {
-    background-color: var(--accent);
-    color: var(--accent-foreground);
+    background-color: var(--muted-foreground);
+    color: var(--muted);
   }
 
   ::-webkit-scrollbar {

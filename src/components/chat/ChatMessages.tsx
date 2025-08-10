@@ -15,8 +15,9 @@ export default function ChatMessages() {
       <div
         key={id}
         className={cn(
-          "rounded-lg py-1.5 px-2.5",
-          isUser && "bg-primary/10 max-w-[85%] ml-auto",
+          "relative rounded-2xl border border-border/50 bg-card/60",
+          "px-3.5 py-2.5 shadow-sm shadow-black/5 dark:shadow-black/10",
+          isUser ? "max-w-[85%] ml-auto" : "msg-assistant",
         )}
       >
         <p className="whitespace-pre-wrap leading-relaxed text-foreground">
@@ -24,11 +25,7 @@ export default function ChatMessages() {
         </p>
 
         {steps.length > 0 && (
-          <StepList
-            messageId={id}
-            steps={steps}
-            title={title}
-          />
+          <StepList messageId={id} steps={steps} title={title} />
         )}
       </div>
     );

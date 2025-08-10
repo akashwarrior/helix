@@ -55,15 +55,13 @@ export default function ChatHeader({ title }: { title: string }) {
   }, [isReady]);
 
   return (
-    <header className="h-14 flex items-center px-3">
+    <header className="sticky top-0 z-40 h-14 flex items-center px-3">
       <div className="flex items-center gap-2 flex-1">
         <Button size="icon" variant="ghost" onClick={() => router.back()}>
           <ArrowLeft size={18} />
         </Button>
 
-        <h1 className="font-medium truncate bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-          {title}
-        </h1>
+        <h1 className="font-medium truncate text-foreground">{title}</h1>
 
         <Button
           variant="ghost"

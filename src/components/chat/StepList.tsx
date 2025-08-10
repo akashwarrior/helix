@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { CheckCircle2, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
 import { StepType } from "@/lib/server/constants";
 import type { Step } from "@/store/messagesStore";
 
@@ -25,28 +25,22 @@ export default function StepList({
     <motion.div
       initial={{ opacity: 0, width: 0 }}
       animate={{ opacity: 1, width: "auto" }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
-      className="mt-4 overflow-hidden bg-card border rounded-xl backdrop-blur-sm"
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+      className="mt-3 overflow-hidden bg-card/70 border rounded-xl backdrop-blur-sm shadow-sm"
     >
       <button
         onClick={() => setIsOpen((v) => !v)}
         aria-expanded={isOpen}
         aria-controls={`steps-panel-${messageId}`}
-        className="flex items-center gap-3 w-full text-left group hover:bg-muted/50 rounded-xl p-3 transition-colors"
+        className="flex items-center gap-3 w-full text-left group hover:bg-muted/40 rounded-xl p-3 transition-colors"
       >
-        <div className="flex items-center gap-2">
-          {isOpen ? (
-            <ChevronDown
-              size={16}
-              className="text-muted-foreground group-hover:text-foreground"
-            />
-          ) : (
-            <ChevronRight
-              size={16}
-              className="text-muted-foreground group-hover:text-foreground"
-            />
+        <ChevronRight
+          size={16}
+          className={cn(
+            "text-muted-foreground group-hover:text-foreground transition-transform duration-200",
+            isOpen && "rotate-90",
           )}
-        </div>
+        />
 
         <span className="text-sm font-medium text-foreground truncate flex-1">
           {title}
@@ -55,7 +49,7 @@ export default function StepList({
         <div
           className={cn(
             "w-2 h-2 rounded-full",
-            pending ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground",
+            pending ? "bg-cyan-400 animate-pulse" : "bg-muted-foreground/70",
           )}
           aria-label={pending ? "In progress" : "Complete"}
         />
@@ -101,14 +95,14 @@ export default function StepList({
                           className="absolute inset-0 bg-clip-text text-transparent truncate"
                           style={{
                             backgroundImage:
-                              "linear-gradient(90deg, rgba(34,211,238,0) 0%, rgba(34,211,238,0) 40%, rgba(34,211,238,1) 50%, rgba(34,211,238,0) 60%, rgba(34,211,238,0) 100%)",
+                              "linear-gradient(90deg, rgba(34,211,238,0) 0%, rgba(34,211,238,0) 45%, rgba(34,211,238,1) 50%, rgba(34,211,238,0) 55%, rgba(34,211,238,0) 100%)",
                             backgroundSize: "200% 100%",
                           }}
                           animate={{
                             backgroundPosition: ["110% 0%", "-10% 0%"],
                           }}
                           transition={{
-                            duration: 1.5,
+                            duration: 1.2,
                             delay: 0.5,
                             ease: "linear",
                             repeat: Infinity,
