@@ -14,10 +14,11 @@ export default function Error({ error, reset }: ErrorProps) {
   const router = useRouter();
 
   const errorMessage = error?.message || "Something unexpected happened";
-  const isNetworkError = errorMessage.toLowerCase().includes('network') ||
-    errorMessage.toLowerCase().includes('fetch');
-  const isServerError = errorMessage.toLowerCase().includes('server') ||
-    error?.digest;
+  const isNetworkError =
+    errorMessage.toLowerCase().includes("network") ||
+    errorMessage.toLowerCase().includes("fetch");
+  const isServerError =
+    errorMessage.toLowerCase().includes("server") || !!error?.digest;
 
   return (
     <div className="min-h-screen bg-transparent relative overflow-hidden flex items-center justify-center">
@@ -61,19 +62,26 @@ export default function Error({ error, reset }: ErrorProps) {
                 ? "Connection issue detected. Please check your internet and try again."
                 : isServerError
                   ? "Our servers are having a moment. We're working to fix this."
-                  : "Don't worry, this happens sometimes. Let's get you back on track."
-              }
+                  : "Don't worry, this happens sometimes. Let's get you back on track."}
             </p>
 
-            {process.env.NODE_ENV === 'development' && (
+            {process.env.NODE_ENV === "development" && (
               <details className="text-left mt-4 p-4 bg-muted/50 rounded-lg">
                 <summary className="text-sm font-medium cursor-pointer text-muted-foreground hover:text-foreground">
                   Technical Details (Development)
                 </summary>
                 <div className="mt-2 text-xs text-muted-foreground font-mono break-all">
-                  <div><strong>Error:</strong> {error?.name || 'Unknown'}</div>
-                  <div><strong>Message:</strong> {errorMessage}</div>
-                  {error?.digest && <div><strong>Digest:</strong> {error.digest}</div>}
+                  <div>
+                    <strong>Error:</strong> {error?.name || "Unknown"}
+                  </div>
+                  <div>
+                    <strong>Message:</strong> {errorMessage}
+                  </div>
+                  {error?.digest && (
+                    <div>
+                      <strong>Digest:</strong> {error.digest}
+                    </div>
+                  )}
                   {error?.stack && (
                     <div className="mt-2">
                       <strong>Stack:</strong>
@@ -93,17 +101,14 @@ export default function Error({ error, reset }: ErrorProps) {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-3 justify-center"
           >
-            <Button
-              onClick={reset}
-              className="flex items-center gap-2"
-            >
+            <Button onClick={reset} className="flex items-center gap-2">
               <RotateCcw size={16} />
               Try Again
             </Button>
 
             <Button
               variant="outline"
-              onClick={() => router.push('/')}
+              onClick={() => router.push("/")}
               className="flex items-center gap-2"
             >
               <Home size={16} />
@@ -129,9 +134,9 @@ export default function Error({ error, reset }: ErrorProps) {
         >
           <p className="text-sm text-muted-foreground">
             Still having trouble?{" "}
-            <a 
-              href="https://x.com/skyGuptaCS" 
-              target="_blank" 
+            <a
+              href="https://x.com/skyGuptaCS"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >

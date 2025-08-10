@@ -49,18 +49,18 @@ export function processXmlResponse(
     title: title || "Build plan",
   };
 
-  const existingMessage = useMessagesStore
-    .getState()
-    .messages.findLast((m) => m.id === id);
+  const existingMessage = [...useMessagesStore.getState().messages]
+    .reverse()
+    .find((m) => m.id === id);
 
   if (!existingMessage) {
     useMessagesStore.getState().addMessage(message);
   } else {
     const hasNewSteps = existingMessage.steps.length !== message.steps.length;
     const hasContentChange = existingMessage.content !== message.content;
-    const hasIncompleteSteps = existingMessage.steps.findLast(
-      (s) => !s.isComplete,
-    );
+    const hasIncompleteSteps = [...existingMessage.steps]
+      .reverse()
+      .find((s) => !s.isComplete);
 
     if (hasNewSteps || hasContentChange || hasIncompleteSteps) {
       existingMessage.content = message.content;
@@ -91,9 +91,10 @@ export const executeSteps = async (): Promise<void> => {
 
   isExecuting = true;
   try {
-    const msg = useMessagesStore
-      .getState()
-      .messages.findLast((m: MessageStore) => m.steps.length > 0);
+    const messages = useMessagesStore.getState().messages;
+    const msg = [...messages]
+      .reverse()
+      .find((m: MessageStore) => m.steps.length > 0);
     if (!msg) {
       return;
     }
@@ -127,9 +128,9 @@ export const executeSteps = async (): Promise<void> => {
 
     useMessagesStore.getState().updateMessage(updatedMessage);
   } finally {
-    const pendingExecution = useMessagesStore
-      .getState()
-      .messages.findLast((m: MessageStore) =>
+    const pendingExecution = [...useMessagesStore.getState().messages]
+      .reverse()
+      .find((m: MessageStore) =>
         m.steps.some((s: Step) => s.isPending && s.isComplete),
       );
     isExecuting = false;

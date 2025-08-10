@@ -45,7 +45,7 @@ export function useWebContainer(): UseWebContainerReturn {
       setPreviewUrl("");
       setIsReady(false);
     };
-  }, []);
+  }, [setPreviewUrl, setWebContainer]);
 
   return {
     error,

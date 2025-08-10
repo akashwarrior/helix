@@ -6,7 +6,7 @@ import { useSidebarStore } from "@/store/sidebarStore";
 import { useSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useChatList } from "@/hook/useChtatList";
+import { useChatList } from "@/hook/useChatList";
 
 interface EmptyStateProps {
   icon: React.ReactNode;

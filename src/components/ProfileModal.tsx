@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 
-
 interface ProfileModalProps {
   children: React.ReactNode;
 }
@@ -28,9 +27,7 @@ export default function ProfileModal({ children }: ProfileModalProps) {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        {children}
-      </DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
       <DropdownMenuContent
         className="max-w-[280px] p-4 space-y-3.5 shadow-lg border rounded-lg"
         align="end"
@@ -47,23 +44,35 @@ export default function ProfileModal({ children }: ProfileModalProps) {
             />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-sm truncate leading-tight">{user?.name || 'Akash Gupta'}</h3>
-            <p className="text-xs text-muted-foreground truncate mt-0.5">{user?.email || 'akashwarrior@gmail.com'}</p>
+            <h3 className="font-semibold text-sm truncate leading-tight">
+              {user?.name || "Akash Gupta"}
+            </h3>
+            <p className="text-xs text-muted-foreground truncate mt-0.5">
+              {user?.email || "akashwarrior@gmail.com"}
+            </p>
           </div>
-          <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">Beta</span>
+          <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
+            Beta
+          </span>
         </div>
 
         <div className="bg-muted/40 rounded-lg p-3 space-y-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">Credits</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              Credits
+            </span>
             <span className="text-sm font-mono text-foreground">∞</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">Daily refills</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              Daily refills
+            </span>
             <span className="text-sm font-mono text-foreground">∞</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">Deployments</span>
+            <span className="text-xs text-muted-foreground font-medium">
+              Deployments
+            </span>
             <span className="text-sm font-mono text-foreground">∞</span>
           </div>
         </div>
@@ -73,26 +82,26 @@ export default function ProfileModal({ children }: ProfileModalProps) {
             <span className="text-sm font-medium">Theme</span>
             <div className="flex bg-muted py-1 px-2 gap-2 items-center rounded-lg">
               <Button
-                variant={theme === 'system' ? 'secondary' : 'ghost'}
+                variant={theme === "system" ? "secondary" : "ghost"}
                 size="icon"
                 className="h-4 w-4 transition-all hover:scale-105"
-                onClick={() => setTheme('system')}
+                onClick={() => setTheme("system")}
               >
                 <Monitor />
               </Button>
               <Button
-                variant={theme === 'light' ? 'secondary' : 'ghost'}
+                variant={theme === "light" ? "secondary" : "ghost"}
                 size="icon"
                 className="h-4 w-4 transition-all hover:scale-105"
-                onClick={() => setTheme('light')}
+                onClick={() => setTheme("light")}
               >
                 <Sun />
               </Button>
               <Button
-                variant={theme === 'dark' ? 'secondary' : 'ghost'}
+                variant={theme === "dark" ? "secondary" : "ghost"}
                 size="icon"
                 className="h-4 w-4 transition-all hover:scale-105"
-                onClick={() => setTheme('dark')}
+                onClick={() => setTheme("dark")}
               >
                 <Moon />
               </Button>
@@ -106,7 +115,10 @@ export default function ProfileModal({ children }: ProfileModalProps) {
             onClick={handleSignOut}
             className="w-full justify-start h-9 px-3 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-all group"
           >
-            <LogOut size={14} className="mr-2.5 transition-transform group-hover:translate-x-0.5" />
+            <LogOut
+              size={14}
+              className="mr-2.5 transition-transform group-hover:translate-x-0.5"
+            />
             Sign Out
           </Button>
         </div>

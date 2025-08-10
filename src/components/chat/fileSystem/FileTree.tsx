@@ -266,7 +266,7 @@ export default function FileTree() {
           if (webContainer) {
             await renameItem(
               webContainer,
-              menuDropdownOpen.node?.name || ".",
+              menuDropdownOpen.node?.path || ".",
               newName,
             );
           }

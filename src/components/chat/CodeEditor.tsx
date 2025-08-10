@@ -191,7 +191,7 @@ export default function CodeEditor() {
     };
 
     loadFileContent();
-  }, [webContainer, activeTab?.path]);
+  }, [webContainer, activeTab]);
 
   const saveFile = async (path: string) => {
     if (!webContainer || !fileContent) return;
@@ -248,20 +248,6 @@ export default function CodeEditor() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [activeTab]);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (!activeTab?.modified) return;
-
-    const autoSaveTimeout = setTimeout(() => {
-      if (activeTab.modified) {
-        saveFile(activeTab.path);
-        toast.success("Auto-saved", { duration: 1000 });
-      }
-    }, 30000); // Auto-save after 30 seconds of inactivity
-
-    return () => clearTimeout(autoSaveTimeout);
-  }, [fileContent, activeTab?.path]);
 
   const monacoBeforeMount = async (monaco: Monaco) => {
     try {

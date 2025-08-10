@@ -62,7 +62,7 @@ export const SearchHeader = ({
         placeholder="Search files..."
         value={searchQuery}
         onChange={onSearchChange}
-        className="pl-9 pr-8 bg-background/70 focus-within:border-border! ring-0! focus-within:shadow"
+        className="pl-9 pr-8 bg-background/70"
       />
       {searchQuery && (
         <Button

@@ -11,8 +11,10 @@ const font = Host_Grotesk({
   preload: true,
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL!),
+  metadataBase: new URL(baseUrl),
   title: "Helix",
   description:
     "Build the future of web design with AI-powered website creation. Transform your ideas into reality with cosmic creativity.",
@@ -35,7 +37,7 @@ export const metadata: Metadata = {
       "Transform your ideas into stunning websites with AI-powered design and cosmic creativity.",
     type: "website",
     locale: "en_US",
-    url: process.env.NEXT_PUBLIC_BASE_URL,
+    url: baseUrl,
     siteName: "Helix",
     images: {
       url: "/logo.png",

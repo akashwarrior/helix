@@ -40,11 +40,9 @@ export const useMessagesStore = create<MessagesStore>((set) => ({
   messages: [],
   updateMessage: (updatedMessage) =>
     set((state) => {
-      const messages = [...state.messages];
-      messages[messages.length - 1] = {
-        ...messages[messages.length - 1],
-        ...updatedMessage,
-      };
+      const messages = state.messages.map((m) =>
+        m.id === updatedMessage.id ? { ...m, ...updatedMessage } : m,
+      );
       return { messages };
     }),
   addMessage: (message) =>

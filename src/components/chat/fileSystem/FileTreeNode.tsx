@@ -76,15 +76,20 @@ const FileTreeNode = ({
       setExpanded(true);
     }
     if (expanded) {
-      fetchData(node.path).then((data) => {
-        setChildNodes(data);
-      });
+      let mounted = true;
+      (async () => {
+        const data = await fetchData(node.path);
+        if (mounted) setChildNodes(data);
+      })();
+      return () => {
+        mounted = false;
+      };
     } else {
       setChildNodes(null);
     }
 
     return () => setChildNodes(null);
-  }, [expanded, searchQuery]);
+  }, [expanded, searchQuery, fetchData, node.path, node.type]);
 
   return (
     <>

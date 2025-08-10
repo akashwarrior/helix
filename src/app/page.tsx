@@ -186,7 +186,6 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1">
       <div className="home-container fixed inset-0 z-0 overflow-hidden" />
-
       <Header openAuthModal={openAuthDialog} />
 
       <div className="flex flex-1 h-full overflow-hidden z-10">
