@@ -1,48 +1,114 @@
 "use client";
 
 import { motion } from "motion/react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Home, ArrowLeft, Search, FileQuestion } from "lucide-react";
 
 export default function NotFound() {
+  const router = useRouter();
+
   return (
-    <main className="relative min-h-screen flex items-center justify-center bg-background overflow-hidden">
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial from-blue-600/10 via-purple-600/10 to-transparent" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: "2s" }}
-        />
-      </div>
-      <motion.section
-        initial={{ opacity: 0, y: 40 }}
+    <div className="min-h-screen bg-transparent relative overflow-hidden flex items-center justify-center">
+      <div className="home-container fixed inset-0 z-0 overflow-hidden" />
+      
+      <motion.main
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center justify-center gap-8 px-6 py-12 bg-card/70 backdrop-blur-xl rounded-2xl shadow-2xl max-w-lg w-full"
+        transition={{ duration: 0.6 }}
+        className="relative z-10 max-w-2xl mx-auto px-6"
       >
-        <div className="flex flex-col items-center gap-3">
-          <AlertCircle className="text-blue-500 dark:text-blue-400" size={48} />
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-2">
-            404
-          </h1>
-          <h2 className="text-2xl font-semibold text-foreground mb-1">
-            Page Not Found
-          </h2>
-          <p className="text-muted-foreground text-center max-w-xs">
-            Sorry, the page you&apos;re looking for doesn&apos;t exist or has
-            been moved.
-          </p>
-        </div>
-        <Link href="/">
-          <Button
-            size="lg"
-            className="rounded-full px-8 py-4 text-lg font-medium bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg hover:scale-105 transition-transform"
+        {/* 404 Card */}
+        <div className="bg-card/60 supports-[backdrop-filter]:bg-card/70 border rounded-2xl p-8 backdrop-blur-md text-center">
+          {/* 404 Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-6"
           >
-            Go Home
-          </Button>
-        </Link>
-      </motion.section>
-    </main>
+            <div className="w-16 h-16 mx-auto rounded-full bg-muted/20 flex items-center justify-center">
+              <FileQuestion size={32} className="text-muted-foreground" />
+            </div>
+          </motion.div>
+
+          {/* 404 Title */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mb-4"
+          >
+            <div className="text-6xl font-bold brand-gradient-text mb-2">
+              404
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Page Not Found
+            </h1>
+          </motion.div>
+
+          {/* Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-muted-foreground mb-6 leading-relaxed max-w-md mx-auto"
+          >
+            The page you're looking for doesn't exist or has been moved. 
+            Let's get you back to building beautiful websites.
+          </motion.p>
+
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-3 justify-center mb-6"
+          >
+            <Button
+              onClick={() => router.push('/')}
+              className="flex items-center gap-2"
+            >
+              <Home size={16} />
+              Go Home
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => router.back()}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft size={16} />
+              Go Back
+            </Button>
+          </motion.div>
+
+          {/* Search Suggestion */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="pt-6 border-t border-border/50"
+          >
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Search size={16} />
+              <span>Try searching for what you need or start a new project</span>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Fun fact */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-6 text-center"
+        >
+          <p className="text-xs text-muted-foreground">
+            💡 Even the best websites have 404 pages. The important part is making them beautiful—just like Helix does.
+          </p>
+        </motion.div>
+      </motion.main>
+    </div>
   );
 }
