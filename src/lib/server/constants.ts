@@ -11,7 +11,7 @@ const ARTIFACT_TAG_OPEN = "<Artifact";
 const ARTIFACT_TAG_CLOSE = "</Artifact>";
 
 export interface ParsedAction {
-  type: "shell" | "file";
+  type: StepType;
   filePath?: string;
   content: string;
   isComplete: boolean;
@@ -81,7 +81,7 @@ export function parseXml(response: string): {
     const [, rawAttrs, content] = match;
     const isComplete = match[0].trim().endsWith("</Action>");
 
-    let actionType: "shell" | "file" = "file";
+    let actionType: StepType = StepType.CREATE_FILE;
     let filePath: string | undefined = undefined;
     const attrRegex = /(\w+)="([^"]*)"/g;
     let attrMatch: RegExpExecArray | null;
@@ -90,7 +90,8 @@ export function parseXml(response: string): {
       const value = attrMatch[2];
       if (key === "type") {
         const normalized = value.toLowerCase();
-        actionType = normalized === "shell" ? "shell" : "file";
+        actionType =
+          normalized === "shell" ? StepType.RUN_COMMAND : StepType.CREATE_FILE;
       } else if (key === "filePath") {
         filePath = value;
       }

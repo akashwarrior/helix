@@ -8,7 +8,7 @@ import { useTheme } from "next-themes";
 import { Terminal as TerminalIcon, RotateCcw, Trash2 } from "lucide-react";
 import type { Terminal as TerminalType, IDisposable } from "@xterm/xterm";
 import type { WebContainerProcess } from "@webcontainer/api";
-import { useWebContainerStore } from "@/store/webContainerStore";
+import { useWebContainerStore } from "@/store/webContainer";
 import "@xterm/xterm/css/xterm.css";
 
 const getTerminalTheme = (theme: string | undefined) => ({

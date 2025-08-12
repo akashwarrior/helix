@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PanelLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useSession } from "@/lib/auth";
-import { useSidebarStore } from "@/store/sidebarStore";
+import { useSidebarStore } from "@/store/toggleSidebar";
 import { motion } from "motion/react";
 import ProfileModal from "@/components/ProfileModal";
 

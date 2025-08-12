@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useWebContainer } from "@/hook/useWebContainer";
 import { useRouter } from "next/navigation";
 import { useHeaderOptionStore } from "@/store/headerOption";
-import { useShowChatStore } from "@/store/showChatStore";
+import { useShowChatStore } from "@/store/toggleChat";
 import { cn } from "@/lib/utils";
 import {
   Code2,

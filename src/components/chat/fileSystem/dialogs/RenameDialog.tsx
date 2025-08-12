@@ -35,13 +35,16 @@ export const RenameDialog = ({
 
   useEffect(() => {
     if (node) {
-      setName(node.name);
+      const parts = node.path.split("/");
+      setName(parts[parts.length - 1] || "");
     }
   }, [node]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !node || name === node.name) return;
+    if (!name.trim() || !node) return;
+    const currentName = node.path.split("/").pop();
+    if (name === currentName) return;
 
     setIsRenaming(true);
     try {
@@ -115,7 +118,11 @@ export const RenameDialog = ({
             </Button>
             <Button
               type="submit"
-              disabled={!name.trim() || isRenaming || name === node?.name}
+              disabled={
+                !name.trim() ||
+                isRenaming ||
+                name === node?.path.split("/").pop()
+              }
               className="bg-primary hover:bg-primary/90 focus:ring-2 focus:ring-primary/20 shadow-sm"
             >
               {isRenaming && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

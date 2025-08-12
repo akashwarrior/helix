@@ -1,11 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { memo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileNode } from "@/lib/type";
-import { useFileTabStore } from "@/store/fileTabStore";
-
+import type { UITreeNode } from "@/lib/fileTreeUtils";
+import { useFiles } from "@/store/files";
 import {
   ChevronRight,
   Folder,
@@ -13,6 +12,7 @@ import {
   MoreHorizontal,
   FileCode,
 } from "lucide-react";
+import { FileNode } from "@/lib/type";
 
 interface SearchHighlightProps {
   text: string;
@@ -39,11 +39,11 @@ interface FileTreeNodeProps {
   depth: number;
   isSelected: boolean;
   searchQuery: string;
-  fetchData: (path: string) => Promise<FileNode[]>;
+  children?: UITreeNode[];
+  currentOpenPath?: string | null;
   onContextMenu: (
     e: React.MouseEvent<HTMLButtonElement>,
     node: FileNode,
-    setNewNode: React.Dispatch<React.SetStateAction<FileNode[] | null>>,
   ) => void;
 }
 
@@ -52,22 +52,18 @@ const FileTreeNode = ({
   depth,
   isSelected,
   searchQuery,
-  fetchData,
+  children,
+  currentOpenPath,
   onContextMenu,
 }: FileTreeNodeProps) => {
-  const addTab = useFileTabStore((state) => state.addTab);
+  const setIsOpen = useFiles((state) => state.setIsOpen);
   const [expanded, setExpanded] = useState(false);
-  const [childNodes, setChildNodes] = useState<FileNode[] | null>(null);
 
   const handleItemClick = () => {
     if (node.type === "folder") {
       setExpanded((prev) => !prev);
     } else {
-      addTab({
-        name: node.name,
-        path: node.path,
-        modified: false,
-      });
+      setIsOpen(node.path);
     }
   };
 
@@ -75,21 +71,7 @@ const FileTreeNode = ({
     if (searchQuery && node.type === "folder" && !expanded) {
       setExpanded(true);
     }
-    if (expanded) {
-      let mounted = true;
-      (async () => {
-        const data = await fetchData(node.path);
-        if (mounted) setChildNodes(data);
-      })();
-      return () => {
-        mounted = false;
-      };
-    } else {
-      setChildNodes(null);
-    }
-
-    return () => setChildNodes(null);
-  }, [expanded, searchQuery, fetchData, node.path, node.type]);
+  }, [searchQuery]);
 
   return (
     <>
@@ -131,7 +113,10 @@ const FileTreeNode = ({
               : "group-hover:text-foreground",
           )}
         >
-          <SearchHighlight text={node.name} searchQuery={searchQuery} />
+          <SearchHighlight
+            text={node.path.split("/").pop() || ""}
+            searchQuery={searchQuery}
+          />
         </span>
 
         <Button
@@ -144,21 +129,22 @@ const FileTreeNode = ({
           )}
           onClick={(e) => {
             e.stopPropagation();
-            onContextMenu(e, node, setChildNodes);
+            onContextMenu(e, node);
           }}
         >
           <MoreHorizontal size={12} />
         </Button>
       </div>
       {expanded &&
-        childNodes?.map((nodes) => (
+        children?.map((child) => (
           <FileTreeNode
-            key={nodes.path}
-            node={nodes}
+            key={child.node.path}
+            node={child.node}
             depth={depth + 1}
-            isSelected={isSelected}
+            isSelected={currentOpenPath === child.node.path}
             searchQuery={searchQuery}
-            fetchData={fetchData}
+            children={child.children}
+            currentOpenPath={currentOpenPath}
             onContextMenu={onContextMenu}
           />
         ))}
@@ -166,4 +152,4 @@ const FileTreeNode = ({
   );
 };
 
-export default memo(FileTreeNode);
+export default FileTreeNode;

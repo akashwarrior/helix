@@ -1,33 +1,29 @@
-import {
-  useMessagesStore,
-  type MessageStore,
-  type Step,
-} from "@/store/messagesStore";
-import { useWebContainerStore } from "@/store/webContainerStore";
+import { useMessages, type MessageStore, type Step } from "@/store/messages";
+import { useWebContainerStore } from "@/store/webContainer";
 import { executeCommand } from "@/lib/webcontainer";
 import type { WebContainer } from "@webcontainer/api";
 import type { Role } from "@prisma/client";
 import { StepType, parseXml, type ParsedAction } from "./constants";
+import { useFiles } from "@/store/files";
 
 let isExecuting = false;
 
 function createStepFromAction(action: ParsedAction): Step {
   switch (action.type) {
-    case "shell":
+    case StepType.RUN_COMMAND:
       return {
         stepType: StepType.RUN_COMMAND,
         isPending: true,
         isComplete: action.isComplete,
         command: action.content,
       };
-    case "file":
+    case StepType.CREATE_FILE:
     default:
       return {
         stepType: StepType.CREATE_FILE,
         isPending: true,
         isComplete: action.isComplete,
         filePath: action.filePath || "",
-        content: action.content,
       };
   }
 }
@@ -43,24 +39,26 @@ export function processXmlResponse(
   const message: MessageStore = {
     id,
     content: beforeArtifact,
-    role: role as "user" | "assistant" | "data",
+    role: role,
     createdAt: new Date(),
     steps: actions.map(createStepFromAction),
     title: title || "Build plan",
   };
 
-  const existingMessage = [...useMessagesStore.getState().messages]
-    .reverse()
-    .find((m) => m.id === id);
+  const existingMessage = useMessages
+    .getState()
+    .messages.findLast((m) => m.id === id);
 
   if (!existingMessage) {
-    useMessagesStore.getState().addMessage(message);
+    useMessages.getState().addMessage(message);
+    executeSteps(message, actions);
+    return;
   } else {
     const hasNewSteps = existingMessage.steps.length !== message.steps.length;
     const hasContentChange = existingMessage.content !== message.content;
-    const hasIncompleteSteps = [...existingMessage.steps]
-      .reverse()
-      .find((s) => !s.isComplete);
+    const hasIncompleteSteps = existingMessage.steps.findLast(
+      (s) => !s.isComplete,
+    );
 
     if (hasNewSteps || hasContentChange || hasIncompleteSteps) {
       existingMessage.content = message.content;
@@ -72,98 +70,101 @@ export function processXmlResponse(
           existingMessage.steps[index] = step;
         }
       });
-      useMessagesStore.getState().updateMessage(existingMessage);
-      executeSteps();
+      useMessages.getState().updateMessage(existingMessage);
+      executeSteps(existingMessage, actions);
     }
   }
 }
 
-export const executeSteps = async (): Promise<void> => {
+export async function executeSteps(
+  msg: MessageStore,
+  actions: ParsedAction[],
+): Promise<void> {
+  if (isExecuting || !msg.steps.length || !actions.length) {
+    return;
+  }
+  isExecuting = true;
+  console.log(msg.steps.length, actions.length);
   const wc = useWebContainerStore.getState().webContainer;
   if (!wc) {
-    console.warn("WebContainer is not initialized");
+    await new Promise((res) => setTimeout(res, 2000));
+    isExecuting = false;
+    executeSteps(msg, actions);
     return;
   }
 
-  if (isExecuting) {
-    return;
-  }
-
-  isExecuting = true;
   try {
-    const messages = useMessagesStore.getState().messages;
-    const msg = [...messages]
-      .reverse()
-      .find((m: MessageStore) => m.steps.length > 0);
-    if (!msg) {
-      return;
-    }
-
-    const updatedMessage = { ...msg, steps: [...msg.steps] };
-
-    for (let i = 0; i < updatedMessage.steps.length; i++) {
-      const step = updatedMessage.steps[i];
+    for (let i = 0; i < msg.steps.length; i++) {
+      const step = msg.steps[i];
 
       if (step.isPending && step.isComplete) {
         try {
           console.log(
-            `Executing step ${i + 1}/${updatedMessage.steps.length}: ${step.stepType}`,
+            `Executing step ${i + 1}/${msg.steps.length}: ${step.stepType}`,
           );
-          await executeStep(wc, step);
+          await executeStep(wc, actions[i]);
 
-          updatedMessage.steps[i] = {
+          msg.steps[i] = {
             ...step,
             isPending: false,
           };
           console.log(`Step ${i + 1} completed: ${step.stepType}`);
         } catch (error) {
           console.error(`Error executing step ${step.stepType}:`, error);
-          updatedMessage.steps[i] = {
+          msg.steps[i] = {
             ...step,
             isPending: false,
           };
         }
       }
+      useMessages.getState().updateMessage(msg);
     }
-
-    useMessagesStore.getState().updateMessage(updatedMessage);
   } finally {
-    const pendingExecution = [...useMessagesStore.getState().messages]
-      .reverse()
-      .find((m: MessageStore) =>
-        m.steps.some((s: Step) => s.isPending && s.isComplete),
-      );
+    const messages = useMessages.getState().messages;
+    const lastMessage = messages[messages.length - 1];
+    const pendingExecution = lastMessage.steps.some(
+      (step) => step.isPending && step.isComplete,
+    );
+
     isExecuting = false;
+
     if (pendingExecution) {
-      executeSteps();
+      await executeSteps(lastMessage, actions);
     }
   }
-};
+}
 
-async function executeStep(wc: WebContainer, step: Step): Promise<void> {
-  switch (step.stepType) {
+async function executeStep(
+  wc: WebContainer,
+  action: ParsedAction,
+): Promise<void> {
+  switch (action.type) {
     case StepType.CREATE_FILE:
-      console.log(`Creating file: ${step.filePath}`);
-      await createOrUpdateFile(wc, step.filePath, step.content || "");
+      console.log(`Creating file: ${action.filePath}`);
+      await createOrUpdateFile(wc, action.filePath!, action.content);
+      useFiles.getState().addFile(action.filePath!, action.content ?? "");
       break;
 
     case StepType.UPDATE_FILE:
-      console.log(`Updating file: ${step.filePath}`);
-      await createOrUpdateFile(wc, step.filePath, step.content || "");
+      console.log(`Updating file: ${action.filePath}`);
+      await createOrUpdateFile(wc, action.filePath!, action.content);
+      // Reflect update in store if file exists
+      useFiles.getState().modifyContent(action.filePath!, action.content ?? "");
       break;
 
     case StepType.DELETE_FILE:
-      console.log(`Deleting file: ${step.filePath}`);
+      console.log(`Deleting file: ${action.filePath}`);
       try {
-        await wc.fs.rm(step.filePath, { force: true, recursive: true });
+        await wc.fs.rm(action.filePath!, { force: true, recursive: true });
       } catch {
         // File might not exist
       }
+      useFiles.getState().removeFile(action.filePath!);
       break;
 
     case StepType.RUN_COMMAND:
-      console.log(`Running command: ${step.command}`);
-      const [cmd, ...args] = step.command
+      console.log(`Running command: ${action.content}`);
+      const [cmd, ...args] = action.content
         .split(" ")
         .map((part: string) => part.trim())
         .filter((part: string) => part.length > 0);
@@ -176,10 +177,7 @@ async function executeStep(wc: WebContainer, step: Step): Promise<void> {
       break;
 
     default:
-      console.warn(
-        "Unknown step type:",
-        (step as { stepType: string }).stepType,
-      );
+      console.warn("Unknown step type:", action.type);
       break;
   }
 }

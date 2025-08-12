@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { WebContainer } from "@webcontainer/api";
-import { usePreviewUrlStore } from "@/store/previewUrlStore";
-import { useWebContainerStore } from "@/store/webContainerStore";
+import { usePreviewUrlStore } from "@/store/previewUrl";
+import { useWebContainerStore } from "@/store/webContainer";
 
 export interface UseWebContainerReturn {
   error: string | null;

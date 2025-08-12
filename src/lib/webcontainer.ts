@@ -1,5 +1,4 @@
 import type { WebContainer } from "@webcontainer/api";
-import type { FileNode } from "@/lib/type";
 import { toast } from "sonner";
 
 export const createFile = async (
@@ -106,39 +105,6 @@ export const deleteItem = async (webContainer: WebContainer, path: string) => {
     throw error;
   }
 };
-
-export async function buildFileTree(
-  container: WebContainer,
-  dirPath: string = ".",
-): Promise<FileNode[]> {
-  const files: FileNode[] = [];
-  const entries = await container.fs.readdir(dirPath);
-
-  for (const entry of entries) {
-    const fullPath = dirPath === "." ? entry : `${dirPath}/${entry}`;
-
-    if (!entry.includes(".")) {
-      files.push({
-        name: entry,
-        type: "folder",
-        path: fullPath,
-      });
-    } else {
-      files.push({
-        name: entry,
-        type: "file",
-        path: fullPath,
-      });
-    }
-  }
-
-  return files.sort((a, b) => {
-    if (a.type === b.type) {
-      return a.name.localeCompare(b.name);
-    }
-    return b.type.localeCompare(a.type);
-  });
-}
 
 export async function executeCommand(
   container: WebContainer,

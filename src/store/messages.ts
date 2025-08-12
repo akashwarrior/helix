@@ -1,5 +1,6 @@
-import { StepType } from "@/lib/server/constants";
 import { create } from "zustand";
+import type { StepType } from "@/lib/server/constants";
+import type { Role } from "@prisma/client";
 
 type BaseStep = {
   isPending: boolean;
@@ -14,7 +15,6 @@ type RunCommandStep = {
 type OtherStep = {
   stepType: Exclude<StepType, StepType.RUN_COMMAND>;
   filePath: string;
-  content?: string;
 };
 
 export type Step = BaseStep & (RunCommandStep | OtherStep);
@@ -22,7 +22,7 @@ export type Step = BaseStep & (RunCommandStep | OtherStep);
 export interface MessageStore {
   id: string;
   content: string;
-  role: "user" | "assistant" | "data";
+  role: Role;
   createdAt: Date;
   steps: Step[];
   title: string;
@@ -36,7 +36,7 @@ interface MessagesStore {
   clearMessages: () => void;
 }
 
-export const useMessagesStore = create<MessagesStore>((set) => ({
+export const useMessages = create<MessagesStore>((set) => ({
   messages: [],
   updateMessage: (updatedMessage) =>
     set((state) => {

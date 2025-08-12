@@ -5,7 +5,7 @@ import CodeEditor from "@/components/chat/CodeEditor";
 import Terminal from "@/components/chat/Terminal";
 import Preview from "@/components/chat/Preview";
 import FileTree from "@/components/chat/fileSystem/FileTree";
-import { useShowChatStore } from "@/store/showChatStore";
+import { useShowChatStore } from "@/store/toggleChat";
 import { useHeaderOptionStore } from "@/store/headerOption";
 
 export default function WorkBench() {

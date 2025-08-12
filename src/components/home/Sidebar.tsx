@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn, FolderOpen } from "lucide-react";
-import { useSidebarStore } from "@/store/sidebarStore";
+import { useSidebarStore } from "@/store/toggleSidebar";
 import { useSession } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import Link from "next/link";

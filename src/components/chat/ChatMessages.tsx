@@ -1,11 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useMessagesStore } from "@/store/messagesStore";
+import { useMessages } from "@/store/messages";
 import StepList from "@/components/chat/StepList";
 
 export default function ChatMessages() {
-  const messages = useMessagesStore((state) => state.messages);
+  const messages = useMessages((state) => state.messages);
 
   return messages.map(({ id, role, content, steps, title }) => {
     const trimmed = content.trim();

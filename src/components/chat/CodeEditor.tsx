@@ -1,22 +1,14 @@
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "motion/react";
-import {
-  ChevronRight,
-  FileCode,
-  X,
-  Save,
-  FileText,
-  Braces,
-} from "lucide-react";
+import { ChevronRight, FileCode } from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
-import { useFileTabStore } from "@/store/fileTabStore";
-import { Button } from "@/components/ui/button";
+import { useFiles } from "@/store/files";
 import type { Monaco } from "@monaco-editor/react";
-import { useWebContainerStore } from "@/store/webContainerStore";
+import { useWebContainerStore } from "@/store/webContainer";
 import { toast } from "sonner";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -35,92 +27,6 @@ const languages: BundledLanguage[] = [
   "yaml",
   "sh",
 ];
-
-const getLanguageFromExtension = (filename: string): string => {
-  const ext = filename.split(".").pop()?.toLowerCase();
-  const languageMap: Record<string, string> = {
-    tsx: "typescript",
-    ts: "typescript",
-    jsx: "javascript",
-    js: "javascript",
-    css: "css",
-    html: "html",
-    json: "json",
-    md: "markdown",
-  };
-  return languageMap[ext || ""] || "javascript";
-};
-
-interface TabProps {
-  tab: {
-    path: string;
-    name: string;
-    modified: boolean;
-    active: boolean;
-  };
-  onTabChange: (path: string) => void;
-  onTabClose: (path: string, e: React.MouseEvent) => void;
-}
-
-function Tab({ tab, onTabChange, onTabClose }: TabProps) {
-  const handleClick = () => onTabChange(tab.path);
-  const handleClose = (e: React.MouseEvent) => onTabClose(tab.path, e);
-
-  const getFileIcon = (filename: string) => {
-    const language = getLanguageFromExtension(filename);
-
-    if (["typescript", "javascript"].includes(language)) {
-      return <Braces size={16} className="flex-shrink-0" />;
-    }
-    if (["json", "yaml", "toml"].includes(language)) {
-      return <Braces size={16} className="flex-shrink-0" />;
-    }
-    if (["markdown", "plaintext"].includes(language)) {
-      return <FileText size={16} className="flex-shrink-0" />;
-    }
-    return <FileCode size={16} className="flex-shrink-0" />;
-  };
-
-  return (
-    <motion.div
-      className={cn(
-        "relative flex items-center gap-3 px-4 py-3 text-sm h-max cursor-pointer",
-        "transition-[border, width] duration-200 group min-w-0 flex-shrink-0",
-        tab.active
-          ? "bg-muted/50 text-foreground border-b-2 border-primary"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/30",
-      )}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
-      onClick={handleClick}
-      title={tab.path}
-    >
-      <div
-        className={cn(tab.active ? "text-primary" : "text-muted-foreground")}
-      >
-        {getFileIcon(tab.name)}
-      </div>
-      <span className="truncate max-w-[120px]">{tab.name}</span>
-
-      <div
-        className={cn(
-          "w-1.5 rounded-full bg-orange-400 transition-all duration-200 mx-auto",
-          tab.modified ? "h-1.5 opacity-100" : "h-0 opacity-0",
-        )}
-      />
-
-      <Button
-        size="icon"
-        variant="ghost"
-        onClick={handleClose}
-        className="h-4 w-4 hover:bg-destructive/20 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <X size={12} />
-      </Button>
-    </motion.div>
-  );
-}
 
 const Breadcrumb = ({ path }: { path: string }) => {
   const parts = path.split("/").filter(Boolean);
@@ -157,97 +63,50 @@ const Breadcrumb = ({ path }: { path: string }) => {
 };
 
 export default function CodeEditor() {
-  const { fileTabs, setActiveTab, setModified, removeTab } = useFileTabStore();
+  const files = useFiles((s) => s.files);
+  const modifyContent = useFiles((s) => s.modifyContent);
+  const openFilePath = useFiles((s) => s.openFilePath);
   const { theme } = useTheme();
-  const [fileContent, setFileContent] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const webContainer = useWebContainerStore((state) => state.webContainer);
 
-  const activeTab = fileTabs.find((tab) => tab.active);
+  const openedFile = openFilePath
+    ? files.find((f) => f.path === openFilePath)
+    : undefined;
+  const fileName = openedFile?.path.split("/").pop() || "untitled";
   const activeTheme = theme === "light" ? themes[1] : themes[0];
 
-  // Load file content when active tab changes
-  useEffect(() => {
-    const loadFileContent = async () => {
-      if (!webContainer || !activeTab) {
-        setFileContent("");
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const content = await webContainer.fs.readFile(activeTab.path, "utf-8");
-        setFileContent(content);
-      } catch (err) {
-        console.error("Failed to read file:", err);
-        setError(`Failed to read file: ${activeTab.path}`);
-        setFileContent("");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadFileContent();
-  }, [webContainer, activeTab]);
-
   const saveFile = async (path: string) => {
-    if (!webContainer || !fileContent) return;
+    if (!webContainer) return;
+    const fileContent = openedFile?.content || "";
 
     try {
       await webContainer.fs.writeFile(path, fileContent);
-      setModified(path, false);
+      modifyContent(path, fileContent);
       toast.success(`File saved: ${path.split("/").pop()}`);
     } catch (err) {
       console.error("Failed to save file:", err);
       const errorMessage = `Failed to save file: ${path.split("/").pop()}`;
-      setError(errorMessage);
       toast.error(errorMessage);
     }
   };
 
   const handleEditorChange = (value?: string) => {
-    if (value === undefined || !activeTab) return;
-
-    setFileContent(value);
-    if (!activeTab.modified) {
-      setModified(activeTab.path, true);
-    }
+    if (value === undefined || !openedFile) return;
+    modifyContent(openedFile.path, value);
   };
 
-  const handleTabChange = (path: string) => setActiveTab(path);
-
-  const handleTabClose = (
-    path: string,
-    e: React.MouseEvent | KeyboardEvent,
-  ) => {
-    e.stopPropagation();
-    removeTab(path);
-  };
-
-  // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
-        if (activeTab && activeTab.modified) {
-          saveFile(activeTab.path);
-        }
-      }
-      // Close tab with Ctrl+W
-      if ((e.ctrlKey || e.metaKey) && e.key === "w") {
-        e.preventDefault();
-        if (activeTab) {
-          handleTabClose(activeTab.path, e);
-        }
+        if (!openedFile) return;
+        saveFile(openedFile.path);
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [activeTab]);
+  }, [openedFile]);
 
   const monacoBeforeMount = async (monaco: Monaco) => {
     try {
@@ -268,11 +127,10 @@ export default function CodeEditor() {
       monaco.editor.setTheme(activeTheme);
     } catch (error) {
       console.error("Failed to setup Monaco editor:", error);
-      setError("Failed to initialize code editor");
     }
   };
 
-  if (!activeTab) {
+  if (!openedFile) {
     return (
       <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
         <div className="text-center text-muted-foreground">
@@ -286,67 +144,16 @@ export default function CodeEditor() {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
-        <div className="text-center text-muted-foreground">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg">Loading file...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
-        <div className="text-center text-destructive">
-          <FileCode size={48} className="mx-auto mb-4 opacity-50" />
-          <p className="text-lg">Error loading file</p>
-          <p className="text-sm">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full flex flex-col bg-card border border-border/50 overflow-hidden">
-      <div className="border-b border-border/50 overflow-x-auto flex overflow-y-hidden relative h-fit [&::-webkit-scrollbar]:hidden">
-        {fileTabs.map((tab) => (
-          <Tab
-            key={tab.path}
-            tab={tab}
-            onTabChange={handleTabChange}
-            onTabClose={handleTabClose}
-          />
-        ))}
-      </div>
-
-      <div className="px-4 bg-muted/20 border-b border-border/30 flex items-center justify-between text-xs">
-        <Breadcrumb path={activeTab.path} />
-
-        <div className="flex items-center gap-2">
-          {activeTab.modified && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => saveFile(activeTab.path)}
-              className="h-6 px-2 text-xs hover:bg-primary/10"
-            >
-              <Save size={12} className="mr-1" />
-              Save
-            </Button>
-          )}
-          <span className="text-xs text-muted-foreground">
-            {getLanguageFromExtension(activeTab.name)}
-          </span>
-        </div>
+      <div className="px-4 bg-muted/20 border-b border-border/30 text-xs">
+        <Breadcrumb path={openedFile.path} />
       </div>
 
       <div className="flex-1 relative">
         <Editor
-          value={fileContent}
-          language={getLanguageFromExtension(activeTab.name)}
+          value={openedFile.content}
+          language={fileName.split(".").pop() || "js"}
           theme={activeTheme}
           onChange={handleEditorChange}
           beforeMount={monacoBeforeMount}
@@ -368,19 +175,12 @@ export default function CodeEditor() {
         />
       </div>
 
-      {/* Status Bar */}
       <div className="border-t border-border/30 bg-muted/20 px-4 py-1 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
-          <span>Lines: {fileContent.split("\n").length}</span>
-          <span>Size: {new Blob([fileContent]).size} bytes</span>
-          <span className="capitalize">
-            {getLanguageFromExtension(activeTab.name)}
-          </span>
+          <span>Lines: {openedFile.content?.split("\n").length}</span>
+          <span>Size: {new Blob([openedFile.content || ""]).size} bytes</span>
         </div>
         <div className="flex items-center gap-2">
-          {activeTab.modified && (
-            <span className="text-orange-400">● Unsaved changes</span>
-          )}
           <span>UTF-8</span>
         </div>
       </div>

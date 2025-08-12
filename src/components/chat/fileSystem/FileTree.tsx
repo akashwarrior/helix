@@ -2,36 +2,34 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useFileTabStore } from "@/store/fileTabStore";
-import { useDebouncedSearch } from "@/hook/useDebouncedSearch";
-import { filterFiles } from "@/lib/fileTreeUtils";
+import { useFiles } from "@/store/files";
+import { buildFileTree, type UITreeNode } from "@/lib/fileTreeUtils";
 import { SearchHeader } from "@/components/chat/SearchHeader";
 import FileTreeNode from "@/components/chat/fileSystem/FileTreeNode";
 import { CreateDialog } from "@/components/chat/fileSystem/dialogs/CreateDialog";
 import { RenameDialog } from "@/components/chat/fileSystem/dialogs/RenameDialog";
 import { DeleteDialog } from "@/components/chat/fileSystem/dialogs/DeleteDialog";
-import { Trash2, Edit3, Plus, FolderPlus } from "lucide-react";
-import { useWebContainerStore } from "@/store/webContainerStore";
-import { FileNode } from "@/lib/type";
-
+import { useWebContainerStore } from "@/store/webContainer";
 import {
-  buildFileTree,
   createFile,
   createFolder,
   deleteItem,
   renameItem,
 } from "@/lib/webcontainer";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { FileTreeContextMenu } from "@/components/chat/fileSystem/FileTreeContextMenu";
+import { FileNode } from "@/lib/type";
 
 export default function FileTree() {
-  const { fileTabs } = useFileTabStore();
-  const [fileTree, setFileTree] = useState<FileNode[]>([]);
+  const files = useFiles((s) => s.files);
+  const openFilePath = useFiles((s) => s.openFilePath);
+  const addFile = useFiles((s) => s.addFile);
+  const removeFile = useFiles((s) => s.removeFile);
+  const renameFile = useFiles((s) => s.renameFile);
+  const renameFolderInStore = useFiles((s) => s.renameFolder);
+  const setIsOpen = useFiles((s) => s.setIsOpen);
+  const [uiTree, setUiTree] = useState<UITreeNode[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [creationTargetDir, setCreationTargetDir] = useState<string>(".");
   const [createDialog, setCreateDialog] = useState<{
     isOpen: boolean;
     type: "file" | "folder";
@@ -46,101 +44,58 @@ export default function FileTree() {
     x: number;
     y: number;
     node: FileNode | null;
-    setNewNode: React.Dispatch<React.SetStateAction<FileNode[] | null>>;
   }>({
     isOpen: false,
     x: 0,
     y: 0,
     node: null,
-    setNewNode: () => {},
   });
 
-  const { searchQuery, debouncedQuery, handleSearchChange, clearSearch } =
-    useDebouncedSearch();
-  const webContainer = useWebContainerStore((state) => state.webContainer);
+  const webContainer = useWebContainerStore((s) => s.webContainer);
 
   useEffect(() => {
-    if (!webContainer) return;
-
-    async function fetchFileTree() {
-      try {
-        const filtered = await filterFiles(debouncedQuery, webContainer!);
-        setFileTree(filtered);
-      } catch (err) {
-        console.error("Error fetching file tree:", err);
-        setFileTree([]);
-      }
+    try {
+      const tree = buildFileTree(files, searchQuery);
+      setUiTree(tree);
+    } catch (err) {
+      console.error("Error building file tree:", err);
     }
+  }, [searchQuery, files]);
 
-    fetchFileTree();
-  }, [debouncedQuery, webContainer]);
-
-  const handleCreateFile = () =>
+  const handleCreateFile = (targetDir: string) => {
+    setCreationTargetDir(targetDir || ".");
     setCreateDialog({ isOpen: true, type: "file" });
+  };
 
-  const handleCreateFolder = () =>
+  const handleCreateFolder = (targetDir: string) => {
+    setCreationTargetDir(targetDir || ".");
     setCreateDialog({ isOpen: true, type: "folder" });
+  };
 
   const handleRename = () => setRenameDialog(true);
 
   const handleDelete = () => setDeleteDialog(true);
 
   const handleCloseCreateDialog = async () => {
-    if (webContainer) {
-      const res = await buildFileTree(
-        webContainer,
-        menuDropdownOpen.node?.path || ".",
-      );
-      menuDropdownOpen.setNewNode(res);
-    }
-    setCreateDialog({ isOpen: false, type: "file" });
+    setCreateDialog((d) => ({ ...d, isOpen: false }));
   };
 
   const handleCloseRenameDialog = async () => {
-    if (webContainer) {
-      const res = await buildFileTree(
-        webContainer,
-        menuDropdownOpen.node?.path || ".",
-      );
-      menuDropdownOpen.setNewNode(res);
-    }
     setRenameDialog(false);
   };
 
   const handleCloseDeleteDialog = async () => {
-    if (webContainer) {
-      const res = await buildFileTree(
-        webContainer,
-        menuDropdownOpen.node?.path || ".",
-      );
-      menuDropdownOpen.setNewNode(res);
-    }
     setDeleteDialog(false);
   };
 
-  const fetchData = useCallback(
-    async (path: string) => {
-      if (webContainer) {
-        const res = await buildFileTree(webContainer, path);
-        return res;
-      }
-      return [];
-    },
-    [webContainer],
-  );
   const onContextMenu = useCallback(
-    (
-      e: React.MouseEvent<HTMLButtonElement>,
-      node: FileNode,
-      setNewNode: React.Dispatch<React.SetStateAction<FileNode[] | null>>,
-    ) => {
+    (e: React.MouseEvent<HTMLButtonElement>, node: FileNode) => {
       e.preventDefault();
       setMenuDropdownOpen({
         isOpen: true,
         x: e.clientX,
         y: e.clientY,
         node,
-        setNewNode,
       });
     },
     [],
@@ -152,37 +107,35 @@ export default function FileTree() {
         <CardHeader className="px-4 py-2 shadow-sm flex-shrink-0">
           <SearchHeader
             searchQuery={searchQuery}
-            debouncedQuery={debouncedQuery}
-            filteredCount={fileTree.length}
-            onSearchChange={handleSearchChange}
-            onClearSearch={clearSearch}
-            onCreateFile={handleCreateFile}
-            onCreateFolder={handleCreateFolder}
+            debouncedQuery={searchQuery}
+            filteredCount={uiTree.length}
+            onSearchChange={setSearchQuery}
+            onClearSearch={() => setSearchQuery("")}
+            onCreateFile={() => handleCreateFile(".")}
+            onCreateFolder={() => handleCreateFolder(".")}
           />
         </CardHeader>
 
         <CardContent className="flex-1 overflow-x-hidden p-0">
           <div className="overflow-y-auto overflow-x-hidden">
-            {fileTree.length === 0 ? (
+            {uiTree.length === 0 ? (
               <div className="p-4 text-center text-muted-foreground">
                 <p className="text-sm">
-                  {debouncedQuery
+                  {searchQuery
                     ? "No files match your search"
                     : "No files found"}
                 </p>
               </div>
             ) : (
-              fileTree.map((node) => (
+              uiTree.map(({ node, children }) => (
                 <FileTreeNode
                   key={node.path}
                   depth={0.5}
                   node={node}
-                  fetchData={fetchData}
-                  isSelected={
-                    fileTabs.find((tab) => tab.path === node.path)?.active ??
-                    false
-                  }
-                  searchQuery={debouncedQuery}
+                  children={children}
+                  isSelected={node.path === openFilePath}
+                  currentOpenPath={openFilePath}
+                  searchQuery={searchQuery}
                   onContextMenu={onContextMenu}
                 />
               ))
@@ -191,70 +144,39 @@ export default function FileTree() {
         </CardContent>
       </Card>
 
-      <DropdownMenu
-        open={menuDropdownOpen.isOpen}
+      <FileTreeContextMenu
+        isOpen={menuDropdownOpen.isOpen}
+        x={menuDropdownOpen.x}
+        y={menuDropdownOpen.y}
+        node={menuDropdownOpen.node}
         onOpenChange={(open) =>
           setMenuDropdownOpen({ ...menuDropdownOpen, isOpen: open })
         }
-      >
-        <DropdownMenuContent
-          align="start"
-          className="w-48 bg-popover/95 backdrop-blur-sm border-border/50"
-          style={{
-            position: "absolute",
-            top: menuDropdownOpen.y,
-            left: menuDropdownOpen.x,
-          }}
-        >
-          {menuDropdownOpen.node?.type === "folder" && (
-            <>
-              <DropdownMenuItem
-                className="hover:bg-accent/50 focus:bg-accent/50"
-                onClick={handleCreateFile}
-              >
-                <Plus size={16} className="mr-2" />
-                New File
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="hover:bg-accent/50 focus:bg-accent/50"
-                onClick={handleCreateFolder}
-              >
-                <FolderPlus size={16} className="mr-2" />
-                New Folder
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-            </>
-          )}
-          <DropdownMenuItem
-            className="hover:bg-accent/50 focus:bg-accent/50"
-            onClick={handleRename}
-          >
-            <Edit3 size={16} className="mr-2" />
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive"
-            onClick={handleDelete}
-          >
-            <Trash2 size={16} className="mr-2" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        onCreateFile={() => handleCreateFile(menuDropdownOpen.node!.path)}
+        onCreateFolder={() => handleCreateFolder(menuDropdownOpen.node!.path)}
+        onRename={handleRename}
+        onDelete={handleDelete}
+      />
 
       <CreateDialog
         isOpen={createDialog.isOpen}
-        type={menuDropdownOpen.node?.type || createDialog.type}
-        targetDir={menuDropdownOpen.node?.path || "."}
+        type={createDialog.type}
+        targetDir={creationTargetDir}
         onClose={handleCloseCreateDialog}
-        onCreate={async (name) => {
-          if (webContainer) {
-            await (createDialog.type === "file" ? createFile : createFolder)(
-              webContainer,
-              name,
-              menuDropdownOpen.node?.path || ".",
-            );
+        onCreate={async (name, targetDir) => {
+          if (!webContainer) return;
+          const dir = targetDir === "." ? "" : targetDir;
+          if (createDialog.type === "file") {
+            const fullPath = (dir ? dir + "/" : "") + name;
+            await createFile(webContainer, name, dir || ".");
+            addFile(fullPath, "");
+            setIsOpen(fullPath);
+          } else {
+            const fullPath = (dir ? dir + "/" : "") + name;
+            await createFolder(webContainer, name, dir || ".");
           }
+          setMenuDropdownOpen((d) => ({ ...d, isOpen: false }));
+          setCreateDialog((d) => ({ ...d, isOpen: false }));
         }}
       />
 
@@ -262,14 +184,19 @@ export default function FileTree() {
         isOpen={renameDialog}
         node={menuDropdownOpen.node}
         onClose={handleCloseRenameDialog}
-        onRename={async (newName) => {
-          if (webContainer) {
-            await renameItem(
-              webContainer,
-              menuDropdownOpen.node?.path || ".",
-              newName,
-            );
+        onRename={async (oldPath, newName, type) => {
+          if (!webContainer) return;
+          await renameItem(webContainer, oldPath, newName);
+          const oldParts = oldPath.split("/");
+          oldParts[oldParts.length - 1] = newName;
+          const newPath = oldParts.join("/");
+          if (type === "file") {
+            renameFile(oldPath, newPath);
+          } else {
+            renameFolderInStore(oldPath, newPath);
           }
+          if (openFilePath === oldPath) setIsOpen(newPath);
+          setRenameDialog(false);
         }}
       />
 
@@ -278,9 +205,10 @@ export default function FileTree() {
         node={menuDropdownOpen.node}
         onClose={handleCloseDeleteDialog}
         onDelete={async () => {
-          if (webContainer) {
-            await deleteItem(webContainer, menuDropdownOpen.node!.path);
-          }
+          if (!webContainer || !menuDropdownOpen.node) return;
+          await deleteItem(webContainer, menuDropdownOpen.node.path);
+          removeFile(menuDropdownOpen.node.path);
+          setDeleteDialog(false);
         }}
       />
     </>
