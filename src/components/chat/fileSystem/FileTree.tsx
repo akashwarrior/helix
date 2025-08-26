@@ -9,24 +9,11 @@ import FileTreeNode from "@/components/chat/fileSystem/FileTreeNode";
 import { CreateDialog } from "@/components/chat/fileSystem/dialogs/CreateDialog";
 import { RenameDialog } from "@/components/chat/fileSystem/dialogs/RenameDialog";
 import { DeleteDialog } from "@/components/chat/fileSystem/dialogs/DeleteDialog";
-import { useWebContainerStore } from "@/store/webContainer";
-import {
-  createFile,
-  createFolder,
-  deleteItem,
-  renameItem,
-} from "@/lib/webcontainer";
 import { FileTreeContextMenu } from "@/components/chat/fileSystem/FileTreeContextMenu";
 import { FileNode } from "@/lib/type";
 
 export default function FileTree() {
-  const files = useFiles((s) => s.files);
-  const openFilePath = useFiles((s) => s.openFilePath);
-  const addFile = useFiles((s) => s.addFile);
-  const removeFile = useFiles((s) => s.removeFile);
-  const renameFile = useFiles((s) => s.renameFile);
-  const renameFolderInStore = useFiles((s) => s.renameFolder);
-  const setIsOpen = useFiles((s) => s.setIsOpen);
+  const { files, openFilePath } = useFiles();
   const [uiTree, setUiTree] = useState<UITreeNode[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [creationTargetDir, setCreationTargetDir] = useState<string>(".");
@@ -50,8 +37,6 @@ export default function FileTree() {
     y: 0,
     node: null,
   });
-
-  const webContainer = useWebContainerStore((s) => s.webContainer);
 
   useEffect(() => {
     try {
@@ -163,53 +148,18 @@ export default function FileTree() {
         type={createDialog.type}
         targetDir={creationTargetDir}
         onClose={handleCloseCreateDialog}
-        onCreate={async (name, targetDir) => {
-          if (!webContainer) return;
-          const dir = targetDir === "." ? "" : targetDir;
-          if (createDialog.type === "file") {
-            const fullPath = (dir ? dir + "/" : "") + name;
-            await createFile(webContainer, name, dir || ".");
-            addFile(fullPath, "");
-            setIsOpen(fullPath);
-          } else {
-            const fullPath = (dir ? dir + "/" : "") + name;
-            await createFolder(webContainer, name, dir || ".");
-          }
-          setMenuDropdownOpen((d) => ({ ...d, isOpen: false }));
-          setCreateDialog((d) => ({ ...d, isOpen: false }));
-        }}
       />
 
       <RenameDialog
         isOpen={renameDialog}
         node={menuDropdownOpen.node}
         onClose={handleCloseRenameDialog}
-        onRename={async (oldPath, newName, type) => {
-          if (!webContainer) return;
-          await renameItem(webContainer, oldPath, newName);
-          const oldParts = oldPath.split("/");
-          oldParts[oldParts.length - 1] = newName;
-          const newPath = oldParts.join("/");
-          if (type === "file") {
-            renameFile(oldPath, newPath);
-          } else {
-            renameFolderInStore(oldPath, newPath);
-          }
-          if (openFilePath === oldPath) setIsOpen(newPath);
-          setRenameDialog(false);
-        }}
       />
 
       <DeleteDialog
         isOpen={deleteDialog}
         node={menuDropdownOpen.node}
         onClose={handleCloseDeleteDialog}
-        onDelete={async () => {
-          if (!webContainer || !menuDropdownOpen.node) return;
-          await deleteItem(webContainer, menuDropdownOpen.node.path);
-          removeFile(menuDropdownOpen.node.path);
-          setDeleteDialog(false);
-        }}
       />
     </>
   );

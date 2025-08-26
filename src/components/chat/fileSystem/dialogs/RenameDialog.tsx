@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Loader2, Edit3, File, Folder } from "lucide-react";
+import { FileNode } from "@/lib/type";
+import { useFiles } from "@/store/files";
+import { useWebContainerStore } from "@/store/webContainer";
+import { renameItem } from "@/lib/webcontainer";
 import {
   Dialog,
   DialogContent,
@@ -10,28 +15,22 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, Edit3, File, Folder } from "lucide-react";
-import { FileNode } from "@/lib/type";
 
 interface RenameDialogProps {
   isOpen: boolean;
   node: FileNode | null;
   onClose: () => void;
-  onRename: (
-    oldPath: string,
-    newName: string,
-    type: "file" | "folder",
-  ) => Promise<void>;
 }
 
 export const RenameDialog = ({
   isOpen,
   node,
   onClose,
-  onRename,
 }: RenameDialogProps) => {
   const [name, setName] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
+  const { openFilePath, renameFile, setIsOpen, renameFolder } = useFiles();
+  const webContainer = useWebContainerStore((s) => s.webContainer);
 
   useEffect(() => {
     if (node) {
@@ -42,13 +41,22 @@ export const RenameDialog = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !node) return;
+    if (!name.trim() || !node || !webContainer) return;
     const currentName = node.path.split("/").pop();
     if (name === currentName) return;
 
     setIsRenaming(true);
     try {
-      await onRename(node.path, name.trim(), node.type);
+      await renameItem(webContainer, node.path, name.trim());
+      const oldParts = node.path.split("/");
+      oldParts[oldParts.length - 1] = name.trim();
+      const newPath = oldParts.join("/");
+      if (node.type === "file") {
+        renameFile(node.path, newPath);
+      } else {
+        renameFolder(node.path, newPath);
+      }
+      if (openFilePath === node.path) setIsOpen(newPath);
       onClose();
     } catch (error) {
       console.error("Failed to rename:", error);

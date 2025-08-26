@@ -9,6 +9,7 @@ type FilesStore = {
   files: FileRecord[];
   openFilePath: string | null;
   addFile: (filePath: string, content: string) => void;
+  getFile: (path: string) => FileRecord | undefined;
   removeFile: (path: string) => void;
   setIsOpen: (path: string) => void;
   modifyContent: (path: string, content: string) => void;
@@ -36,6 +37,11 @@ export const useFiles = create<FilesStore>((set) => ({
       return { files, openFilePath: path };
     }),
 
+  getFile: (path): FileRecord | undefined => {
+    const file: FileRecord | undefined = useFiles.getState().files.findLast((f) => f.path === path);
+    return file;
+  },
+
   removeFile: (path) =>
     set((state) => {
       const files = state.files.filter(
@@ -43,7 +49,7 @@ export const useFiles = create<FilesStore>((set) => ({
       );
       const wasOpen = state.openFilePath
         ? state.openFilePath === path ||
-          state.openFilePath.startsWith(path + "/")
+        state.openFilePath.startsWith(path + "/")
         : false;
       const openFilePath = wasOpen ? null : state.openFilePath;
 

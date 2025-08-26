@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Loader2, FolderPlus, FilePlus } from "lucide-react";
+import { createFile, createFolder } from "@/lib/webcontainer";
+import { useFiles } from "@/store/files";
+import { useWebContainerStore } from "@/store/webContainer";
 import {
   Dialog,
   DialogContent,
@@ -10,14 +14,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, FolderPlus, FilePlus } from "lucide-react";
 
 interface CreateDialogProps {
   isOpen: boolean;
   type: "file" | "folder";
   targetDir: string;
   onClose: () => void;
-  onCreate: (name: string, targetDir: string) => Promise<void>;
 }
 
 export const CreateDialog = ({
@@ -25,18 +27,27 @@ export const CreateDialog = ({
   type,
   targetDir,
   onClose,
-  onCreate,
 }: CreateDialogProps) => {
   const [name, setName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const { addFile, setIsOpen } = useFiles();
+  const webContainer = useWebContainerStore((s) => s.webContainer);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !webContainer) return;
 
     setIsCreating(true);
     try {
-      await onCreate(name.trim(), targetDir);
+      const dir = targetDir === "." ? "" : targetDir;
+      if (type === "file") {
+        const fullPath = (dir ? dir + "/" : "") + name;
+        await createFile(webContainer, name, dir || ".");
+        addFile(fullPath, "");
+        setIsOpen(fullPath);
+      } else {
+        await createFolder(webContainer, name, dir || ".");
+      }
       setName("");
       onClose();
     } catch (error) {

@@ -1,3 +1,6 @@
+import { useFiles } from "@/store/files";
+import { Step } from "@/store/messages";
+
 const MODIFICATIONS_TAG_NAME = "file_modifications";
 
 enum StepType {
@@ -10,22 +13,14 @@ enum StepType {
 const ARTIFACT_TAG_OPEN = "<Artifact";
 const ARTIFACT_TAG_CLOSE = "</Artifact>";
 
-export interface ParsedAction {
-  type: StepType;
-  filePath?: string;
-  content: string;
-  isComplete: boolean;
+interface parseXmlResponse {
+  beforeArtifact: string;
+  steps: Step[];
+  title: string;
 }
 
-export function parseXml(response: string): {
-  beforeArtifact: string;
-  actions: ParsedAction[];
-  title?: string;
-} {
-  if (!response) {
-    return { beforeArtifact: "", actions: [], title: "Untitled" };
-  }
-  let title: string | undefined;
+export function parseXml(response: string): parseXmlResponse {
+  let title = "Build plan";
 
   const artifactStartIndex = response.indexOf(ARTIFACT_TAG_OPEN);
   let beforeArtifact = "";
@@ -74,33 +69,51 @@ export function parseXml(response: string): {
   }
 
   const actionRegex = /<Action\b([^>]*)>([\s\S]*?)(?:<\/Action>|$)/g;
-  const actions: ParsedAction[] = [];
+  const steps: Step[] = [];
   let match: RegExpExecArray | null;
 
   while ((match = actionRegex.exec(artifactCandidate)) !== null) {
     const [, rawAttrs, content] = match;
     const isComplete = match[0].trim().endsWith("</Action>");
 
-    let actionType: StepType = StepType.CREATE_FILE;
+    let type: StepType = StepType.CREATE_FILE;
     let filePath: string | undefined = undefined;
     const attrRegex = /(\w+)="([^"]*)"/g;
     let attrMatch: RegExpExecArray | null;
+
     while ((attrMatch = attrRegex.exec(rawAttrs)) !== null) {
       const key = attrMatch[1];
       const value = attrMatch[2];
       if (key === "type") {
-        const normalized = value.toLowerCase();
-        actionType =
-          normalized === "shell" ? StepType.RUN_COMMAND : StepType.CREATE_FILE;
+        if (value.toLowerCase() === "shell") {
+          type = StepType.RUN_COMMAND;
+        }
       } else if (key === "filePath") {
         filePath = value;
       }
     }
 
-    actions.push({ type: actionType, filePath, content, isComplete });
+    if (type === StepType.RUN_COMMAND) {
+      steps.push({
+        stepType: type,
+        isPending: true,
+        isComplete: isComplete,
+        command: content.trim(),
+      });
+    } else {
+      steps.push({
+        stepType: type,
+        isPending: true,
+        isComplete: isComplete,
+        filePath: filePath || "",
+      });
+      if (isComplete && !useFiles.getState().getFile(filePath || "")) {
+        useFiles.getState().addFile(filePath || "", content.trim());
+      }
+    }
   }
 
-  return { beforeArtifact: beforeArtifact.trim(), actions, title };
+  return { beforeArtifact: beforeArtifact.trim(), steps, title };
 }
 
 const allowedHTMLElements = [
