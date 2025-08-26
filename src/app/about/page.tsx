@@ -10,8 +10,6 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-transparent relative">
-      <div className="home-container fixed inset-0 z-0 overflow-hidden" />
-
       <header className="relative z-10 p-6">
         <Button
           variant="ghost"

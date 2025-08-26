@@ -10,8 +10,6 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen bg-transparent relative overflow-hidden flex items-center justify-center">
-      <div className="home-container fixed inset-0 z-0 overflow-hidden" />
-
       <motion.main
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

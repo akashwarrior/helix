@@ -1,12 +1,13 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useWebContainer } from "@/hook/useWebContainer";
 import { useRouter } from "next/navigation";
-import { useHeaderOptionStore } from "@/store/headerOption";
-import { useShowChatStore } from "@/store/toggleChat";
-import { cn } from "@/lib/utils";
+import { useHeaderOption } from "@/store/headerOption";
+import { useToggleChat } from "@/store/toggleChat";
 import {
   Code2,
   Folder,
@@ -18,7 +19,6 @@ import {
   ExternalLink,
   PanelRight,
 } from "lucide-react";
-import { useEffect } from "react";
 
 interface Tab {
   name: "Preview" | "Editor" | "Terminal";
@@ -43,8 +43,8 @@ const tabs: Tab[] = [
 export default function ChatHeader({ title }: { title: string }) {
   const router = useRouter();
   const { isReady } = useWebContainer();
-  const { activeView, setActiveView } = useHeaderOptionStore();
-  const { isChatOpen, toggleChat } = useShowChatStore();
+  const { activeView, setActiveView } = useHeaderOption();
+  const { isChatOpen, toggleChat } = useToggleChat();
 
   useEffect(() => {
     if (isReady) {

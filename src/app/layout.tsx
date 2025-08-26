@@ -11,10 +11,12 @@ const font = Host_Grotesk({
   preload: true,
 });
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const baseUrl = new URL(
+  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+);
 
 export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
+  metadataBase: baseUrl,
   title: "Helix",
   description:
     "Build the future of web design with AI-powered website creation. Transform your ideas into reality with cosmic creativity.",
@@ -64,6 +66,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${font.className} antialiased relative`}>
+        <div className="home-container fixed inset-0 z-0 overflow-hidden" />
+
         <Toaster />
         <ThemeProvider
           attribute="class"

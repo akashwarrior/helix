@@ -7,17 +7,17 @@ type BaseStep = {
   isComplete: boolean;
 };
 
-type RunCommandStep = {
+type CommandStep = {
   stepType: StepType.RUN_COMMAND;
   command: string;
 };
 
-type OtherStep = {
+type FileStep = {
   stepType: Exclude<StepType, StepType.RUN_COMMAND>;
   filePath: string;
 };
 
-export type Step = BaseStep & (RunCommandStep | OtherStep);
+export type Step = BaseStep & (CommandStep | FileStep);
 
 export interface MessageStore {
   id: string;

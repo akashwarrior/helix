@@ -46,7 +46,6 @@ export default async function ChatPage({
 
   return (
     <div className="flex h-screen overflow-hidden flex-col relative">
-      <div className="home-container fixed inset-0 z-0 overflow-hidden" />
       <ChatHeader title={project.name} />
 
       <main className="flex-1 flex overflow-hidden w-full z-10">

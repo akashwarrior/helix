@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { processXmlResponse } from "@/lib/server/execution";
 import type { Message } from "@ai-sdk/react";
-import { Role } from "@prisma/client";
 
 interface ChatInputProps {
   chatId: string;
@@ -37,16 +36,15 @@ export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
   const isLoading = status === "streaming" || status === "submitted";
 
   useEffect(() => {
-    if (!isLoading) return;
-    const lastMessage = msgs[msgs.length - 1];
+    const lastMessage = msgs.length > 0 ? msgs[msgs.length - 1] : null;
     if (lastMessage?.role === "assistant") {
-      processXmlResponse(lastMessage.content, lastMessage.id, lastMessage.role);
+      processXmlResponse(lastMessage);
     }
-  }, [msgs, isLoading]);
+  }, [msgs]);
 
   useEffect(() => {
     for (const msg of initialMessages) {
-      processXmlResponse(msg.content, msg.id, msg.role as Role);
+      processXmlResponse(msg);
     }
     if (initialMessages.length === 1) {
       handleSubmit();
