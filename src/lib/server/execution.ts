@@ -123,12 +123,7 @@ async function executeStep(wc: WebContainer, step: Step) {
 
     case StepType.RUN_COMMAND:
       console.log(`Running command: ${step.command}`);
-      const [cmd, ...args] = step.command
-        .split(" ")
-        .map((part: string) => part.trim())
-        .filter((part: string) => part.length > 0);
-
-      return executeCommand(wc, cmd, args);
+      return executeCommand(step.command);
   }
 }
 

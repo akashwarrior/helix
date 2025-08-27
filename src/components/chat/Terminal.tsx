@@ -9,6 +9,7 @@ import { Terminal as TerminalIcon, RotateCcw, Trash2 } from "lucide-react";
 import type { Terminal as TerminalType, IDisposable } from "@xterm/xterm";
 import type { WebContainerProcess } from "@webcontainer/api";
 import { useWebContainerStore } from "@/store/webContainer";
+import { useTerminalProcessStore } from "@/store/terminalProcess";
 import { Terminal as XTerm } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
@@ -48,13 +49,14 @@ export default function Terminal() {
   const inputHandlerRef = useRef<IDisposable | null>(null);
   const processRef = useRef<WebContainerProcess | null>(null);
   const webContainer = useWebContainerStore((state) => state.webContainer);
+  const setProcess = useTerminalProcessStore((state) => state.setProcess);
 
   const cleanupShell = () => {
     inputHandlerRef.current?.dispose();
     processRef.current?.kill();
     inputHandlerRef.current = null;
     processRef.current = null;
-
+    setProcess(null);
     setIsConnected(false);
   };
 
@@ -72,6 +74,7 @@ export default function Terminal() {
       });
 
       processRef.current = process;
+      setProcess(process);
       setIsConnected(true);
 
       inputHandlerRef.current = xterm.onData((data: string) => {

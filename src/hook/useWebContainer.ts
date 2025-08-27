@@ -23,6 +23,7 @@ export function useWebContainer(): UseWebContainerReturn {
         setError(null);
         containerRef.current = await WebContainer.boot({
           workdirName: "helix",
+          forwardPreviewErrors: true,
         });
 
         containerRef.current.on("server-ready", (port, url) =>
