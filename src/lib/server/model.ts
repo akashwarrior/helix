@@ -5,10 +5,7 @@ function getGeminiModel() {
     apiKey: process.env.GOOGLE_API_KEY,
   });
 
-  return gemini("gemma-3-27b-it", {
-    // structuredOutputs: true,
-    // useSearchGrounding: true,
-  });
+  return gemini("gemma-3-27b-it");
 }
 
 export const model = getGeminiModel();

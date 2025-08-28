@@ -6,7 +6,7 @@ interface TerminalProcessState {
   setProcess: (process: WebContainerProcess | null) => void;
 }
 
-export const useTerminalProcessStore = create<TerminalProcessState>((set, get) => ({
+export const useTerminalProcessStore = create<TerminalProcessState>((set) => ({
   process: null,
   setProcess: (process) => set({ process }),
 }));

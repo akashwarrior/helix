@@ -1,11 +1,12 @@
 import type { NextRequest } from "next/server";
-import { streamText, TextPart } from "ai";
+import { convertToModelMessages, streamText, UIMessage } from "ai";
 import { model } from "@/lib/server/model";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 import { systemPrompt } from "@/lib/server/systemPrompt";
+import { convertUIPartsToString } from "@/lib/server/constants";
 
 export const maxDuration = 300; // 5 minutes (max duration for free plan)
 
@@ -13,44 +14,35 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ chatId: string }> },
 ) {
-  const { chatId } = await params;
   try {
+    const { chatId } = await params;
     const session = await auth.api.getSession({
       headers: await headers(),
     });
 
-    if (!session) {
+    if (!session || !chatId) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { messages } = await req.json();
+    const { messages }: { messages: UIMessage[] } = await req.json();
 
     const result = streamText({
       model,
-      messages: [
-        {
-          role: "user",
-          content: `
-                    ${systemPrompt}
-                    <UserMessage>
-                        ${messages[messages.length - 1].content}
-                    </UserMessage>
-                `,
-        },
-      ],
+      system: systemPrompt,
+      messages: convertToModelMessages(messages),
       onFinish: async (message) => {
         const msgs: Prisma.MessageCreateManyInput[] = [];
 
         if (messages.length > 1) {
           msgs.push({
-            content: messages[messages.length - 1].content,
+            content: convertUIPartsToString(messages[messages.length - 1].parts),
             role: "user",
             projectId: chatId,
           });
         }
 
         msgs.push({
-          content: (message.response.messages[0].content[0] as TextPart).text,
+          content: message.text,
           role: "assistant",
           projectId: chatId,
         });
@@ -61,7 +53,7 @@ export async function POST(
       },
     });
 
-    return result.toDataStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error) {
     console.log(error);
     return Response.json({ message: "Internal Server Error" }, { status: 500 });

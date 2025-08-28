@@ -4,13 +4,17 @@ import { executeCommand } from "@/lib/webcontainer";
 import type { WebContainer } from "@webcontainer/api";
 import type { Role } from "@prisma/client";
 import { StepType, parseXml } from "./constants";
-import type { Message } from "ai";
+import type { UIMessage } from "ai";
 import { useFiles } from "@/store/files";
 
 let isExecuting = false;
 
-export function processXmlResponse({ content, id, role, createdAt }: Message): void {
-  if (!content.trim()) return;
+interface xmlInputs extends Omit<UIMessage, "parts"> {
+  content: string,
+}
+
+export function processXmlResponse({ content, id, role }: xmlInputs): void {
+  if (!content) return;
 
   const { beforeArtifact, steps, title } = parseXml(content);
 
@@ -18,7 +22,6 @@ export function processXmlResponse({ content, id, role, createdAt }: Message): v
     id,
     content: beforeArtifact,
     role: role as Role,
-    createdAt: createdAt || new Date(),
     steps: steps,
     title: title,
   };
