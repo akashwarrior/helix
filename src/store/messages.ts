@@ -23,7 +23,6 @@ export interface MessageStore {
   id: string;
   content: string;
   role: Role;
-  createdAt: Date;
   steps: Step[];
   title: string;
 }

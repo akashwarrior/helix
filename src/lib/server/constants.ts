@@ -1,5 +1,6 @@
 import { useFiles } from "@/store/files";
 import { Step } from "@/store/messages";
+import type { UIDataTypes, UIMessagePart, UITools, } from "ai";
 
 const MODIFICATIONS_TAG_NAME = "file_modifications";
 
@@ -17,6 +18,16 @@ interface parseXmlResponse {
   beforeArtifact: string;
   steps: Step[];
   title: string;
+}
+
+export function convertUIPartsToString(parts: Array<UIMessagePart<UIDataTypes, UITools>>) {
+  let content = '';
+  for (const part of parts) {
+    if (part.type === 'text') {
+      content += part.text;
+    }
+  }
+  return content;
 }
 
 export function parseXml(response: string): parseXmlResponse {
