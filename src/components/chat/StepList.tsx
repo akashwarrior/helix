@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, ChevronRight, Loader2 } from "lucide-react";
 import { StepType } from "@/lib/server/constants";
-import type { Step } from "@/store/messagesStore";
+import type { Step } from "@/store/messages";
 
 interface StepListProps {
   messageId: string;

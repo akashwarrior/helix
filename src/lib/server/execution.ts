@@ -1,60 +1,39 @@
-import {
-  useMessagesStore,
-  type MessageStore,
-  type Step,
-} from "@/store/messagesStore";
-import { useWebContainerStore } from "@/store/webContainerStore";
+import { Step, useMessages, type MessageStore } from "@/store/messages";
+import { useWebContainerStore } from "@/store/webContainer";
 import { executeCommand } from "@/lib/webcontainer";
 import type { WebContainer } from "@webcontainer/api";
 import type { Role } from "@prisma/client";
-import { StepType, parseXml, type ParsedAction } from "./constants";
+import { StepType, parseXml } from "./constants";
+import type { UIMessage } from "ai";
+import { useFiles } from "@/store/files";
 
 let isExecuting = false;
 
-function createStepFromAction(action: ParsedAction): Step {
-  switch (action.type) {
-    case "shell":
-      return {
-        stepType: StepType.RUN_COMMAND,
-        isPending: true,
-        isComplete: action.isComplete,
-        command: action.content,
-      };
-    case "file":
-    default:
-      return {
-        stepType: StepType.CREATE_FILE,
-        isPending: true,
-        isComplete: action.isComplete,
-        filePath: action.filePath || "",
-        content: action.content,
-      };
-  }
+interface xmlInputs extends Omit<UIMessage, "parts"> {
+  content: string,
 }
 
-export function processXmlResponse(
-  response: string,
-  id: string,
-  role: Role,
-): void {
-  if (!response) return;
-  const { beforeArtifact, actions, title } = parseXml(response);
+export function processXmlResponse({ content, id, role }: xmlInputs): void {
+  if (!content) return;
+
+  const { beforeArtifact, steps, title } = parseXml(content);
 
   const message: MessageStore = {
     id,
     content: beforeArtifact,
-    role: role as "user" | "assistant" | "data",
-    createdAt: new Date(),
-    steps: actions.map(createStepFromAction),
-    title: title || "Build plan",
+    role: role as Role,
+    steps: steps,
+    title: title,
   };
 
-  const existingMessage = useMessagesStore
+  const existingMessage = useMessages
     .getState()
     .messages.findLast((m) => m.id === id);
 
   if (!existingMessage) {
-    useMessagesStore.getState().addMessage(message);
+    useMessages.getState().addMessage(message);
+    executeSteps(message);
+    return;
   } else {
     const hasNewSteps = existingMessage.steps.length !== message.steps.length;
     const hasContentChange = existingMessage.content !== message.content;
@@ -62,7 +41,7 @@ export function processXmlResponse(
       (s) => !s.isComplete,
     );
 
-    if (hasNewSteps || hasContentChange || hasIncompleteSteps) {
+    if (hasNewSteps || hasContentChange || (hasIncompleteSteps && message.steps[message.steps.length - 1].isComplete)) {
       existingMessage.content = message.content;
       message.steps.forEach((step, index) => {
         const existingStep = existingMessage.steps[index];
@@ -72,114 +51,82 @@ export function processXmlResponse(
           existingMessage.steps[index] = step;
         }
       });
-      useMessagesStore.getState().updateMessage(existingMessage);
-      executeSteps();
+      useMessages.getState().updateMessage(existingMessage);
+      executeSteps(existingMessage);
     }
   }
 }
 
-export const executeSteps = async (): Promise<void> => {
+export async function executeSteps(msg: MessageStore): Promise<void> {
+  if (isExecuting || !msg.steps.length) {
+    return;
+  }
   const wc = useWebContainerStore.getState().webContainer;
   if (!wc) {
-    console.warn("WebContainer is not initialized");
     return;
   }
-
-  if (isExecuting) {
-    return;
-  }
-
   isExecuting = true;
-  try {
-    const msg = useMessagesStore
-      .getState()
-      .messages.findLast((m: MessageStore) => m.steps.length > 0);
-    if (!msg) {
-      return;
-    }
 
-    const updatedMessage = { ...msg, steps: [...msg.steps] };
-
-    for (let i = 0; i < updatedMessage.steps.length; i++) {
-      const step = updatedMessage.steps[i];
-
+  for (const step of msg.steps) {
+    try {
       if (step.isPending && step.isComplete) {
-        try {
-          console.log(
-            `Executing step ${i + 1}/${updatedMessage.steps.length}: ${step.stepType}`,
-          );
-          await executeStep(wc, step);
+        console.log(
+          `Executing step: ${step.stepType}`,
+        );
+        await executeStep(wc, step);
 
-          updatedMessage.steps[i] = {
-            ...step,
-            isPending: false,
-          };
-          console.log(`Step ${i + 1} completed: ${step.stepType}`);
-        } catch (error) {
-          console.error(`Error executing step ${step.stepType}:`, error);
-          updatedMessage.steps[i] = {
-            ...step,
-            isPending: false,
-          };
-        }
+        msg.steps[msg.steps.indexOf(step)] = {
+          ...step,
+          isPending: false,
+        };
+        console.log(`Step completed: ${step.stepType}`);
+        useMessages.getState().updateMessage(msg);
       }
-    }
-
-    useMessagesStore.getState().updateMessage(updatedMessage);
-  } finally {
-    const pendingExecution = useMessagesStore
-      .getState()
-      .messages.findLast((m: MessageStore) =>
-        m.steps.some((s: Step) => s.isPending && s.isComplete),
-      );
-    isExecuting = false;
-    if (pendingExecution) {
-      executeSteps();
+    } catch (error) {
+      console.error('Error executing step:', error);
     }
   }
-};
+  const messages = useMessages.getState().messages;
+  const lastMessage = messages[messages.length - 1];
+  const pendingExecution = lastMessage.steps.some(
+    (step) => step.isPending && step.isComplete,
+  );
 
-async function executeStep(wc: WebContainer, step: Step): Promise<void> {
+  isExecuting = false;
+
+  if (pendingExecution) {
+    await executeSteps(lastMessage);
+  }
+}
+
+async function executeStep(wc: WebContainer, step: Step) {
   switch (step.stepType) {
     case StepType.CREATE_FILE:
       console.log(`Creating file: ${step.filePath}`);
-      await createOrUpdateFile(wc, step.filePath, step.content || "");
-      break;
+      const file = useFiles.getState().getFile(step.filePath)
+      if (!file) {
+        console.log(`File already exists: ${step.filePath}, skipping creation.`);
+        return;
+      }
+      return createOrUpdateFile(wc, step.filePath!, file.content);
 
     case StepType.UPDATE_FILE:
       console.log(`Updating file: ${step.filePath}`);
-      await createOrUpdateFile(wc, step.filePath, step.content || "");
-      break;
+      const file1 = useFiles.getState().getFile(step.filePath)
+      if (!file1) {
+        console.log(`File already exists: ${step.filePath}, skipping creation.`);
+        return;
+      }
+      return createOrUpdateFile(wc, step.filePath!, file1.content);
 
     case StepType.DELETE_FILE:
       console.log(`Deleting file: ${step.filePath}`);
-      try {
-        await wc.fs.rm(step.filePath, { force: true, recursive: true });
-      } catch {
-        // File might not exist
-      }
-      break;
+      useFiles.getState().removeFile(step.filePath);
+      return wc.fs.rm(step.filePath!, { force: true, recursive: true });
 
     case StepType.RUN_COMMAND:
       console.log(`Running command: ${step.command}`);
-      const [cmd, ...args] = step.command
-        .split(" ")
-        .map((part: string) => part.trim())
-        .filter((part: string) => part.length > 0);
-
-      if (cmd) {
-        await executeCommand(wc, cmd, args);
-      } else {
-        console.warn("Empty command provided");
-      }
-      break;
-
-    default:
-      console.warn(
-        "Unknown step type:",
-        (step as { stepType: string }).stepType,
-      );
-      break;
+      return executeCommand(step.command);
   }
 }
 
@@ -199,11 +146,5 @@ async function createOrUpdateFile(
     // Directory might already exist
   }
 
-  try {
-    await wc.fs.writeFile(filePath, content || "");
-    console.log(`File operation successful: ${filePath}`);
-  } catch (error) {
-    console.error(`Failed to write file ${filePath}:`, error);
-    throw error;
-  }
+  return wc.fs.writeFile(filePath, content || "");
 }

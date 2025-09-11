@@ -5,7 +5,8 @@ import Sidebar from "@/components/home/Sidebar";
 import AuthDialog from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { useChat } from "@ai-sdk/react";
-import { useRef, useState } from "react";
+import { DefaultChatTransport } from 'ai'
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { useSession } from "@/lib/auth";
@@ -40,27 +41,8 @@ export default function Home() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const authButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { append, status, setMessages } = useChat({
-    api: "/api/enhance",
-    onResponse: async (response) => {
-      const textarea = textAreaRef.current;
-      const stream = response.clone().body;
-
-      if (!textarea || !stream) return;
-      textarea.value = "";
-
-      const reader = stream.pipeThrough(new TextDecoderStream()).getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        const val = value.split('0:"')?.[1]?.split('"')?.[0];
-        if (!val?.trim()) continue;
-        textarea.value += val;
-        handleTextAreaChange(textarea);
-      }
-    },
+  const { messages, status, setMessages, sendMessage } = useChat({
+    transport: new DefaultChatTransport({ api: "/api/enhance" }),
     onFinish: () => textAreaRef.current?.focus(),
     onError: () =>
       setError({
@@ -68,6 +50,21 @@ export default function Home() {
         message: "Something went wrong, please try again",
       }),
   });
+
+  useEffect(() => {
+    const parts = messages[messages.length - 1]?.parts ?? []
+    let val = '';
+    for (const part of parts) {
+      if (part.type === 'text') {
+        val += part.text;
+      }
+    }
+    const textarea = textAreaRef.current;
+
+    if (!textarea || !val) return;
+    textarea.value = val;
+    handleTextAreaChange(textarea);
+  }, [messages])
 
   const isLoading = status === "streaming" || status === "submitted";
 
@@ -99,9 +96,8 @@ export default function Home() {
       const input = textAreaRef.current!.value.trim();
       originalPromptRef.current = input;
       setError({ type: null, message: "" });
-      await append({
-        role: "user",
-        content: input,
+      await sendMessage({
+        text: input,
       });
     } catch {
       setError({
@@ -185,8 +181,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="home-container fixed inset-0 z-0 overflow-hidden" />
-
       <Header openAuthModal={openAuthDialog} />
 
       <div className="flex flex-1 h-full overflow-hidden z-10">

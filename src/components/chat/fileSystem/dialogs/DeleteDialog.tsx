@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FileNode } from "@/lib/type";
+import { useFiles } from "@/store/files";
+import { deleteItem } from "@/lib/webcontainer";
+import { useWebContainerStore } from "@/store/webContainer";
+import { Loader2, AlertTriangle, File, Folder } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -9,30 +14,30 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, File, Folder } from "lucide-react";
-import { FileNode } from "@/lib/type";
 
 interface DeleteDialogProps {
   isOpen: boolean;
   node: FileNode | null;
   onClose: () => void;
-  onDelete: () => Promise<void>;
 }
 
 export const DeleteDialog = ({
   isOpen,
   node,
   onClose,
-  onDelete,
 }: DeleteDialogProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const { removeFile } = useFiles();
+  const webContainer = useWebContainerStore((s) => s.webContainer);
 
   const handleDelete = async () => {
-    if (!node) return;
-
+    if (!webContainer || !node) return;
     setIsDeleting(true);
     try {
-      await onDelete();
+      {
+        await deleteItem(webContainer, node.path);
+        removeFile(node.path);
+      }
       onClose();
     } catch (error) {
       console.error("Failed to delete:", error);

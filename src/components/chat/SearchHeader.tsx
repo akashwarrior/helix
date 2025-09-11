@@ -9,7 +9,7 @@ interface SearchHeaderProps {
   searchQuery: string;
   debouncedQuery: string;
   filteredCount: number;
-  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchChange: (value: string) => void;
   onClearSearch: () => void;
   onCreateFile: () => void;
   onCreateFolder: () => void;
@@ -61,8 +61,8 @@ export const SearchHeader = ({
         type="text"
         placeholder="Search files..."
         value={searchQuery}
-        onChange={onSearchChange}
-        className="pl-9 pr-8 bg-background/70 focus-within:border-border! ring-0! focus-within:shadow"
+        onChange={(e) => onSearchChange(e.target.value)}
+        className="pl-9 pr-8 bg-background/70"
       />
       {searchQuery && (
         <Button

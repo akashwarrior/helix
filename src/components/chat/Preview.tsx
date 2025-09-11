@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { usePreviewUrlStore } from "@/store/previewUrlStore";
+import { usePreviewUrlStore } from "@/store/previewUrl";
 
 import {
   RotateCcw,

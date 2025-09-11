@@ -1,23 +1,25 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import dynamic from "next/dynamic";
+import { motion } from "motion/react";
+import { useToggleChat } from "@/store/toggleChat";
+import { useHeaderOption } from "@/store/headerOption";
 import CodeEditor from "@/components/chat/CodeEditor";
-import Terminal from "@/components/chat/Terminal";
 import Preview from "@/components/chat/Preview";
 import FileTree from "@/components/chat/fileSystem/FileTree";
-import { useShowChatStore } from "@/store/showChatStore";
-import { useHeaderOptionStore } from "@/store/headerOption";
+const Terminal = dynamic(() => import("@/components/chat/Terminal"), { ssr: false });
 
 export default function WorkBench() {
-  const isChatOpen = useShowChatStore((state) => state.isChatOpen);
-  const activeView = useHeaderOptionStore((state) => state.activeView);
+  const isChatOpen = useToggleChat((state) => state.isChatOpen);
+  const activeView = useHeaderOption((state) => state.activeView);
 
-  return (
-    <section
-      className={cn(
-        "flex m-1.5 rounded-lg bg-secondary/70 overflow-hidden w-0 transition-all duration-150",
-        activeView && (!isChatOpen ? "w-full" : "w-[70%]"),
-      )}
+  return activeView && (
+    <motion.section
+      initial={{ width: 0 }}
+      animate={{ width: isChatOpen ? "70%" : "100%" }}
+      transition={{ duration: 0.25, ease: "anticipate" }}
+      className="flex m-1.5 rounded-lg bg-secondary/70 overflow-hidden"
     >
       <div
         className={cn(
@@ -28,32 +30,30 @@ export default function WorkBench() {
         <FileTree />
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        <div
-          className={cn(
-            "flex-1 overflow-hidden flex-col",
-            activeView !== "Preview" && "hidden",
-          )}
-        >
-          <Preview />
-        </div>
-        <div
-          className={cn(
-            "flex-1 overflow-hidden flex-col",
-            activeView !== "Editor" && "hidden",
-          )}
-        >
-          <CodeEditor />
-        </div>
-        <div
-          className={cn(
-            "flex-1 overflow-hidden flex-col",
-            activeView !== "Terminal" && "hidden",
-          )}
-        >
-          <Terminal />
-        </div>
+      <div
+        className={cn(
+          "flex-1 overflow-hidden flex-col",
+          activeView !== "Preview" && "hidden",
+        )}
+      >
+        <Preview />
       </div>
-    </section>
+      <div
+        className={cn(
+          "flex-1 overflow-hidden flex-col",
+          activeView !== "Editor" && "hidden",
+        )}
+      >
+        <CodeEditor />
+      </div>
+      <div
+        className={cn(
+          "flex-1 flex overflow-hidden flex-col",
+          activeView !== "Terminal" && "hidden",
+        )}
+      >
+        <Terminal />
+      </div>
+    </motion.section>
   );
 }

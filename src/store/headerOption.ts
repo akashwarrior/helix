@@ -5,7 +5,7 @@ interface headerOptionStore {
   setActiveView: (view: "Preview" | "Editor" | "Terminal" | null) => void;
 }
 
-export const useHeaderOptionStore = create<headerOptionStore>((set) => ({
+export const useHeaderOption = create<headerOptionStore>((set) => ({
   activeView: null,
   setActiveView: (view) => set({ activeView: view }),
 }));

@@ -1,5 +1,5 @@
+import { useTerminalProcessStore } from "@/store/terminalProcess";
 import type { WebContainer } from "@webcontainer/api";
-import type { FileNode } from "@/lib/type";
 import { toast } from "sonner";
 
 export const createFile = async (
@@ -107,76 +107,18 @@ export const deleteItem = async (webContainer: WebContainer, path: string) => {
   }
 };
 
-export async function buildFileTree(
-  container: WebContainer,
-  dirPath: string = ".",
-): Promise<FileNode[]> {
-  const files: FileNode[] = [];
-  const entries = await container.fs.readdir(dirPath);
-
-  for (const entry of entries) {
-    const fullPath = dirPath === "." ? entry : `${dirPath}/${entry}`;
-
-    if (!entry.includes(".")) {
-      files.push({
-        name: entry,
-        type: "folder",
-        path: fullPath,
-      });
-    } else {
-      files.push({
-        name: entry,
-        type: "file",
-        path: fullPath,
-      });
-    }
+export async function executeCommand(command: string) {
+  const store = useTerminalProcessStore.getState();
+  const process = store.process;
+  if (!process) {
+    console.log("No active terminal process");
+    return;
   }
-
-  return files.sort((a, b) => {
-    if (a.type === b.type) {
-      return a.name.localeCompare(b.name);
-    }
-    return b.type.localeCompare(a.type);
-  });
-}
-
-export async function executeCommand(
-  container: WebContainer,
-  command: string,
-  args: string[] = [],
-): Promise<{
-  success: boolean;
-  output: string;
-  error: string | undefined;
-  exitCode: number;
-}> {
-  try {
-    const process = await container.spawn(command, args);
-
-    let output = "";
-
-    process.output.pipeTo(
-      new WritableStream({
-        write(data) {
-          output += data;
-        },
-      }),
-    );
-
-    const exitCode = await process.exit;
-
-    return {
-      success: exitCode === 0,
-      output: output.trim(),
-      error: undefined,
-      exitCode,
-    };
-  } catch (err) {
-    return {
-      success: false,
-      output: "",
-      error: err instanceof Error ? err.message : "Unknown error",
-      exitCode: 1,
-    };
-  }
+  const [cmd, ...args] = command
+    .split(" ")
+    .map((part: string) => part.trim())
+    .filter((part: string) => part.length > 0);
+  const writer = process.input.getWriter();
+  writer.write(cmd + " " + args.join(" ") + "\n");
+  writer.releaseLock();
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { WebContainer } from "@webcontainer/api";
-import { usePreviewUrlStore } from "@/store/previewUrlStore";
-import { useWebContainerStore } from "@/store/webContainerStore";
+import { usePreviewUrlStore } from "@/store/previewUrl";
+import { useWebContainerStore } from "@/store/webContainer";
 
 export interface UseWebContainerReturn {
   error: string | null;
@@ -23,6 +23,7 @@ export function useWebContainer(): UseWebContainerReturn {
         setError(null);
         containerRef.current = await WebContainer.boot({
           workdirName: "helix",
+          forwardPreviewErrors: true,
         });
 
         containerRef.current.on("server-ready", (port, url) =>
@@ -45,7 +46,7 @@ export function useWebContainer(): UseWebContainerReturn {
       setPreviewUrl("");
       setIsReady(false);
     };
-  }, []);
+  }, [setPreviewUrl, setWebContainer]);
 
   return {
     error,

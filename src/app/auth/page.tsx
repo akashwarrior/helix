@@ -36,8 +36,6 @@ export default function AuthPage() {
         <ThemeToggle />
       </div>
 
-      <div className="absolute inset-0 -z-10 home-container" />
-
       <section className="hidden lg:flex lg:flex-1 flex-col justify-center px-16 py-20 relative max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

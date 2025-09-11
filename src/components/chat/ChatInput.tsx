@@ -6,26 +6,26 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { processXmlResponse } from "@/lib/server/execution";
-import type { Message } from "@ai-sdk/react";
-import { Role } from "@prisma/client";
+import { DefaultChatTransport } from "ai";
+import { Message } from "@prisma/client";
+import { convertUIPartsToString } from "@/lib/server/constants";
 
 interface ChatInputProps {
   chatId: string;
-  initialMessages: Message[];
+  initialMessages: Omit<Message, "projectId">[];
 }
 
 export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
-  const {
-    messages: msgs,
-    input,
-    handleInputChange,
-    handleSubmit,
-    status,
-  } = useChat({
-    api: `/api/chat/${chatId}`,
-    initialMessages: initialMessages.length === 1 ? [] : initialMessages,
-    initialInput:
-      initialMessages.length === 1 ? initialMessages[0].content : "",
+  const { messages, status, sendMessage, regenerate, stop } = useChat({
+    transport: new DefaultChatTransport({ api: `/api/chat/${chatId}` }),
+    messages: initialMessages.map(msg => ({
+      id: msg.id,
+      role: msg.role,
+      parts: [{
+        type: "text",
+        text: msg.content,
+      }],
+    })),
     onError: (error) => {
       console.error(error);
     },
@@ -37,20 +37,23 @@ export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
   const isLoading = status === "streaming" || status === "submitted";
 
   useEffect(() => {
-    if (!isLoading) return;
-    const lastMessage = msgs[msgs.length - 1];
-    if (lastMessage?.role === "assistant") {
-      processXmlResponse(lastMessage.content, lastMessage.id, lastMessage.role);
-    }
-  }, [msgs, isLoading]);
+    const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null;
+    if (!lastMessage) return;
+    processXmlResponse({
+      ...lastMessage,
+      content: convertUIPartsToString(lastMessage.parts),
+    });
+  }, [messages]);
 
   useEffect(() => {
     for (const msg of initialMessages) {
-      processXmlResponse(msg.content, msg.id, msg.role as Role);
+      processXmlResponse(msg);
     }
     if (initialMessages.length === 1) {
-      handleSubmit();
+      regenerate();
     }
+
+    return () => { stop() }
   }, [initialMessages]);
 
   const adjustTextareaHeight = () => {
@@ -64,8 +67,12 @@ export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
 
   const handleChatSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isEmpty || isLoading) return;
-    handleSubmit(e);
+    const input = textareaRef.current?.value ?? "";
+    if (isEmpty || isLoading || !input) return;
+    sendMessage({
+      text: input,
+    });
+    textareaRef.current!.value = "";
     adjustTextareaHeight();
   };
 
@@ -85,12 +92,8 @@ export default function ChatInput({ chatId, initialMessages }: ChatInputProps) {
     >
       <textarea
         name="chat-input"
-        value={input}
         ref={textareaRef}
-        onChange={(e) => {
-          handleInputChange(e);
-          adjustTextareaHeight();
-        }}
+        onChange={adjustTextareaHeight}
         onKeyDown={handleKeyDown}
         placeholder="Ask Helix anything..."
         className="w-full bg-transparent placeholder:text-muted-foreground/70 text-foreground p-4 pr-12 resize-none focus:outline-none min-h-16 max-h-32 leading-relaxed focus:placeholder-muted-foreground/50"
