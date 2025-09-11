@@ -21,8 +21,8 @@ export default function FileTree() {
     isOpen: boolean;
     type: "file" | "folder";
   }>({
-    isOpen: false,
     type: "file",
+    isOpen: false
   });
   const [renameDialog, setRenameDialog] = useState<boolean>(false);
   const [deleteDialog, setDeleteDialog] = useState<boolean>(false);
@@ -49,7 +49,10 @@ export default function FileTree() {
 
   const handleCreateFile = (targetDir: string) => {
     setCreationTargetDir(targetDir || ".");
-    setCreateDialog({ isOpen: true, type: "file" });
+    setCreateDialog({
+      type: "file",
+      isOpen: true
+    });
   };
 
   const handleCreateFolder = (targetDir: string) => {
@@ -117,12 +120,13 @@ export default function FileTree() {
                   key={node.path}
                   depth={0.5}
                   node={node}
-                  children={children}
                   isSelected={node.path === openFilePath}
                   currentOpenPath={openFilePath}
                   searchQuery={searchQuery}
                   onContextMenu={onContextMenu}
-                />
+                >
+                  {children}
+                </FileTreeNode>
               ))
             )}
           </div>

@@ -143,10 +143,11 @@ const FileTreeNode = ({
             depth={depth + 1}
             isSelected={currentOpenPath === child.node.path}
             searchQuery={searchQuery}
-            children={child.children}
             currentOpenPath={currentOpenPath}
             onContextMenu={onContextMenu}
-          />
+          >
+            {child.children}
+          </FileTreeNode>
         ))}
     </>
   );
