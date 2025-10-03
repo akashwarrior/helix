@@ -7,11 +7,10 @@ import { AlertTriangle, Home, RotateCcw, ArrowLeft } from "lucide-react";
 
 interface ErrorProps {
   error: Error & { digest?: string };
-  reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
-  const router = useRouter();
+export default function Error({ error }: ErrorProps) {
+  const { back, refresh, push } = useRouter();
 
   const errorMessage = error?.message || "Something unexpected happened";
   const isNetworkError =
@@ -99,14 +98,14 @@ export default function Error({ error, reset }: ErrorProps) {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-3 justify-center"
           >
-            <Button onClick={reset} className="flex items-center gap-2">
+            <Button onClick={refresh} className="flex items-center gap-2">
               <RotateCcw size={16} />
               Try Again
             </Button>
 
             <Button
               variant="outline"
-              onClick={() => router.push("/")}
+              onClick={() => push("/")}
               className="flex items-center gap-2"
             >
               <Home size={16} />
@@ -115,7 +114,7 @@ export default function Error({ error, reset }: ErrorProps) {
 
             <Button
               variant="ghost"
-              onClick={() => router.back()}
+              onClick={back}
               className="flex items-center gap-2"
             >
               <ArrowLeft size={16} />

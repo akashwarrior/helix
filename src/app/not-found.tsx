@@ -16,9 +16,7 @@ export default function NotFound() {
         transition={{ duration: 0.6 }}
         className="relative z-10 max-w-2xl mx-auto px-6"
       >
-        {/* 404 Card */}
         <div className="bg-card/60 supports-[backdrop-filter]:bg-card/70 border rounded-2xl p-8 backdrop-blur-md text-center">
-          {/* 404 Icon */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -30,7 +28,6 @@ export default function NotFound() {
             </div>
           </motion.div>
 
-          {/* 404 Title */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -45,7 +42,6 @@ export default function NotFound() {
             </h1>
           </motion.div>
 
-          {/* Description */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -56,7 +52,6 @@ export default function NotFound() {
             moved. Let&apos;s get you back to building beautiful websites.
           </motion.p>
 
-          {/* Action Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -81,7 +76,6 @@ export default function NotFound() {
             </Button>
           </motion.div>
 
-          {/* Search Suggestion */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +91,6 @@ export default function NotFound() {
           </motion.div>
         </div>
 
-        {/* Fun fact */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
