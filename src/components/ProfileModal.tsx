@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { signOut, useSession } from "@/lib/auth";
+import { signOut, useSession } from "@/lib/auth/auth-client";
 import { Button } from "@/components/ui/button";
 import { LogOut, Sun, Moon, Monitor } from "lucide-react";
 import {

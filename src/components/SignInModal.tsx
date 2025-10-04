@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { signIn } from "@/lib/auth";
+import { signIn } from "@/lib/auth/auth-client";
 import {
   Dialog,
   DialogContent,

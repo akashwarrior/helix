@@ -5,7 +5,7 @@ import { useRef, useState, createContext, useContext } from "react";
 import { motion } from "motion/react";
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ErrorState } from "@/lib/type";
+import { ErrorState } from "@/lib/types";
 import Image from "next/image";
 
 interface UploadedImage {
@@ -18,7 +18,7 @@ interface ImageUploadContextType {
   uploadedImages: UploadedImage[];
   isDragOver: boolean;
   setIsDragOver: React.Dispatch<React.SetStateAction<boolean>>;
-  fileInputRef: React.RefObject<HTMLInputElement>;
+  fileInputRef: React.RefObject<HTMLInputElement | null>;
   handleImageUpload: (files: FileList | null) => void;
   removeImage: (id: string) => void;
 }
@@ -41,7 +41,7 @@ interface ImageUploadProps {
 function ImageUpload({ children, setError }: ImageUploadProps) {
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageUpload = (files: FileList | null) => {
     if (!files) return;

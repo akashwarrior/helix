@@ -9,8 +9,8 @@ import { DefaultChatTransport } from 'ai'
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { useSession } from "@/lib/auth";
-import { ErrorState } from "@/lib/type";
+import { useSession } from "@/lib/auth/auth-client";
+import { ErrorState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import {
@@ -52,7 +52,10 @@ export default function Home() {
   });
 
   useEffect(() => {
-    const parts = messages[messages.length - 1]?.parts ?? []
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage?.role !== 'assistant') return;
+
+    const parts = lastMessage?.parts ?? []
     let val = '';
     for (const part of parts) {
       if (part.type === 'text') {
@@ -171,7 +174,7 @@ export default function Home() {
       handleEnhancePrompt();
     }
 
-    if (isCtrlKey && e.key.toLowerCase() === "u") {
+    if (isCtrlKey && e.key.toLowerCase() === "o") {
       e.preventDefault();
       uploadTriggerRef.current?.click();
     }
@@ -292,7 +295,7 @@ export default function Home() {
                       size="icon"
                       variant="ghost"
                       disabled={isLoading}
-                      title="Upload images (⌘U)"
+                      title="Upload images (⌘O)"
                       className="hover:bg-muted/30 focus:ring-2 focus:ring-primary/20 group"
                     >
                       <Upload

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PanelLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { useSession } from "@/lib/auth";
+import { useSession } from "@/lib/auth/auth-client";
 import { useSidebarStore } from "@/store/toggleSidebar";
 import { motion } from "motion/react";
 import ProfileModal from "@/components/ProfileModal";
@@ -70,7 +70,7 @@ export default function Header({ openAuthModal }: HeaderProps) {
             {isAuthenticated ? (
               <ProfileModal>
                 <Image
-                  src={session?.user.image || "/profile_icon.png"}
+                  src={session?.user.image!}
                   width={30}
                   height={30}
                   alt="User Profile"

@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/db";
 
 export async function GET(req: NextRequest) {
@@ -47,17 +47,11 @@ export async function POST(req: NextRequest) {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { content } = await req.json();
+    const { content } = await req.json(); // TODO: store it in db
 
     const chat = await prisma.project.create({
       data: {
         name: "New Chat" + Date.now(),
-        messages: {
-          create: {
-            role: "user",
-            content,
-          },
-        },
         userId: session.user.id,
       },
       select: {
