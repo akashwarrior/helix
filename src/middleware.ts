@@ -1,0 +1,36 @@
+import { NextResponse, NextRequest } from 'next/server'
+import { auth } from './lib/auth/auth';
+
+export async function middleware(req: NextRequest) {
+    const { pathname } = req.nextUrl
+    const session = await auth.api.getSession({ headers: req.headers });
+
+    const isApi = pathname.startsWith('/api/');
+
+    if (!session) {
+        if (!isApi) {
+            return NextResponse.redirect(new URL('/auth', req.nextUrl));
+        }
+        return NextResponse.json(
+            { success: false, message: 'authentication failed' },
+            { status: 401 }
+        )
+    }
+
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set('x-user-id', session.user.id);
+
+    return NextResponse.next({
+        request: {
+            headers: requestHeaders
+        }
+    })
+}
+
+export const config = {
+    matcher: [
+        '/api/:path*',
+        '!/api/auth/:path*',
+        '/chat/:path*'
+    ],
+};

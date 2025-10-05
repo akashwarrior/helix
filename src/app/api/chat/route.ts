@@ -1,18 +1,9 @@
 import type { NextRequest } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth/auth";
 import prisma from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session) {
-      return Response.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
+    const userId = req.headers.get('x-user-id')!;
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0", 10);
 
     const chats = await prisma.project.findMany({
@@ -20,7 +11,7 @@ export async function GET(req: NextRequest) {
         updatedAt: "desc",
       },
       where: {
-        userId: session.user.id,
+        userId: userId,
       },
       select: {
         id: true,
@@ -39,20 +30,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session) {
-      return Response.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
+    const userId = req.headers.get('x-user-id')!;
     const { content } = await req.json(); // TODO: store it in db
 
     const chat = await prisma.project.create({
       data: {
-        name: "New Chat" + Date.now(),
-        userId: session.user.id,
+        name: "New Chat" + Date.now(), // TODO: get the name from ai agent 
+        userId: userId,
       },
       select: {
         id: true,

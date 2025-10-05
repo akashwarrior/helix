@@ -1,21 +1,9 @@
 import { NextRequest } from "next/server";
 import { convertToModelMessages, smoothStream, streamText, UIMessage } from "ai";
-import { model } from "@/lib/server/model";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-
-export const maxDuration = 300; // 5 minutes
+import { getModelOptions } from "@/ai/config";
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
-
-    if (!session) {
-      return Response.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     const { messages }: { messages: UIMessage[] } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length !== 1) {
@@ -26,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = streamText({
-      model,
+      ...getModelOptions(),
       system: `You are an expert prompt enhancer. Your job is to take a user's request and make it crystal clear, specific, and actionable while preserving their original intent.
 
       RULES:
