@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from "sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
@@ -11,52 +12,47 @@ const font = Host_Grotesk({
   preload: true,
 });
 
-const baseUrl = new URL(
-  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
-);
+const title = 'Helix'
+const description = 'This is a platform where anyone can Transform ideas into stunning websites with AI-powered design and creativity.'
+
+const baseURL = process.env.BETTER_AUTH_URL || 'http://localhost:3000'
 
 export const metadata: Metadata = {
-  metadataBase: baseUrl,
-  title: "Helix",
-  description:
-    "Build the future of web design with AI-powered website creation. Transform your ideas into reality with cosmic creativity.",
+  metadataBase: new URL(baseURL),
+  title,
+  description,
   keywords: [
-    "AI website builder",
     "web design",
-    "website creation",
+    "AI website builder",
     "no-code platform",
+    "vibe coding platform"
   ],
-  authors: [{ name: "Helix" }],
-  creator: "Helix",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
+  authors: [{ name: "Sky Gupta" }],
+  creator: "Sky Gupta",
   openGraph: {
-    title: "Helix",
-    description:
-      "Transform your ideas into stunning websites with AI-powered design and cosmic creativity.",
-    type: "website",
-    locale: "en_US",
-    url: baseUrl,
-    siteName: "Helix",
-    images: {
-      url: "/logo.png",
-      alt: "Helix",
-    },
+    title,
+    description,
+    type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "Helix",
-    description:
-      "Transform your ideas into stunning websites with AI-powered design.",
-    creator: "@skyGuptaCS",
+    card: 'summary_large_image',
+    creator: "Sky Gupta",
+    creatorId: '@skyGuptaCS',
+    images: [
+      {
+        url: '/logo.png',
+      },
+    ],
   },
   icons: {
     icon: "/logo.png",
   },
-};
+}
 
 export default function RootLayout({
   children,
@@ -68,15 +64,18 @@ export default function RootLayout({
       <body className={`${font.className} antialiased relative`}>
         <div className="home-container fixed inset-0 z-0 overflow-hidden" />
 
-        <Toaster />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <NuqsAdapter>
+            {children}
+          </NuqsAdapter>
         </ThemeProvider>
+        
+        <Toaster />
         <SpeedInsights />
         <Analytics />
       </body>

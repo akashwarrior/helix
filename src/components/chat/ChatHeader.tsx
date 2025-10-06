@@ -4,16 +4,15 @@ import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { useWebContainer } from "@/hook/useWebContainer";
 import { useRouter } from "next/navigation";
 import { useHeaderOption } from "@/store/headerOption";
 import { useToggleChat } from "@/store/toggleChat";
+import { useSandboxStore } from "@/store/sandbox";
 import {
   Code2,
   Folder,
   Download,
   Terminal,
-  Loader2,
   PanelLeft,
   ArrowLeft,
   ExternalLink,
@@ -42,17 +41,15 @@ const tabs: Tab[] = [
 
 export default function ChatHeader({ title }: { title: string }) {
   const router = useRouter();
-  const { isReady } = useWebContainer();
   const { activeView, setActiveView } = useHeaderOption();
   const { isChatOpen, toggleChat } = useToggleChat();
+  const { status } = useSandboxStore();
 
   useEffect(() => {
-    if (isReady) {
+    if (status && activeView === null) {
       setActiveView("Preview");
-    } else {
-      setActiveView(null);
     }
-  }, [isReady]);
+  }, [status]);
 
   return (
     <header className="sticky top-0 z-40 h-14 flex items-center px-3">
@@ -63,31 +60,28 @@ export default function ChatHeader({ title }: { title: string }) {
 
         <h1 className="font-medium truncate text-foreground">{title}</h1>
 
-        <Button
+        {status && <Button
           variant="ghost"
           size="icon"
           onClick={toggleChat}
           className={cn("h-9 w-9", isChatOpen ? "ml-auto" : "ml-2")}
           title={isChatOpen ? "Hide Chat" : "Show Chat"}
         >
-          {!isReady ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : isChatOpen ? (
+          {isChatOpen ? (
             <PanelLeft size={16} />
           ) : (
             <PanelRight size={16} />
           )}
-        </Button>
+        </Button>}
       </div>
 
       <nav
         className={cn(
-          "flex items-center p-1 ml-auto max-w-[70%] justify-between",
-          isReady ? "w-full" : "",
+          "flex items-center p-1 ml-auto max-w-[70%] justify-between w-full",
         )}
       >
-        <div className="flex items-center gap-2 bg-secondary/60 rounded-lg p-1">
-          {isReady &&
+        <div className="flex items-center gap-2 bg-secondary/60 rounded-lg p-1 ml-auto">
+          {status &&
             tabs.map((tab) => (
               <Button
                 key={tab.name}

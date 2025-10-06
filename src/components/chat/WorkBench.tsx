@@ -1,14 +1,12 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import { useToggleChat } from "@/store/toggleChat";
 import { useHeaderOption } from "@/store/headerOption";
-import CodeEditor from "@/components/chat/CodeEditor";
 import Preview from "@/components/chat/Preview";
-import FileTree from "@/components/chat/fileSystem/FileTree";
-const Terminal = dynamic(() => import("@/components/chat/Terminal"), { ssr: false });
+import FileExplorer from "@/components/chat/fileSystem/FileExplorer";
+import { CommandsLogs } from "../commands-logs/commands-logs";
 
 export default function WorkBench() {
   const isChatOpen = useToggleChat((state) => state.isChatOpen);
@@ -23,36 +21,27 @@ export default function WorkBench() {
     >
       <div
         className={cn(
-          "overflow-hidden flex",
-          activeView !== "Editor" && "hidden",
-        )}
-      >
-        <FileTree />
-      </div>
-
-      <div
-        className={cn(
-          "flex-1 overflow-hidden flex-col",
+          "flex-1 overflow-hidden",
           activeView !== "Preview" && "hidden",
         )}
       >
         <Preview />
       </div>
+
       <div
-        className={cn(
-          "flex-1 overflow-hidden flex-col",
+        className={cn("flex flex-1 overflow-hidden",
           activeView !== "Editor" && "hidden",
-        )}
-      >
-        <CodeEditor />
+        )}>
+        <FileExplorer />
       </div>
+
       <div
         className={cn(
-          "flex-1 flex overflow-hidden flex-col",
+          "flex flex-col flex-1 overflow-hidden",
           activeView !== "Terminal" && "hidden",
         )}
       >
-        <Terminal />
+        <CommandsLogs />
       </div>
     </motion.section>
   );

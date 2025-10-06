@@ -1,32 +1,95 @@
+'use client';
+
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
 import { motion } from "motion/react";
 import { ChevronRight, FileCode } from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
-import { useFiles } from "@/store/files";
 import type { Monaco } from "@monaco-editor/react";
-import { useWebContainerStore } from "@/store/webContainer";
-import { toast } from "sonner";
+import { PulseLoader } from "react-spinners";
+import useSWR from "swr";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 const themes: BundledTheme[] = ["vitesse-dark", "vitesse-light"];
-const languages: BundledLanguage[] = [
-  "tsx",
-  "jsx",
-  "css",
-  "html",
-  "json",
-  "ts",
-  "js",
-  "toml",
-  "md",
-  "yaml",
-  "sh",
-];
+const extensionMap: Record<string, BundledLanguage> = {
+  // JavaScript/TypeScript
+  js: 'jsx',
+  jsx: 'jsx',
+  ts: 'typescript',
+  tsx: 'tsx',
+  mjs: 'javascript',
+  cjs: 'javascript',
+
+  // Python
+  py: 'python',
+  pyw: 'python',
+  pyi: 'python',
+
+  // Web technologies
+  html: 'html',
+  htm: 'html',
+  css: 'css',
+  scss: 'scss',
+  sass: 'sass',
+  less: 'less',
+
+  // Other popular languages
+  java: 'java',
+  c: 'c',
+  cpp: 'cpp',
+  cxx: 'cpp',
+  cc: 'cpp',
+  h: 'c',
+  hpp: 'cpp',
+  cs: 'csharp',
+  php: 'php',
+  rb: 'ruby',
+  go: 'go',
+  rs: 'rust',
+  swift: 'swift',
+  kt: 'kotlin',
+  scala: 'scala',
+  sh: 'bash',
+  bash: 'bash',
+  zsh: 'bash',
+  fish: 'bash',
+  ps1: 'powershell',
+
+  // Data formats
+  json: 'json',
+  xml: 'xml',
+  yaml: 'yaml',
+  yml: 'yaml',
+  toml: 'toml',
+  ini: 'ini',
+
+  // Markup
+  md: 'markdown',
+  markdown: 'markdown',
+  tex: 'latex',
+
+  // Database
+  sql: 'sql',
+
+  // Config files
+  dockerfile: 'dockerfile',
+  gitignore: 'bash',
+  env: 'bash',
+}
+
+function detectLanguageFromFilename(path: string): string {
+  const pathParts = path.split('/')
+  const extension = pathParts[pathParts.length - 1]
+    ?.split('.')
+    .pop()
+    ?.toLowerCase()
+
+  return extensionMap[extension || ''] || 'text'
+}
+
 
 const Breadcrumb = ({ path }: { path: string }) => {
   const parts = path.split("/").filter(Boolean);
@@ -62,54 +125,23 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor() {
-  const files = useFiles((s) => s.files);
-  const modifyContent = useFiles((s) => s.modifyContent);
-  const openFilePath = useFiles((s) => s.openFilePath);
+export default function CodeEditor({ sandboxId, path }: { sandboxId: string, path: string }) {
+  const content = useSWR(
+    `/api/sandboxes/${sandboxId}/files?path=${path}`,
+    async (pathname: string, init: RequestInit) => {
+      const response = await fetch(pathname, init)
+      const text = await response.text()
+      return text
+    },
+    { refreshInterval: 1000 }
+  )
+
   const { theme } = useTheme();
-  const webContainer = useWebContainerStore((state) => state.webContainer);
-
-  const openedFile = openFilePath
-    ? files.find((f) => f.path === openFilePath)
-    : undefined;
-  const fileName = openedFile?.path.split("/").pop() || "untitled";
   const activeTheme = theme === "light" ? themes[1] : themes[0];
-
-  const saveFile = async (path: string) => {
-    if (!webContainer) return;
-    const fileContent = openedFile?.content || "";
-
-    try {
-      await webContainer.fs.writeFile(path, fileContent);
-      modifyContent(path, fileContent);
-      toast.success(`File saved: ${path.split("/").pop()}`);
-    } catch (err) {
-      console.error("Failed to save file:", err);
-      const errorMessage = `Failed to save file: ${path.split("/").pop()}`;
-      toast.error(errorMessage);
-    }
-  };
-
-  const handleEditorChange = (value?: string) => {
-    if (value === undefined || !openedFile) return;
-    modifyContent(openedFile.path, value);
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        if (!openedFile) return;
-        saveFile(openedFile.path);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [openedFile]);
 
   const monacoBeforeMount = async (monaco: Monaco) => {
     try {
+      const languages = Object.values(extensionMap);
       const highlighter = await createHighlighter({
         themes,
         langs: languages,
@@ -130,9 +162,9 @@ export default function CodeEditor() {
     }
   };
 
-  if (!openedFile) {
+  if (!path) {
     return (
-      <div className="h-full flex items-center justify-center bg-card border border-border/50 rounded-lg">
+      <div className="h-full w-3/4 flex items-center justify-center bg-card/50 border border-border/50 rounded-lg">
         <div className="text-center text-muted-foreground">
           <FileCode size={48} className="mx-auto mb-4 opacity-50" />
           <p className="text-lg">No file selected</p>
@@ -144,20 +176,30 @@ export default function CodeEditor() {
     );
   }
 
+  if (content.isLoading || !content.data) {
+    return (
+      <div className="w-3/4 h-full flex items-center text-center">
+        <div className="flex-1">
+          <PulseLoader className="opacity-60" size={8} />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="h-full flex flex-col bg-card border border-border/50 overflow-hidden">
+    <div className="w-3/4 h-full flex flex-col border bg-card/50 border-border/50 overflow-hidden">
       <div className="px-4 bg-muted/20 border-b border-border/30 text-xs">
-        <Breadcrumb path={openedFile.path} />
+        <Breadcrumb path={path} />
       </div>
 
       <div className="flex-1 relative">
         <Editor
-          value={openedFile.content}
-          language={fileName.split(".").pop() || "js"}
+          value={content.data}
+          language={detectLanguageFromFilename(path)}
           theme={activeTheme}
-          onChange={handleEditorChange}
           beforeMount={monacoBeforeMount}
           options={{
+            readOnly: true,
             fontSize: 13.5,
             fontLigatures: true,
             lineHeight: 22,
@@ -177,8 +219,8 @@ export default function CodeEditor() {
 
       <div className="border-t border-border/30 bg-muted/20 px-4 py-1 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
-          <span>Lines: {openedFile.content?.split("\n").length}</span>
-          <span>Size: {new Blob([openedFile.content || ""]).size} bytes</span>
+          <span>Lines: {content.data.split("\n").length}</span>
+          <span>Size: {new Blob([content.data]).size} bytes</span>
         </div>
         <div className="flex items-center gap-2">
           <span>UTF-8</span>

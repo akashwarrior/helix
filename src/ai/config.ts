@@ -1,0 +1,44 @@
+import type { JSONValue } from 'ai'
+import { google } from '@ai-sdk/google'
+import { Sandbox } from "@vercel/sandbox";
+import type { LanguageModelV2 } from '@ai-sdk/provider'
+
+export type GoogleModels = Parameters<typeof google>[0]
+export const DEFAULT_MODEL: GoogleModels = 'gemini-2.5-flash-lite-preview-09-2025';
+
+export function getAvailableModels() {
+  return [
+    { name: 'Gemini Pro', id: 'gemini-2.5-pro' },
+    { name: 'Gemini Flash', id: 'gemini-2.5-flash-preview-09-2025' },
+    { name: 'Gemini Flash Lite', id: 'gemini-2.5-flash-lite-preview-09-2025' },
+  ]
+}
+
+export interface ModelOptions {
+  model: LanguageModelV2
+  providerOptions?: Record<string, Record<string, JSONValue>>
+}
+
+export function getModelOptions(modelId: GoogleModels = DEFAULT_MODEL): ModelOptions {
+  return {
+    model: google(modelId),
+    providerOptions: {
+      google: {
+        thinkingConfig: {
+          thinkingBudget: -1,
+          includeThoughts: true,
+        }
+      }
+    }
+  }
+}
+
+// sandbox ----
+export function getSandbox(sandboxId: string): Promise<Sandbox> {
+  return Sandbox.get({
+    sandboxId,
+    token: process.env.VERCEL_ACCESS_TOKEN,
+    projectId: process.env.VERCEL_PROJECT_ID,
+    teamId: process.env.VERCEL_TEAM_ID,
+  })
+}
