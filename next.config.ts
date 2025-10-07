@@ -1,8 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  compress: true,
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.md/,
+      type: 'asset/source',
+    })
+    return config
+  },
+  turbopack: {
+    rules: {
+      '*.md': {
+        loaders: ['raw-loader'],
+        as: '*.js',
+      },
+    },
+  },
 
   images: {
     remotePatterns: [
@@ -11,25 +24,9 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
     ],
-  },
-  transpilePackages: ["monaco-editor"],
-
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
-          },
-        ],
-      },
-    ];
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 
