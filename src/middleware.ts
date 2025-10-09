@@ -3,6 +3,11 @@ import { auth } from './lib/auth/auth';
 
 export async function middleware(req: NextRequest) {
     const { pathname } = req.nextUrl
+
+    if (pathname.startsWith('/api/auth')) {
+        return NextResponse.next()
+    }
+
     const session = await auth.api.getSession({ headers: req.headers });
 
     const isApi = pathname.startsWith('/api/');
@@ -28,9 +33,9 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
+    runtime: 'nodejs',
     matcher: [
         '/api/:path*',
-        '!/api/auth/:path*',
         '/chat/:path*'
     ],
 };

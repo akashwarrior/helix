@@ -2,14 +2,16 @@
 
 import { useChat } from "@ai-sdk/react";
 import { motion } from "motion/react";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { DefaultChatTransport } from "ai";
 import { useLocalStorageValue } from "@/lib/useLocalStorageValue";
 import { ChatUIMessage } from "@/lib/types";
-import { useSharedChatContext } from "@/lib/chatContext";
-import { useSettings } from "../settings/use-settings";
+import type { DataPart } from '@/ai/messages/data-parts'
+import type { DataUIPart } from 'ai'
+import { useDataStateMapper } from "@/store/sandbox";
+import { toast } from "sonner";
 import Message from "./Message";
 import {
   Conversation,
@@ -20,21 +22,24 @@ import {
 
 export default function Chat({ chatId }: { chatId: string }) {
   const [input, setInput] = useLocalStorageValue('prompt-input')
-  const { chat } = useSharedChatContext()
-  const { modelId } = useSettings()
+  const mapDataToStateRef = useRef(useDataStateMapper())
   const { messages, sendMessage, status } = useChat<ChatUIMessage>({
-    ...chat,
     transport: new DefaultChatTransport({ api: `/api/chat/${chatId}` }),
+    onData: (data: DataUIPart<DataPart>) => mapDataToStateRef.current(data),
+    onError: (error) => {
+      toast.error(`Communication error with the AI: ${error.message}`)
+      console.error('Error sending message:', error)
+    },
   })
 
   const validateAndSubmitMessage = useCallback(
     (text: string) => {
       if (text.trim()) {
-        sendMessage({ text }, { body: { modelId } })
+        sendMessage({ text })
         setInput('')
       }
     },
-    [sendMessage, modelId, setInput]
+    [sendMessage, setInput]
   )
 
   const handleOnChange = useCallback(

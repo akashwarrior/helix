@@ -1,7 +1,6 @@
 import type { Command, CommandLog } from '@/components/commands-logs/types'
 import type { DataPart } from '@/ai/messages/data-parts'
 import type { DataUIPart } from 'ai'
-import { useMonitorState } from '@/components/error-monitor/state'
 import { useMemo } from 'react'
 import { create } from 'zustand'
 
@@ -100,8 +99,6 @@ export const useFileExplorerStore = create<FileExplorerStore>()((set) => ({
 
 export function useDataStateMapper() {
   const { addPaths, setSandboxId, setUrl, upsertCommand } = useSandboxStore()
-  const { errors } = useCommandErrorsLogs()
-  const { setCursor } = useMonitorState()
 
   return (data: DataUIPart<DataPart>) => {
     switch (data.type) {
@@ -112,7 +109,6 @@ export function useDataStateMapper() {
         break
       case 'data-generating-files':
         if (data.data.status === 'uploaded') {
-          setCursor(errors.length)
           addPaths(data.data.paths)
         }
         break
