@@ -4,7 +4,7 @@ import { Sandbox } from '@vercel/sandbox'
 import { getRichError } from './get-rich-error'
 import { tool } from 'ai'
 import description from './create-sandbox.md'
-import z from 'zod/v3'
+import z from 'zod/v4'
 
 interface Params {
   writer: UIMessageStreamWriter<UIMessage<never, DataPart>>

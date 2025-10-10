@@ -1,15 +1,22 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
-export function ToolHeader(props: { className?: string; children: ReactNode }) {
+interface Props {
+  title: string,
+  icon: ReactNode,
+  className?: string,
+}
+
+export function ToolHeader({ title, icon, className }: Props) {
   return (
     <div
       className={cn(
         'flex items-center gap-1 text-muted-foreground mb-1 font-semibold',
-        props.className
+        className
       )}
     >
-      {props.children}
+      {icon}
+      {title}
     </div>
   )
 }

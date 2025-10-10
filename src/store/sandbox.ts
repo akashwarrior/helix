@@ -1,7 +1,6 @@
 import type { Command, CommandLog } from '@/components/commands-logs/types'
 import type { DataPart } from '@/ai/messages/data-parts'
 import type { DataUIPart } from 'ai'
-import { useMemo } from 'react'
 import { create } from 'zustand'
 
 interface SandboxStore {
@@ -16,24 +15,6 @@ interface SandboxStore {
   status?: 'running' | 'stopped'
   upsertCommand: (command: Omit<Command, 'startedAt'>) => void
   url?: string
-}
-
-function getBackgroundCommandErrorLines(commands: Command[]) {
-  return commands
-    .flatMap(({ command, args, background, logs = [] }) =>
-      logs.map((log) => ({ command, args, background, ...log }))
-    )
-    .sort((logA, logB) => logA.timestamp - logB.timestamp)
-    .filter((log) => log.stream === 'stderr' && log.background)
-}
-
-export function useCommandErrorsLogs() {
-  const { commands } = useSandboxStore()
-  const errors = useMemo(
-    () => getBackgroundCommandErrorLines(commands),
-    [commands]
-  )
-  return { errors }
 }
 
 export const useSandboxStore = create<SandboxStore>()((set) => ({
@@ -55,7 +36,6 @@ export const useSandboxStore = create<SandboxStore>()((set) => ({
   addPaths: (paths) =>
     set((state) => ({ paths: [...new Set([...state.paths, ...paths])] })),
   commands: [],
-  generatedFiles: new Set<string>(),
   paths: [],
   setSandboxId: (sandboxId) =>
     set(() => ({
@@ -64,7 +44,6 @@ export const useSandboxStore = create<SandboxStore>()((set) => ({
       commands: [],
       paths: [],
       url: undefined,
-      generatedFiles: new Set<string>(),
     })),
   setStatus: (status) => set(() => ({ status })),
   setUrl: (url) => set(() => ({ url })),
@@ -76,23 +55,6 @@ export const useSandboxStore = create<SandboxStore>()((set) => ({
       const cmds = [...state.commands]
       cmds[idx] = { ...prev, ...cmd }
       return { commands: cmds }
-    })
-  },
-}))
-
-interface FileExplorerStore {
-  paths: string[]
-  addPath: (path: string) => void
-}
-
-export const useFileExplorerStore = create<FileExplorerStore>()((set) => ({
-  paths: [],
-  addPath: (path) => {
-    set((state) => {
-      if (!state.paths.includes(path)) {
-        return { paths: [...state.paths, path] }
-      }
-      return state
     })
   },
 }))

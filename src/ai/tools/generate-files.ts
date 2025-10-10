@@ -7,7 +7,7 @@ import { getWriteFiles } from './generate-files/get-write-files'
 import { getSandbox } from '../config'
 import description from './generate-files.md'
 import { tool } from 'ai'
-import z from 'zod/v3'
+import z from 'zod/v4'
 
 interface Params {
   modelId?: string

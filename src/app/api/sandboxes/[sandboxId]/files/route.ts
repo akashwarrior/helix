@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSandbox } from '@/ai/config'
-import z from 'zod/v3'
+import z from 'zod/v4'
 
 const FileParamsSchema = z.object({
   sandboxId: z.string(),

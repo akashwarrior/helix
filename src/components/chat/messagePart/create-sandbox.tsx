@@ -11,10 +11,12 @@ interface Props {
 export function CreateSandbox({ message }: Props) {
   return (
     <ToolMessage>
-      <ToolHeader>
-        <BoxIcon className="w-3.5 h-3.5" />
-        Create Sandbox
-      </ToolHeader>
+      <ToolHeader
+        title='Create Sandbox'
+        icon={
+          <BoxIcon className="w-3.5 h-3.5" />
+        }
+      />
       <div className="relative pl-6 min-h-5">
         <Spinner
           className="absolute left-0 top-0 text-cyan-600 dark:text-cyan-400"

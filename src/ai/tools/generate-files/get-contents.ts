@@ -1,7 +1,7 @@
 import { streamObject, type ModelMessage } from 'ai'
 import { getModelOptions } from '@/ai/config'
 import { Deferred } from '@/lib/deferred'
-import z from 'zod'
+import z from 'zod/v4'
 
 export type File = z.infer<typeof fileSchema>
 

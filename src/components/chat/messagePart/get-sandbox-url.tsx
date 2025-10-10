@@ -4,17 +4,15 @@ import { Spinner } from './spinner'
 import { ToolHeader } from '../tool-header'
 import { ToolMessage } from '../tool-message'
 
-export function GetSandboxURL({
-  message,
-}: {
-  message: DataPart['get-sandbox-url']
-}) {
+export function GetSandboxURL({ message }: { message: DataPart['get-sandbox-url'] }) {
   return (
     <ToolMessage>
-      <ToolHeader>
-        <LinkIcon className="w-3.5 h-3.5" />
-        <span>Get Sandbox URL</span>
-      </ToolHeader>
+      <ToolHeader
+        title="Get Sandbox URL"
+        icon={
+          <LinkIcon className="w-3.5 h-3.5" />
+        }
+      />
       <div className="relative pl-6 min-h-5">
         <Spinner
           className="absolute left-0 top-0"

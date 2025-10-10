@@ -3,7 +3,7 @@ import type { DataPart } from '../messages/data-parts'
 import description from './get-sandbox-url.md'
 import { getSandbox } from '../config'
 import { tool } from 'ai'
-import z from 'zod/v3'
+import z from 'zod/v4'
 
 interface Params {
   writer: UIMessageStreamWriter<UIMessage<never, DataPart>>

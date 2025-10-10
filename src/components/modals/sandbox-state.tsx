@@ -1,38 +1,13 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useSandboxStore } from '@/store/sandbox'
 import { useEffect } from 'react'
 import useSWR from 'swr'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 
 export function SandboxState() {
-  const { sandboxId, status, setStatus } = useSandboxStore()
-  if (status === 'stopped') {
-    return (
-      <Dialog open>
-        <DialogContent showCloseButton={false}>
-          <DialogHeader>
-            <DialogTitle>
-              Sandbox max duration reached
-            </DialogTitle>
-          </DialogHeader>
-          The Vercel Sandbox is already stopped. You can re-start session
-          by clicking the button below.
-          <Button onClick={() => window.location.reload()}>
-            Restart session
-          </Button>
-        </DialogContent>
-      </Dialog>
-    )
-  }
+  const { status, sandboxId, setStatus } = useSandboxStore()
 
-  return sandboxId ? (
+  return sandboxId && status === 'running' ? (
     <DirtyChecker sandboxId={sandboxId} setStatus={setStatus} />
   ) : null
 }
