@@ -6,16 +6,16 @@ import { GenerateFiles } from './generate-files'
 import { CreateSandbox } from './create-sandbox'
 import { GetSandboxURL } from './get-sandbox-url'
 import { RunCommand } from './run-command'
-import { ReportErrors } from './report-errors'
 import { Reasoning } from './reasoning'
 import { Text } from './text'
 import { memo } from 'react'
 
 interface Props {
   part: UIMessage<Metadata, DataPart, ToolSet>['parts'][number]
+  partIndex: number
 }
 
-export const MessagePart = memo(function MessagePart({ part }: Props) {
+export const MessagePart = memo(function MessagePart({ part, partIndex }: Props) {
   if (part.type === 'data-generating-files') {
     return <GenerateFiles message={part.data} />
   } else if (part.type === 'data-create-sandbox') {
@@ -25,9 +25,7 @@ export const MessagePart = memo(function MessagePart({ part }: Props) {
   } else if (part.type === 'data-run-command') {
     return <RunCommand message={part.data} />
   } else if (part.type === 'reasoning') {
-    return <Reasoning part={part} />
-  } else if (part.type === 'data-report-errors') {
-    return <ReportErrors message={part.data} />
+    return <Reasoning part={part} partIndex={partIndex} />
   } else if (part.type === 'text') {
     return <Text part={part} />
   }

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Toaster } from "sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
@@ -61,6 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+
       <body className={`${font.className} antialiased relative`}>
         <div className="home-container fixed inset-0 z-0 overflow-hidden" />
 
@@ -70,11 +70,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NuqsAdapter>
-            {children}
-          </NuqsAdapter>
+          {children}
         </ThemeProvider>
-        
+
         <Toaster />
         <SpeedInsights />
         <Analytics />

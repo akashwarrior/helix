@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { useSandboxStore } from '@/store/sandbox'
+import { useCommandStore } from '@/store/command'
 import stripAnsi from 'strip-ansi'
 import z from 'zod/v4'
 
@@ -11,7 +12,8 @@ type StreamingCommandLogs = Record<
 >
 
 export function CommandLogsStream() {
-  const { sandboxId, commands, addLog, upsertCommand } = useSandboxStore()
+  const sandboxId = useSandboxStore(state => state.sandboxId)
+  const { commands, addLog, upsertCommand } = useCommandStore()
   const ref = useRef<StreamingCommandLogs>({})
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function CommandLogsStream() {
         }
       }
     }
-  }, [sandboxId, commands, addLog, upsertCommand])
+  }, [sandboxId, commands])
 
   return null
 }

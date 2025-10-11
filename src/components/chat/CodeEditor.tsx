@@ -3,12 +3,11 @@
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import { ChevronRight, FileCode } from "lucide-react";
+import { ChevronRight, FileCode, Loader2 } from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
 import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
 import type { Monaco } from "@monaco-editor/react";
-import { PulseLoader } from "react-spinners";
 import useSWR from "swr";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
@@ -164,7 +163,7 @@ export default function CodeEditor({ sandboxId, path }: { sandboxId: string, pat
 
   if (!path) {
     return (
-      <div className="h-full w-3/4 flex items-center justify-center bg-card/50 border border-border/50 rounded-lg">
+      <div className="h-full w-3/4 flex items-center justify-center bg-card/50 border border-border/50">
         <div className="text-center text-muted-foreground">
           <FileCode size={48} className="mx-auto mb-4 opacity-50" />
           <p className="text-lg">No file selected</p>
@@ -180,7 +179,7 @@ export default function CodeEditor({ sandboxId, path }: { sandboxId: string, pat
     return (
       <div className="w-3/4 h-full flex items-center text-center">
         <div className="flex-1">
-          <PulseLoader className="opacity-60" size={8} />
+          <Loader2 className="animate-spin" size={8} />
         </div>
       </div>
     )
@@ -200,9 +199,9 @@ export default function CodeEditor({ sandboxId, path }: { sandboxId: string, pat
           beforeMount={monacoBeforeMount}
           options={{
             readOnly: true,
-            fontSize: 13.5,
+            fontSize: 12,
             fontLigatures: true,
-            lineHeight: 22,
+            lineHeight: 16,
             minimap: { enabled: false },
             autoClosingBrackets: "always",
             autoIndent: "full",
@@ -212,7 +211,6 @@ export default function CodeEditor({ sandboxId, path }: { sandboxId: string, pat
             cursorBlinking: "smooth",
             cursorSmoothCaretAnimation: "on",
             wordWrap: "on",
-            renderWhitespace: "selection",
           }}
         />
       </div>

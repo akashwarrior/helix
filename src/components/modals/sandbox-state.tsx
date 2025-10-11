@@ -1,7 +1,6 @@
 'use client'
 
 import { useSandboxStore } from '@/store/sandbox'
-import { useEffect } from 'react'
 import useSWR from 'swr'
 
 export function SandboxState() {
@@ -28,11 +27,9 @@ function DirtyChecker({ sandboxId, setStatus }: DirtyCheckerProps) {
     { refreshInterval: 1000 }
   )
 
-  useEffect(() => {
-    if (content.data === 'stopped') {
-      setStatus('stopped')
-    }
-  }, [setStatus, content.data])
+  if (content.data === 'stopped') {
+    setStatus('stopped')
+  }
 
   return null
 }
