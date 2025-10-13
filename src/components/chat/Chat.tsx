@@ -1,68 +1,91 @@
-"use client";
+'use client'
 
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { motion } from "motion/react";
-import { useCallback, useRef } from "react";
-import { Button } from "@/components/ui/button";
 import { ArrowUp, Loader2 } from "lucide-react";
-import { DefaultChatTransport } from "ai";
 import { useLocalStorageValue } from "@/lib/useLocalStorageValue";
-import { ChatUIMessage } from "@/lib/types";
-import type { DataPart } from '@/ai/messages/data-parts'
-import type { DataUIPart } from 'ai'
+import type { ChatUIMessage } from "@/lib/types";
+import { DefaultChatTransport } from "ai";
+import { Button } from '@/components/ui/button'
+import { ArrowDownIcon } from 'lucide-react'
+import Message from "../chat/Message";
+import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
 import { useDataStateMapper } from "@/store/sandbox";
-import { toast } from "sonner";
-import Message from "./Message";
-import {
-  Conversation,
-  ConversationContent,
-  ConversationScrollButton
-} from "../ai-elements/conversation";
 
+interface Props {
+  chatId: string,
+  initialMessages: any[] // TODO: fix type
+}
 
-export default function Chat({ chatId }: { chatId: string }) {
-  const [input, setInput] = useLocalStorageValue('prompt-input')
+export default function Chat({ initialMessages, chatId }: Props) {
   const mapDataToStateRef = useRef(useDataStateMapper())
-  const { messages, sendMessage, status } = useChat<ChatUIMessage>({
-    transport: new DefaultChatTransport({ api: `/api/chat/${chatId}` }),
-    onData: (data: DataUIPart<DataPart>) => mapDataToStateRef.current(data),
-    onError: (error) => {
-      toast.error(`Communication error with the AI: ${error.message}`)
-      console.error('Error sending message:', error)
+  const [input, setInput] = useLocalStorageValue('prompt-input');
+  const [submitted, setSubmitted] = useState<boolean>(false);
+  const { messages, status, sendMessage, regenerate, stop } = useChat<ChatUIMessage>({
+    messages: initialMessages,
+    transport: new DefaultChatTransport({
+      api: `/api/chat/${chatId}`,
+    }),
+    onData: (data) => {
+      mapDataToStateRef.current(data)
     },
   })
 
-  const validateAndSubmitMessage = useCallback(
-    (text: string) => {
-      if (text.trim()) {
-        sendMessage({ text })
-        setInput('')
-      }
-    },
-    [sendMessage, setInput]
-  )
+  useEffect(() => {
+    if (initialMessages.length === 1) {
+      setSubmitted(true)
+      regenerate();
+    }
 
-  const handleOnChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const textarea = e.target;
-      textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
-      setInput(e.target.value);
-    },
-    [setInput]
-  );
+    return () => {
+      stop()
+    }
+  }, [])
 
+  useEffect(() => {
+    if (status === 'streaming' && submitted) {
+      setSubmitted(false)
+    }
+  }, [status])
+
+  const validateAndSubmitMessage = (text: string) => {
+    if (text.trim()) {
+      setSubmitted(true)
+      sendMessage({ text })
+      setInput('')
+    }
+  };
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    setInput(e.target.value);
+  };
 
   return (
     <div className="overflow-hidden transition-all duration-150 h-full flex flex-col flex-1">
-      <Conversation>
-        <ConversationContent>
+      <StickToBottom
+        initial="instant"
+        className='relative flex-1 overflow-y-auto'
+      >
+        <StickToBottom.Content className='py-6 flex flex-col gap-4 md:gap-6 px-3 max-w-3xl mx-auto w-full'>
           {messages.map((message) => (
             <Message key={message.id} message={message} />
           ))}
-        </ConversationContent>
+
+          {submitted && [{
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            parts: [{ type: 'reasoning', state: 'streaming' }],
+          }].map((message) => (
+            <Message key={message.id} message={message as ChatUIMessage} />
+          ))}
+
+        </StickToBottom.Content>
         <ConversationScrollButton />
-      </Conversation>
+      </StickToBottom>
 
       <div className="p-4 max-w-3xl mx-auto w-full">
         <motion.div
@@ -76,7 +99,7 @@ export default function Chat({ chatId }: { chatId: string }) {
             value={input}
             onChange={handleOnChange}
             placeholder="Type your message..."
-            disabled={status === 'streaming' || status === 'submitted'}
+            disabled={status === 'streaming' || submitted}
             className="w-full bg-transparent placeholder:text-muted-foreground/70 text-foreground p-4 pr-12 resize-none focus:outline-none min-h-16 max-h-32 leading-relaxed focus:placeholder-muted-foreground/50"
           />
 
@@ -98,5 +121,25 @@ export default function Chat({ chatId }: { chatId: string }) {
         </motion.div>
       </div>
     </div>
-  );
+  )
+}
+
+const ConversationScrollButton = () => {
+  const { isAtBottom, scrollToBottom } = useStickToBottomContext()
+
+  const handleScrollToBottom = () => scrollToBottom()
+
+  return (
+    !isAtBottom && (
+      <Button
+        className='absolute bottom-4 left-[50%] translate-x-[-50%] rounded-full'
+        onClick={handleScrollToBottom}
+        size="icon"
+        type="button"
+        variant="outline"
+      >
+        <ArrowDownIcon className="size-4" />
+      </Button>
+    )
+  )
 }

@@ -3,27 +3,24 @@
 import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { buildFileTree, type FileNode } from './build-file-tree'
-import { useState, useMemo, useEffect, useCallback, memo } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useSandboxStore } from '@/store/sandbox'
 import CodeEditor from '../CodeEditor'
 import {
   ChevronRightIcon,
-  ChevronDownIcon,
   FolderIcon,
   FileIcon,
   FolderOpenIcon,
-  FileCodeIcon,
 } from 'lucide-react'
 
 const FileExplorer = memo(function FileExplorer() {
-  const { sandboxId, status, paths } = useSandboxStore()
-  const fileTree = useMemo(() => buildFileTree(paths), [paths])
+  const { sandboxId, paths } = useSandboxStore()
   const [selected, setSelected] = useState<FileNode | null>(null)
-  const [fs, setFs] = useState<FileNode[]>(fileTree)
+  const [fs, setFs] = useState<FileNode[]>([])
 
   useEffect(() => {
-    setFs(fileTree)
-  }, [fileTree])
+    setFs(buildFileTree(paths))
+  }, [paths])
 
   const toggleFolder = useCallback((path: string) => {
     setFs((prev) => {
@@ -41,11 +38,11 @@ const FileExplorer = memo(function FileExplorer() {
     })
   }, [])
 
-  const selectFile = useCallback((node: FileNode) => {
+  const selectFile = (node: FileNode) => {
     if (node.type === 'file') {
       setSelected(node)
     }
-  }, [])
+  };
 
   const renderFileTree = useCallback(
     (nodes: FileNode[], depth = 0) => {
@@ -64,15 +61,13 @@ const FileExplorer = memo(function FileExplorer() {
     [selected, toggleFolder, selectFile]
   )
 
-  const disabled = status !== 'running';
-
   return (
-    <div className="h-full flex flex-1 border relative overflow-hidden rounded-lg">
+    <div className="h-full flex border relative overflow-hidden">
       <ScrollArea className="w-1/4 border-r border-primary/18">
         <div>{renderFileTree(fs)}</div>
       </ScrollArea>
 
-      {selected && sandboxId && !disabled && (
+      {selected && sandboxId && (
         <CodeEditor
           sandboxId={sandboxId}
           path={selected.path.substring(1)}
@@ -84,6 +79,16 @@ const FileExplorer = memo(function FileExplorer() {
 
 export default FileExplorer;
 
+
+interface FileTreeNodeProps {
+  node: FileNode
+  depth: number
+  selected: FileNode | null
+  onToggleFolder: (path: string) => void
+  onSelectFile: (node: FileNode) => void
+  renderFileTree: (nodes: FileNode[], depth: number) => React.ReactNode
+}
+
 const FileTreeNode = memo(function FileTreeNode({
   node,
   depth,
@@ -91,21 +96,15 @@ const FileTreeNode = memo(function FileTreeNode({
   onToggleFolder,
   onSelectFile,
   renderFileTree,
-}: {
-  node: FileNode
-  depth: number
-  selected: FileNode | null
-  onToggleFolder: (path: string) => void
-  onSelectFile: (node: FileNode) => void
-  renderFileTree: (nodes: FileNode[], depth: number) => React.ReactNode
-}) {
-  const handleClick = useCallback(() => {
+}: FileTreeNodeProps) {
+
+  const handleClick = () => {
     if (node.type === 'folder') {
       onToggleFolder(node.path)
     } else {
       onSelectFile(node)
     }
-  }, [node, onToggleFolder, onSelectFile])
+  };
 
   const isSelected = selected?.path === node.path;
 

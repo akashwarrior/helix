@@ -1,5 +1,5 @@
-import { Loader } from '@/components/ai-elements/loader'
 import { cn } from '@/lib/utils'
+import { Loader2Icon } from 'lucide-react'
 
 export function Spinner({
   className,
@@ -17,7 +17,7 @@ export function Spinner({
         className
       )}
     >
-      {loading ? <Loader /> : children}
+      {loading ? <Loader2Icon className="size-4 animate-spin" /> : children}
     </span>
   )
 }

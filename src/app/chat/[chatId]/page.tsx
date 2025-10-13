@@ -1,45 +1,39 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import ChatHeader from "@/components/chat/ChatHeader";
 import Chat from "@/components/chat/Chat";
-import WorkBench from "@/components/chat/WorkBench";
 import prisma from "@/lib/db";
-import { CommandLogsStream } from "@/components/commands-logs/commands-logs-stream";
-import { SandboxState } from "@/components/modals/sandbox-state";
 
-export default async function ChatPage({
-  params,
-}: {
-  params: Promise<{ chatId: string }>;
-}) {
-  const headersList = await headers();
+export default async function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
+  const [headersList, { chatId }] = await Promise.all([headers(), params])
   const userId = headersList.get('x-user-id')!;
-
-  const { chatId } = await params;
 
   const project = await prisma.project.findUnique({
     where: {
       id: chatId,
       userId: userId,
     },
+    select: {
+      name: true,
+      messages: true,
+    }
   });
 
   if (!project) {
     notFound();
   }
 
+  let messages: any = [{
+    id: crypto.randomUUID(),
+    role: 'assistant',
+    parts: [{ type: 'data-generating-files', data: { status: 'generating', paths: ['package.json'] } }],
+  }]
+
+  messages = project.messages;
+
   return (
-    <div className="flex h-screen overflow-hidden flex-col relative">
-      <ChatHeader title={project.name} />
-
-      <main className="flex-1 flex overflow-hidden w-full z-10">
-        <Chat chatId={chatId} />
-
-        <WorkBench />
-
-        <CommandLogsStream />
-        <SandboxState />
-      </main>
-    </div>
+    <Chat
+      chatId={chatId}
+      initialMessages={messages}
+    />
   );
 }

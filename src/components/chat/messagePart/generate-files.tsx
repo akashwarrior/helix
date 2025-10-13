@@ -3,28 +3,25 @@ import { CheckIcon, CloudUploadIcon, XIcon } from 'lucide-react'
 import { Spinner } from './spinner'
 import { ToolHeader } from '../tool-header'
 import { ToolMessage } from '../tool-message'
-import { TextEffect } from '@/components/ui/text-effect'
 
-export function GenerateFiles({ message }: { message: DataPart['generating-files'] }) {
-  const lastInProgress = ['error', 'uploading', 'generating'].includes(
-    message.status
-  )
+interface Props {
+  message: DataPart['generating-files']
+}
 
-  const generated = lastInProgress
-    ? message.paths.slice(0, message.paths.length - 1)
-    : message.paths
-
-  const generating = lastInProgress
-    ? message.paths[message.paths.length - 1] ?? ''
-    : null
+export function GenerateFiles({ message }: Props) {
+  const { status, paths } = message;
+  const lastInProgress = ['error', 'generating'].includes(status)
+  const generated = lastInProgress ? paths.slice(0, paths.length - 1) : paths
+  const generating = lastInProgress && paths[paths.length - 1];
 
   return (
     <ToolMessage>
-      <ToolHeader title={message.status === 'done' ? 'Uploaded files' : 'Generating files'}
+      <ToolHeader title={status === 'done' ? 'Uploaded files' : 'Generating files'}
         icon={
           <CloudUploadIcon className="w-3.5 h-3.5" />
         }
       />
+
       <div className="text-sm relative min-h-5">
         {generated.map((path) => (
           <div className="flex items-center" key={'gen' + path}>
@@ -34,16 +31,17 @@ export function GenerateFiles({ message }: { message: DataPart['generating-files
             </span>
           </div>
         ))}
-        {typeof generating === 'string' && (
+
+        {generating && (
           <div className="flex">
             <Spinner
               className="mr-1"
-              loading={message.status !== 'error'}
+              loading={status !== 'error'}
             >
-              {message.status === 'error' ? (
-                <XIcon className="w-4 h-4 text-red-700" />
+              {status === 'error' ? (
+                <XIcon className="size-4 text-red-700" />
               ) : (
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="size-4" />
               )}
             </Spinner>
             <span>{generating}</span>

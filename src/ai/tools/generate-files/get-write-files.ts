@@ -16,13 +16,6 @@ export function getWriteFiles({ sandbox, toolCallId, writer }: Params) {
     files: File[]
     paths: string[]
   }) {
-    const paths = params.written.concat(params.files.map((file) => file.path))
-    writer.write({
-      id: toolCallId,
-      type: 'data-generating-files',
-      data: { paths, status: 'uploading' },
-    })
-
     try {
       await sandbox.writeFiles(
         params.files.map((file) => ({
@@ -49,11 +42,5 @@ export function getWriteFiles({ sandbox, toolCallId, writer }: Params) {
 
       return richError.message
     }
-
-    writer.write({
-      id: toolCallId,
-      type: 'data-generating-files',
-      data: { paths, status: 'uploaded' },
-    })
   }
 }

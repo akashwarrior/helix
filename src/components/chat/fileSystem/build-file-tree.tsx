@@ -1,6 +1,5 @@
 export interface FileNode {
   children?: FileNode[]
-  content?: string
   expanded?: boolean
   name: string
   path: string
@@ -9,7 +8,6 @@ export interface FileNode {
 
 interface FileNodeBuilder {
   children?: { [key: string]: FileNodeBuilder }
-  content?: string
   expanded?: boolean
   name: string
   path: string
@@ -35,9 +33,6 @@ export function buildFileTree(paths: string[]): FileNode[] {
           name: part,
           type: isFile ? 'file' : 'folder',
           path: currentPath,
-          content: isFile
-            ? `// Content for ${currentPath}\n// This will be loaded when the file is selected`
-            : undefined,
           children: isFile ? undefined : {},
           expanded: false,
         }
@@ -49,16 +44,12 @@ export function buildFileTree(paths: string[]): FileNode[] {
     }
   }
 
-  const convertToArray = (obj: {
-    [key: string]: FileNodeBuilder
-  }): FileNode[] => {
+  const convertToArray = (obj: Record<string, FileNodeBuilder>): FileNode[] => {
     return Object.values(obj)
-      .map(
-        (node): FileNode => ({
-          ...node,
-          children: node.children ? convertToArray(node.children) : undefined,
-        })
-      )
+      .map((node): FileNode => ({
+        ...node,
+        children: node.children ? convertToArray(node.children) : undefined,
+      }))
       .sort((a, b) => {
         if (a.type !== b.type) {
           return a.type === 'folder' ? -1 : 1

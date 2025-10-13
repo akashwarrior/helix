@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PanelLeft } from "lucide-react";
@@ -68,15 +67,7 @@ export default function Header({ openAuthModal }: HeaderProps) {
         {!isPending && (
           <motion.div initial={{ width: 0 }} animate={{ width: "auto" }}>
             {isAuthenticated ? (
-              <ProfileModal>
-                <Image
-                  src={session?.user.image!}
-                  width={30}
-                  height={30}
-                  alt="User Profile"
-                  className="rounded-full border transition-all duration-200 cursor-pointer hover:opacity-80"
-                />
-              </ProfileModal>
+              <ProfileModal />
             ) : (
               <Button onClick={openAuthModal}>Login</Button>
             )}

@@ -138,14 +138,14 @@ export default function Home() {
     setError({ type: null, message: "" });
 
     try {
-      const input = textAreaRef.current?.value.trim();
+      const prompt = textAreaRef.current?.value.trim();
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          content: input,
+          prompt: prompt,
         }),
       });
 
@@ -211,7 +211,7 @@ export default function Home() {
               className="text-lg text-muted-foreground max-w-md mx-auto"
             >
               Transform ideas into full-stack intelligent apps in a snap and
-              Publish with a click.
+              Publish with a click
             </motion.p>
           </div>
 

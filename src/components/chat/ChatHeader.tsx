@@ -1,49 +1,18 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { useEffect } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useHeaderOption } from "@/store/headerOption";
-import { useToggleChat } from "@/store/toggleChat";
+import { useHeaderOption } from "@/store/headerOptions";
 import { useSandboxStore } from "@/store/sandbox";
-import {
-  Code2,
-  Folder,
-  Download,
-  Terminal,
-  PanelLeft,
-  ArrowLeft,
-  ExternalLink,
-  PanelRight,
-} from "lucide-react";
+import { TextEffect } from "../ui/text-effect";
+import { ArrowLeft, ChevronsLeft, GlobeIcon } from "lucide-react";
+import ProfileModal from "../ProfileModal";
 
-interface Tab {
-  name: "Preview" | "Editor" | "Terminal";
-  icon: React.ReactNode;
-}
-
-const tabs: Tab[] = [
-  {
-    name: "Preview",
-    icon: <Folder size={16} />,
-  },
-  {
-    name: "Editor",
-    icon: <Code2 size={16} />,
-  },
-  {
-    name: "Terminal",
-    icon: <Terminal size={16} />,
-  },
-];
-
-export default function ChatHeader({ title }: { title: string }) {
+export default function ChatHeader() {
   const router = useRouter();
-  const { activeView, setActiveView } = useHeaderOption();
-  const { isChatOpen, toggleChat } = useToggleChat();
-  const { status } = useSandboxStore();
+  const status = useSandboxStore(state => state.status);
+  const { activeView, setActiveView, title } = useHeaderOption();
 
   useEffect(() => {
     if (status && activeView === null) {
@@ -58,67 +27,40 @@ export default function ChatHeader({ title }: { title: string }) {
           <ArrowLeft size={18} />
         </Button>
 
-        <h1 className="font-medium truncate text-foreground">{title}</h1>
-
-        {status && <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleChat}
-          className={cn("h-9 w-9", isChatOpen ? "ml-auto" : "ml-2")}
-          title={isChatOpen ? "Hide Chat" : "Show Chat"}
-        >
-          {isChatOpen ? (
-            <PanelLeft size={16} />
-          ) : (
-            <PanelRight size={16} />
-          )}
-        </Button>}
+        <h1 className="font-medium truncate text-foreground">
+          {title && <TextEffect per="char" preset="blur">
+            {title}
+          </TextEffect>}
+        </h1>
       </div>
 
-      <nav
-        className={cn(
-          "flex items-center p-1 ml-auto max-w-[70%] justify-between w-full",
-        )}
-      >
-        <div className="flex items-center gap-2 bg-secondary/60 rounded-lg p-1 ml-auto">
-          {status &&
-            tabs.map((tab) => (
-              <Button
-                key={tab.name}
-                size="sm"
-                variant={activeView === tab.name ? "default" : "ghost"}
-                onClick={() => setActiveView(tab.name)}
-                className={cn(
-                  "px-3 py-2 text-sm font-medium transition-all flex items-center gap-2",
-                  activeView === tab.name
-                    ? "bg-secondary/80 shadow-sm text-foreground hover:bg-secondary/80"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {tab.icon}
-                <span className="hidden sm:inline">{tab.name}</span>
-              </Button>
-            ))}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-
+      <div className="flex items-center gap-2">
+        {!activeView && (
           <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9"
-            aria-label="Download project"
+            size="sm"
+            variant="outline"
+            onClick={() => setActiveView("Preview")}
           >
-            <Download size={16} />
+            <ChevronsLeft size={14} />
+            <span className="hidden sm:inline">
+              Workspace
+            </span>
           </Button>
+        )}
 
-          <Button size="sm" className="gap-2" variant="outline">
-            <ExternalLink size={14} />
-            <span className="hidden sm:inline">Deploy</span>
-          </Button>
-        </div>
-      </nav>
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex items-center justify-center transition-all duration-200 overflow-hidden"
+        >
+          <GlobeIcon size={14} />
+          <span className="hidden sm:inline">Deploy</span>
+        </Button>
+
+        <div />
+
+        <ProfileModal />
+      </div>
     </header>
   );
 }

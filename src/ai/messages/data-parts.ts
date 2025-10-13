@@ -12,7 +12,7 @@ export const dataPartSchema = z.object({
   }),
   'generating-files': z.object({
     paths: z.array(z.string()),
-    status: z.enum(['generating', 'uploading', 'uploaded', 'done', 'error']),
+    status: z.enum(['generating', 'done', 'error']),
     error: errorSchema.optional(),
   }),
   'run-command': z.object({
@@ -27,10 +27,6 @@ export const dataPartSchema = z.object({
   'get-sandbox-url': z.object({
     url: z.string().optional(),
     status: z.enum(['loading', 'done']),
-  }),
-  'report-errors': z.object({
-    summary: z.string(),
-    paths: z.array(z.string()).optional(),
   }),
 })
 

@@ -1,33 +1,59 @@
 "use client";
 
+import Image from "next/image";
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "@/lib/auth/auth-client";
 import { Button } from "@/components/ui/button";
-import { LogOut, Sun, Moon, Monitor } from "lucide-react";
+import { AnimatedBackground } from "./ui/animated-background";
+import { LogOut, MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
+
+const THEMES_OPTIONS = [
+  {
+    label: 'Light',
+    id: 'light',
+    icon: <SunIcon className="h-4 w-4" />,
+  },
+  {
+    label: 'Dark',
+    id: 'dark',
+    icon: <MoonIcon className="h-4 w-4" />,
+  },
+  {
+    label: 'System',
+    id: 'system',
+    icon: <MonitorIcon className="h-4 w-4" />,
+  },
+]
 
 interface ProfileModalProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export default function ProfileModal({ children }: ProfileModalProps) {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
-
   const user = session?.user;
 
-  const handleSignOut = () => {
-    signOut();
-  };
+  const handleSignOut = () => signOut();
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
+        {children || user?.image && (
+          <Image
+            src={user?.image || "/profile_icon.png"}
+            width={30}
+            height={30}
+            alt={"User Profile"}
+            className="rounded-full border transition-all duration-200 cursor-pointer hover:opacity-80"
+          />
+        )}
+      </DropdownMenuTrigger>
       <DropdownMenuContent
         className="max-w-[280px] p-4 space-y-3.5 shadow-lg border rounded-lg"
         align="end"
@@ -56,55 +82,49 @@ export default function ProfileModal({ children }: ProfileModalProps) {
           </span>
         </div>
 
-        <div className="bg-muted/40 rounded-lg p-3 space-y-2.5">
+        <div className="bg-muted/40 rounded-lg p-3 space-y-2.5 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">
+            <span className="text-muted-foreground font-medium">
               Credits
             </span>
-            <span className="text-sm font-mono text-foreground">∞</span>
+            <span className="font-mono text-foreground">∞</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">
+            <span className="text-muted-foreground font-medium">
               Daily refills
             </span>
-            <span className="text-sm font-mono text-foreground">∞</span>
+            <span className="font-mono text-foreground">∞</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-medium">
+            <span className="text-muted-foreground font-medium">
               Deployments
             </span>
-            <span className="text-sm font-mono text-foreground">∞</span>
+            <span className="font-mono text-foreground">∞</span>
           </div>
         </div>
 
-        <div className="border-t border-border/50 pt-3">
+        <div className="border-t border-border/50 pt-3 px-2">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Theme</span>
-            <div className="flex bg-muted py-1 px-2 gap-2 items-center rounded-lg">
-              <Button
-                variant={theme === "system" ? "secondary" : "ghost"}
-                size="icon"
-                className="h-4 w-4 transition-all hover:scale-105"
-                onClick={() => setTheme("system")}
+            <div className="text-xs text-zinc-400 flex gap-2">
+              <AnimatedBackground
+                className="pointer-events-none rounded-lg bg-zinc-100 dark:bg-zinc-800"
+                defaultValue={theme}
+                enableHover={false}
+                onValueChange={(id) => setTheme(id as string)}
               >
-                <Monitor />
-              </Button>
-              <Button
-                variant={theme === "light" ? "secondary" : "ghost"}
-                size="icon"
-                className="h-4 w-4 transition-all hover:scale-105"
-                onClick={() => setTheme("light")}
-              >
-                <Sun />
-              </Button>
-              <Button
-                variant={theme === "dark" ? "secondary" : "ghost"}
-                size="icon"
-                className="h-4 w-4 transition-all hover:scale-105"
-                onClick={() => setTheme("dark")}
-              >
-                <Moon />
-              </Button>
+                {THEMES_OPTIONS.map((theme) => {
+                  return (
+                    <button
+                      key={theme.id}
+                      className="inline-flex h-7 w-7 items-center justify-center text-zinc-500 transition-colors duration-100 focus-visible:outline-2 data-[checked=true]:text-zinc-950 dark:text-zinc-400 dark:data-[checked=true]:text-zinc-50"
+                      data-id={theme.id}
+                    >
+                      {theme.icon}
+                    </button>
+                  )
+                })}
+              </AnimatedBackground>
             </div>
           </div>
         </div>

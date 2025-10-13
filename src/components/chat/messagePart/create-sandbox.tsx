@@ -8,7 +8,7 @@ interface Props {
   message: DataPart['create-sandbox']
 }
 
-export function CreateSandbox({ message }: Props) {
+export function CreateSandbox({ message: { status } }: Props) {
   return (
     <ToolMessage>
       <ToolHeader
@@ -20,18 +20,18 @@ export function CreateSandbox({ message }: Props) {
       <div className="relative pl-6 min-h-5">
         <Spinner
           className="absolute left-0 top-0 text-cyan-600 dark:text-cyan-400"
-          loading={message.status === 'loading'}
+          loading={status === 'loading'}
         >
-          {message.status === 'error' ? (
+          {status === 'error' ? (
             <XIcon className="w-4 h-4 text-red-700" />
           ) : (
             <CheckIcon className="w-4 h-4" />
           )}
         </Spinner>
         <span>
-          {message.status === 'done' && 'Sandbox created successfully'}
-          {message.status === 'loading' && 'Creating Sandbox'}
-          {message.status === 'error' && 'Failed to create sandbox'}
+          {status === 'done' && 'Sandbox created successfully'}
+          {status === 'loading' && 'Creating Sandbox'}
+          {status === 'error' && 'Failed to create sandbox'}
         </span>
       </div>
     </ToolMessage>

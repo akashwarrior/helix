@@ -31,19 +31,25 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const userId = req.headers.get('x-user-id')!;
-    const { content } = await req.json(); // TODO: store it in db
-
-    const chat = await prisma.project.create({
+    const { prompt } = await req.json() as { prompt: string };
+    const { id } = await prisma.project.create({
       data: {
-        name: "New Chat" + Date.now(), // TODO: get the name from ai agent 
+        name: "New Chat",
         userId: userId,
+        messages: {
+          create: [{
+            id: crypto.randomUUID(),
+            role: "user",
+            parts: [{ type: "text", text: prompt }],
+          }]
+        }
       },
       select: {
         id: true,
       },
     });
 
-    return Response.json({ chatId: chat.id }, { status: 200 });
+    return Response.json({ chatId: id }, { status: 200 });
   } catch (error) {
     console.log(error);
     return Response.json({ message: "Internal Server Error" }, { status: 500 });
