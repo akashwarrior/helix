@@ -17,12 +17,6 @@ export function Reasoning({
   const context = useReasoningContext()
   const isExpanded = context?.expandedReasoningIndex === partIndex
 
-  if (part.state === 'done' && !part.text) {
-    return null
-  }
-
-  const isStreaming = part.state === 'streaming'
-
   const handleClick = () => {
     if (context) {
       const newIndex = isExpanded ? null : partIndex
@@ -53,14 +47,14 @@ export function Reasoning({
           />
         </div>
 
-        {!isStreaming ?
-          <TextEffect per='char'>
-            Thoughts...
-          </TextEffect>
-          :
+        {part.state === 'streaming' ?
           <TextShimmer duration={1}>
             Thinking
           </TextShimmer>
+          :
+          <TextEffect per='char'>
+            Thoughts...
+          </TextEffect>
         }
       </div>
 

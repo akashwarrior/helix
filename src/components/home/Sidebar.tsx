@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, LogIn, FolderOpen } from "lucide-react";
+import { Plus, LogIn, FolderOpen, ArrowRightIcon } from "lucide-react";
 import { useSidebarStore } from "@/store/toggleSidebar";
 import { useSession } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
@@ -78,9 +78,15 @@ const MenuItems = () => {
         <li key={id}>
           <Link
             href={`/chat/${id}`}
-            className="block px-5 py-2.5 rounded-lg text-sm truncate"
+            className="flex items-center p-2.5 rounded-lg gap-1 group hover:bg-foreground/10"
           >
-            {name}
+            <ArrowRightIcon
+              size={13}
+              className="w-0 group-hover:w-4 transition-[width] duration-200"
+            />
+            <span className="text-sm truncate">
+              {name}
+            </span>
           </Link>
         </li>
       ))}
@@ -116,8 +122,8 @@ export default function Sidebar({
     <>
       <aside
         className={cn(
-          "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/25 backdrop-blur-sm transition-all duration-300",
-          isOpen ? "w-72 md:w-68" : "w-0 -translate-x-full",
+          "min-h-full max-h-screen overflow-y-auto fixed md:relative top-0 left-0 z-30 bg-background/60 backdrop-blur-sm transition-all duration-300",
+          isOpen ? "w-72 md:w-66" : "w-0 -translate-x-full",
           "px-3 pt-20 pb-8 flex flex-col justify-center overflow-hidden max-w-11/12",
         )}
       >
@@ -140,7 +146,7 @@ export default function Sidebar({
       <div
         onClick={toggleSidebar}
         className={cn(
-          "inset-0 bg-black/60 backdrop-blur z-20",
+          "inset-0 bg-black/30 backdrop-blur z-20",
           isOpen ? "fixed md:hidden" : "hidden",
         )}
       />

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "@/lib/auth/auth-client";
 import { Button } from "@/components/ui/button";
@@ -45,13 +46,18 @@ export default function ProfileModal({ children }: ProfileModalProps) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         {children || user?.image && (
-          <Image
-            src={user?.image || "/profile_icon.png"}
-            width={30}
-            height={30}
-            alt={"User Profile"}
-            className="rounded-full border transition-all duration-200 cursor-pointer hover:opacity-80"
-          />
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: 'auto' }}
+          >
+            <Image
+              src={user?.image || "/profile_icon.png"}
+              width={30}
+              height={30}
+              alt={"User Profile"}
+              className="rounded-full border transition-all duration-200 cursor-pointer hover:opacity-80"
+            />
+          </motion.div>
         )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
