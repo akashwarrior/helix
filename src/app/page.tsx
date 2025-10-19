@@ -164,7 +164,7 @@ export default function Home() {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isCtrlKey = e.ctrlKey || e.metaKey;
-    if (isCtrlKey && e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleFinalSubmit();
     }
@@ -225,7 +225,7 @@ export default function Home() {
               >
                 <AlertCircle
                   size={20}
-                  className="text-destructive flex-shrink-0"
+                  className="text-destructive"
                 />
                 <p className="text-sm text-destructive">{error.message}</p>
                 <Button
@@ -350,9 +350,9 @@ export default function Home() {
                       {navigator.platform.includes("Mac") ? "⌘" : "Ctrl"}
                     </kbd>
                     <kbd className="px-1.5 py-0.5 bg-muted/40 rounded border border-border/20">
-                      ↵
+                      O
                     </kbd>
-                    <span>submit</span>
+                    <span>Upload</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <kbd className="px-1.5 py-0.5 bg-muted/40 rounded border border-border/20">
@@ -361,7 +361,7 @@ export default function Home() {
                     <kbd className="px-1.5 py-0.5 bg-muted/40 rounded border border-border/20">
                       E
                     </kbd>
-                    <span>enhance</span>
+                    <span>Enhance</span>
                   </div>
                 </div>
 

@@ -22,18 +22,11 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
     notFound();
   }
 
-  let messages: any = [{
-    id: crypto.randomUUID(),
-    role: 'assistant',
-    parts: [{ type: 'data-generating-files', data: { status: 'generating', paths: ['package.json'] } }],
-  }]
-
-  messages = project.messages;
-
   return (
     <Chat
       chatId={chatId}
-      initialMessages={messages}
+      title={project.name}
+      initialMessages={project.messages}
     />
   );
 }

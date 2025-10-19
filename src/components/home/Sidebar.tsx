@@ -85,7 +85,7 @@ const MenuItems = () => {
               className="w-0 group-hover:w-4 transition-[width] duration-200"
             />
             <span className="text-sm truncate">
-              {name}
+              {name ?? "Untitled"}
             </span>
           </Link>
         </li>

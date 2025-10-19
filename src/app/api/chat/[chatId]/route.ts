@@ -6,11 +6,13 @@ import prompt from "./prompt.md";
 import prisma from '@/lib/db'
 import { Role } from "@/generated/prisma/enums";
 import type { MessageCreateManyInput } from "@/generated/prisma/models";
+import z from "zod/v4";
 
 import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
+  generateObject,
   stepCountIs,
   streamText,
 } from 'ai'
@@ -36,7 +38,33 @@ export async function POST(
   return createUIMessageStreamResponse({
     stream: createUIMessageStream({
       originalMessages: messages,
-      execute: ({ writer }) => {
+      execute: async ({ writer }) => {
+        // generate project name
+        let nameResult: Promise<void> | null = null;
+        if (messages.length === 1) {
+          nameResult = generateObject({
+            system: 'You are a conversation/chat session name generator. You must generate a name for the conversation/chat session based on the user prompt. try to make it as short as possible.',
+            ...getModelOptions(modelId),
+            messages: convertToModelMessages(messages),
+            schema: z.object({
+              name: z.string().describe('The name of the conversation/chat session'),
+            }),
+          }).then(async (result) => {
+            const name = result.object?.name ?? 'untitled';
+            writer.write({
+              type: 'data-project-name',
+              data: { name: name },
+            })
+            prisma.project.update({
+              where: { id: chatId },
+              data: { name: name }
+            }).catch((error) => {
+              console.error('Failed updating project name', error);
+            });
+          })
+        }
+
+        // stream text
         const result = streamText({
           ...getModelOptions(modelId),
           system: prompt,
@@ -55,6 +83,8 @@ export async function POST(
             sendStart: false,
           })
         )
+        // waiting for project name to be generated before stream ends
+        await nameResult;
       },
       onFinish: async ({ responseMessage }) => {
         const parts: Record<string, any>[] = [];
@@ -75,9 +105,7 @@ export async function POST(
           const messagesToCreate: MessageCreateManyInput[] = [];
 
           if (!isRegenerate) {
-            console.log('messages', messages);
             const lastMessage = messages[messages.length - 1];
-            console.log('lastMessage', lastMessage);
             messagesToCreate.push({
               id: lastMessage.id,
               role: Role.user,

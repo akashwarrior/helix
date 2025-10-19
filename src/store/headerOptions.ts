@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface headerOptionStore {
   title: string | null;
-  setTitle: (title: string) => void;
+  setTitle: (title: string | null) => void;
   activeView: "Preview" | "Editor" | null;
   setActiveView: (view: "Preview" | "Editor" | null) => void;
 }

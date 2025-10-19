@@ -10,7 +10,7 @@ export const useChatList = () => {
   const { data, setSize, isValidating } = useSWRInfinite(
     (index) => `/api/chat?skip=${index * ITEMS_PER_PAGE}&take=${ITEMS_PER_PAGE}`,
     fetcher,
-    { revalidateFirstPage: false },
+    { revalidateOnMount: true },
   );
 
   const chats = data?.flat() || [];
