@@ -8,13 +8,16 @@ import { getSandbox } from '../config'
 import description from './generate-files.md'
 import { tool } from 'ai'
 import z from 'zod/v4'
+import { CreateBucketCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import { createS3Client } from '@/lib/s3'
 
 interface Params {
   modelId?: string
   writer: UIMessageStreamWriter<UIMessage<never, DataPart>>
+  projectId: string
 }
 
-export const generateFiles = ({ writer, modelId }: Params) =>
+export const generateFiles = ({ writer, modelId, projectId }: Params) =>
   tool({
     description,
     inputSchema: z.object({
@@ -97,6 +100,27 @@ export const generateFiles = ({ writer, modelId }: Params) =>
         type: 'data-generating-files',
         data: { paths: uploaded.map((file) => file.path), status: 'done' },
       })
+
+      const client = createS3Client();
+      const promises = [];
+
+      try {
+        await client.send(new CreateBucketCommand({ Bucket: projectId }));
+      } catch {
+        // bucket already exists
+      }
+
+      for (const file of uploaded) {
+        const command = new PutObjectCommand({
+          Bucket: projectId,
+          Key: file.path,
+          Body: file.content,
+          ContentType: 'text/plain; charset=utf-8',
+        });
+
+        promises.push(client.send(command));
+      }
+      await Promise.all(promises);
 
       return `Successfully generated and uploaded ${uploaded.length} files.
        Their paths and contents are as follows:

@@ -124,15 +124,13 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor({ sandboxId, path }: { sandboxId: string, path: string }) {
+export default function CodeEditor({ chatId, path }: { chatId: string, path: string }) {
   const content = useSWR(
-    `/api/sandboxes/${sandboxId}/files?path=${path}`,
+    `/api/files/${chatId}?path=${path}`,
     async (pathname: string, init: RequestInit) => {
       const response = await fetch(pathname, init)
-      const text = await response.text()
-      return text
+      return response.text()
     },
-    { refreshInterval: 1000 }
   )
 
   const { theme } = useTheme();
@@ -177,7 +175,7 @@ export default function CodeEditor({ sandboxId, path }: { sandboxId: string, pat
 
   if (content.isLoading || !content.data) {
     return (
-      <div className="w-3/4 h-full flex items-center text-center">
+      <div className="w-3/4 h-full flex items-center justify-center text-center">
         <div className="flex-1">
           <Loader2 className="animate-spin" size={8} />
         </div>

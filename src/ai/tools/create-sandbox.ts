@@ -5,15 +5,17 @@ import { getRichError } from './get-rich-error'
 import { tool } from 'ai'
 import description from './create-sandbox.md'
 import z from 'zod/v4'
+import { redis } from '@/lib/redis'
 
 interface Params {
   writer: UIMessageStreamWriter<UIMessage<never, DataPart>>
+  projectId: string
 }
 
 const MIN_TIME = 10 * 60 * 1000; // 10 min
 const MAX_TIME = 45 * 60 * 1000; // 45 min
 
-export const createSandbox = ({ writer }: Params) =>
+export const createSandbox = ({ writer, projectId }: Params) =>
   tool({
     description,
     inputSchema: z.object({
@@ -22,6 +24,7 @@ export const createSandbox = ({ writer }: Params) =>
         .min(MIN_TIME)
         .max(MAX_TIME)
         .optional()
+        .default(MIN_TIME)
         .describe(
           'Maximum time in milliseconds the Vercel Sandbox will remain active before automatically shutting down. Minimum 600000ms (10 minutes), maximum 2700000ms (45 minutes). Defaults to 600000ms (10 minutes). The sandbox will terminate all running processes when this timeout is reached.'
         ),
@@ -42,12 +45,17 @@ export const createSandbox = ({ writer }: Params) =>
 
       try {
         const sandbox = await Sandbox.create({
-          timeout: timeout ?? MIN_TIME,
+          timeout: timeout,
           ports,
           token: process.env.VERCEL_ACCESS_TOKEN,
           projectId: process.env.VERCEL_PROJECT_ID,
           teamId: process.env.VERCEL_TEAM_ID,
         })
+
+        await redis.connect();
+        await redis.set(`sandbox:${projectId}`, sandbox.sandboxId);
+        await redis.expire(`sandbox:${projectId}`, timeout / 1000);
+        await redis.close();
 
         writer.write({
           id: toolCallId,

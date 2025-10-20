@@ -70,7 +70,7 @@ export async function POST(
           system: prompt,
           messages: convertToModelMessages(messages),
           stopWhen: stepCountIs(20),
-          tools: tools({ modelId, writer }),
+          tools: tools({ projectId: chatId, writer }),
           onError: (error) => {
             console.error('Error communicating with AI');
             console.error(JSON.stringify(error, null, 2));
@@ -87,19 +87,6 @@ export async function POST(
         await nameResult;
       },
       onFinish: async ({ responseMessage }) => {
-        const parts: Record<string, any>[] = [];
-        for (const part of responseMessage.parts) {
-          if (
-            part.type === 'reasoning' ||
-            part.type === 'data-create-sandbox' ||
-            part.type === 'data-generating-files' ||
-            part.type === 'data-run-command' ||
-            part.type === 'text'
-          ) {
-            parts.push(part);
-          }
-        }
-
         try {
           const isRegenerate = trigger === 'regenerate-message';
           const messagesToCreate: MessageCreateManyInput[] = [];
@@ -117,7 +104,7 @@ export async function POST(
           messagesToCreate.push({
             id: responseMessage.id,
             role: Role.assistant,
-            parts: parts,
+            parts: responseMessage.parts as Record<string, string>[],
             projectId: chatId,
           })
 

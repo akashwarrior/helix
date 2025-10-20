@@ -11,18 +11,20 @@ import { Button } from '@/components/ui/button'
 import { ArrowDownIcon } from 'lucide-react'
 import Message from "../chat/Message";
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
-import { useDataStateMapper } from "@/store/sandbox";
+import { useDataStateMapper, useSandboxStore } from "@/store/sandbox";
 import { useHeaderOption } from "@/store/headerOptions";
 
 interface Props {
   title: string | null,
   chatId: string,
-  initialMessages: any[] // TODO: fix type
+  initialMessages: any[], // TODO: fix type
+  files: string[],
 }
 
-export default function Chat({ title, initialMessages, chatId }: Props) {
+export default function Chat({ title, initialMessages, chatId, files }: Props) {
   const mapDataToStateRef = useRef(useDataStateMapper())
-  const { title: headerTitle, setTitle } = useHeaderOption();
+  const { title: headerTitle, setTitle, setActiveView } = useHeaderOption();
+  const addPaths = useSandboxStore(state => state.addPaths);
   const [input, setInput] = useLocalStorageValue('prompt-input');
   const [submitted, setSubmitted] = useState<boolean>(false);
   const { messages, status, sendMessage, regenerate, stop } = useChat<ChatUIMessage>({
@@ -45,9 +47,15 @@ export default function Chat({ title, initialMessages, chatId }: Props) {
       setTitle(title)
     }
 
+    if (files.length > 0) {
+      addPaths(files)
+      setActiveView("Editor")
+    }
+
     return () => {
       stop()
       setTitle(null);
+      setActiveView(null);
     }
   }, [])
 

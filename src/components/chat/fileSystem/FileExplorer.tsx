@@ -5,6 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { buildFileTree, type FileNode } from './build-file-tree'
 import { useState, useEffect, useCallback, memo } from 'react'
 import { useSandboxStore } from '@/store/sandbox'
+import { useHeaderOption } from '@/store/headerOptions'
+import { useParams } from 'next/navigation'
 import CodeEditor from '../CodeEditor'
 import {
   ChevronRightIcon,
@@ -14,12 +16,30 @@ import {
 } from 'lucide-react'
 
 const FileExplorer = memo(function FileExplorer() {
-  const { sandboxId, paths } = useSandboxStore()
+  const params = useParams<{ chatId: string }>();
+  const paths = useSandboxStore(state => state.paths)
   const [selected, setSelected] = useState<FileNode | null>(null)
   const [fs, setFs] = useState<FileNode[]>([])
+  const { sandboxId, setSandboxId, setUrl } = useSandboxStore();
+  const setActiveView = useHeaderOption(state => state.setActiveView);
 
   useEffect(() => {
-    setFs(buildFileTree(paths))
+    setFs(buildFileTree(paths));
+
+    if (!sandboxId && paths.length > 0) {
+      fetch(`/api/sandboxes`, {
+        method: 'POST',
+        body: JSON.stringify({ projectId: params.chatId }),
+      }).then(res => res.json()).then(({ sandboxId, url }) => {
+        setSandboxId(sandboxId);
+        if (url) {
+          setUrl(url);
+          setActiveView("Preview");
+        } else {
+          setActiveView("Editor")
+        }
+      });
+    }
   }, [paths])
 
   const toggleFolder = useCallback((path: string) => {
@@ -38,11 +58,11 @@ const FileExplorer = memo(function FileExplorer() {
     })
   }, [])
 
-  const selectFile = (node: FileNode) => {
+  const selectFile = useCallback((node: FileNode) => {
     if (node.type === 'file') {
       setSelected(node)
     }
-  };
+  }, [setSelected]);
 
   const renderFileTree = useCallback(
     (nodes: FileNode[], depth = 0) => {
@@ -67,9 +87,9 @@ const FileExplorer = memo(function FileExplorer() {
         <div>{renderFileTree(fs)}</div>
       </ScrollArea>
 
-      {selected && sandboxId && (
+      {selected && (
         <CodeEditor
-          sandboxId={sandboxId}
+          chatId={params.chatId}
           path={selected.path.substring(1)}
         />
       )}

@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Globe, ExternalLinkIcon } from "lucide-react";
+import { useSandboxStore } from "@/store/sandbox";
 
-
-export default function Preview({ url }: { url: string }) {
+export default function Preview() {
+  const [inputValue, setInputValue] = useState('');
+  const url = useSandboxStore(state => state.url);
   const [error, setError] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -29,51 +31,83 @@ export default function Preview({ url }: { url: string }) {
   const handleIframeError = () => setError('Failed to load the page')
 
   return (
-    <div className="h-full flex flex-col border relative overflow-hidden">
-      <div className="flex-1 bg-white relative overflow-hidden flex">
-        {!url ? (
-          <div className="flex flex-col items-center m-auto">
-            <Loader2 size={34} className="text-blue-600 animate-spin mb-6" />
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              Refreshing Preview
-            </h3>
-            <p className="text-sm text-gray-600">Loading Your App</p>
-          </div>
-        ) : error ? (
-          <div className="h-full flex-1 flex items-center justify-center bg-gradient-to-br from-red-50 to-red-100">
-            <div className="text-center max-w-md mx-auto p-8">
-              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-200">
-                <AlertCircle size={32} className="text-red-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Preview Error
-              </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                {error}
-              </p>
-              <Button
-                onClick={refreshIframe}
-                variant="destructive"
-                className="shadow-lg"
-                asChild
-              >
-                Try Again
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="relative w-full flex-1 h-full">
-            <iframe
-              ref={iframeRef}
-              src={url}
-              className="w-full h-full border-none"
-              onLoad={handleIframeLoad}
-              onError={handleIframeError}
-              title="Browser content"
-            />
-          </div>
-        )}
+    <>
+      <div className="mx-auto z-50 absolute top-1.5 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-card rounded-lg pl-3 pr-1.5 py-1 min-w-[200px] w-fit border border-neutral-700/50">
+        <Globe size={20} className="text-blue-400" />
+        <input
+          type="text"
+          className="text-xs h-6 font-mono border-none outline-none w-full overflow-hidden"
+          defaultValue={'/'}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              event.currentTarget.blur()
+              setInputValue(event.currentTarget.value)
+            }
+          }}
+          disabled={!url}
+        />
+
+        <a
+          href={url && (url + inputValue)}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Open in New Tab"
+        >
+          <Button
+            size="icon"
+            variant="ghost"
+            className="size-6 text-muted-foreground hover:text-foreground/85"
+          >
+            <ExternalLinkIcon size={12} />
+          </Button>
+        </a>
       </div>
-    </div>
+      <div className="h-full flex flex-col border relative overflow-hidden">
+        <div className="flex-1 bg-white relative overflow-hidden flex">
+          {!url ? (
+            <div className="flex flex-col items-center m-auto">
+              <Loader2 size={34} className="text-blue-600 animate-spin mb-6" />
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                Refreshing Preview
+              </h3>
+              <p className="text-sm text-gray-600">Loading Your App</p>
+            </div>
+          ) : error ? (
+            <div className="h-full flex-1 flex items-center justify-center bg-linear-to-br from-red-50 to-red-100">
+              <div className="text-center max-w-md mx-auto p-8">
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-200">
+                  <AlertCircle size={32} className="text-red-500" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">
+                  Preview Error
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  {error}
+                </p>
+                <Button
+                  onClick={refreshIframe}
+                  variant="destructive"
+                  className="shadow-lg"
+                  asChild
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="relative w-full flex-1 h-full">
+              <iframe
+                ref={iframeRef}
+                src={url ? url + '/' + inputValue : ''}
+                className="w-full h-full border-none"
+                onLoad={handleIframeLoad}
+                onError={handleIframeError}
+                title="Browser content"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
