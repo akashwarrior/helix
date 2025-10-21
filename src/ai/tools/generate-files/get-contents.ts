@@ -1,6 +1,8 @@
 import { streamObject, type ModelMessage } from 'ai'
 import { getModelOptions } from '@/ai/config'
 import { Deferred } from '@/lib/deferred'
+import { CreateBucketCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import { createS3Client } from '@/lib/s3'
 import z from 'zod/v4'
 
 export type File = z.infer<typeof fileSchema>
@@ -20,30 +22,21 @@ const fileSchema = z.object({
 
 interface Params {
   messages: ModelMessage[]
-  modelId?: string
   paths: string[]
+  projectId: string
 }
 
-interface FileContentChunk {
-  files: z.infer<typeof fileSchema>[]
-  paths: string[]
-  written: string[]
-}
-
-export async function* getContents(
-  params: Params
-): AsyncGenerator<FileContentChunk> {
-  const generated: z.infer<typeof fileSchema>[] = []
+export async function* getContents({ messages, paths, projectId }: Params): AsyncGenerator<File[]> {
   const deferred = new Deferred<void>()
   const result = streamObject({
-    ...getModelOptions(params.modelId),
+    ...getModelOptions(),
     system:
       'You are a file content generator. You must generate files based on the conversation history and the provided paths. NEVER generate lock files (pnpm-lock.yaml, package-lock.json, yarn.lock) - these are automatically created by package managers.',
     messages: [
-      ...params.messages,
+      ...messages,
       {
         role: 'user',
-        content: `Generate the content of the following files according to the conversation: ${params.paths.map(
+        content: `Generate the content of the following files according to the conversation: ${paths.map(
           (path) => `\n - ${path}`
         )}`,
       },
@@ -54,29 +47,46 @@ export async function* getContents(
       console.error('Error communicating with AI')
       console.error(JSON.stringify(error, null, 2))
     },
+    onFinish: async ({ object }) => {
+      const client = createS3Client();
+      try {
+        await client.send(new CreateBucketCommand({ Bucket: projectId }));
+      } catch {
+        console.error('Bucket already exists');
+      }
+      const promises = [];
+
+      for (const file of (object?.files ?? [])) {
+        if (!file.path || !file.content) {
+          continue
+        }
+        const command = new PutObjectCommand({
+          Bucket: projectId,
+          Key: file.path,
+          Body: file.content,
+        });
+
+        promises.push(client.send(command));
+      }
+      await Promise.all(promises);
+      client.destroy();
+    },
   })
+
+  let generated = 0;
 
   for await (const items of result.partialObjectStream) {
     if (!Array.isArray(items?.files)) {
       continue
     }
 
-    const written = generated.map((file) => file.path)
-    const paths = written.concat(
-      items.files
-        .slice(generated.length, items.files.length - 1)
-        .flatMap((f) => (f?.path ? [f.path] : []))
-    )
-
     const files = items.files
-      .slice(generated.length, items.files.length - 2)
+      .slice(generated, items.files.length - 2)
       .map((file) => fileSchema.parse(file))
 
+    yield files
     if (files.length > 0) {
-      yield { files, paths, written }
-      generated.push(...files)
-    } else {
-      yield { files: [], written, paths }
+      generated += files.length;
     }
   }
 
@@ -85,11 +95,9 @@ export async function* getContents(
     throw new Error('Unexpected Error: Deferred was resolved before the result')
   }
 
-  const written = generated.map((file) => file.path)
-  const files = raceResult.files.slice(generated.length)
-  const paths = written.concat(files.map((file) => file.path))
+  const files = raceResult.files.slice(generated)
   if (files.length > 0) {
-    yield { files, written, paths }
-    generated.push(...files)
+    yield files
+    generated += files.length;
   }
 }

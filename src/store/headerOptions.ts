@@ -5,6 +5,8 @@ interface headerOptionStore {
   setTitle: (title: string | null) => void;
   activeView: "Preview" | "Editor" | null;
   setActiveView: (view: "Preview" | "Editor" | null) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 export const useHeaderOption = create<headerOptionStore>((set) => ({
@@ -12,4 +14,6 @@ export const useHeaderOption = create<headerOptionStore>((set) => ({
   setTitle: (title) => set({ title }),
   activeView: null,
   setActiveView: (view) => set({ activeView: view }),
+  loading: false,
+  setLoading: (loading) => set({ loading }),
 }));

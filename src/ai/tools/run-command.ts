@@ -4,20 +4,18 @@ import { Command, Sandbox } from '@vercel/sandbox'
 import { getRichError } from './get-rich-error'
 import { tool } from 'ai'
 import description from './run-command.md'
-import { getSandbox } from '../config'
+import { createSandbox } from '../config'
 import z from 'zod/v4'
 
 interface Params {
+  projectId: string
   writer: UIMessageStreamWriter<UIMessage<never, DataPart>>
 }
 
-export const runCommand = ({ writer }: Params) =>
+export const runCommand = ({ writer, projectId }: Params) =>
   tool({
     description,
     inputSchema: z.object({
-      sandboxId: z
-        .string()
-        .describe('The ID of the Vercel Sandbox to run the command in'),
       command: z
         .string()
         .describe(
@@ -40,23 +38,22 @@ export const runCommand = ({ writer }: Params) =>
         ),
     }),
     execute: async (
-      { sandboxId, command, sudo, wait, args = [] },
+      { command, sudo, wait, args = [] },
       { toolCallId }
     ) => {
       writer.write({
         id: toolCallId,
         type: 'data-run-command',
-        data: { sandboxId, command, args, status: 'executing' },
+        data: { command, args, status: 'executing' },
       })
 
       let sandbox: Sandbox | null = null
 
       try {
-        sandbox = await getSandbox(sandboxId)
+        sandbox = await createSandbox(projectId);
       } catch (error) {
         const richError = getRichError({
-          action: 'get sandbox by id',
-          args: { sandboxId },
+          action: 'get sandbox id',
           error,
         })
 
@@ -64,7 +61,6 @@ export const runCommand = ({ writer }: Params) =>
           id: toolCallId,
           type: 'data-run-command',
           data: {
-            sandboxId,
             command,
             args,
             error: richError.error,
@@ -87,7 +83,6 @@ export const runCommand = ({ writer }: Params) =>
       } catch (error) {
         const richError = getRichError({
           action: 'run command in sandbox',
-          args: { sandboxId },
           error,
         })
 
@@ -95,7 +90,6 @@ export const runCommand = ({ writer }: Params) =>
           id: toolCallId,
           type: 'data-run-command',
           data: {
-            sandboxId,
             command,
             args,
             error: richError.error,
@@ -110,7 +104,6 @@ export const runCommand = ({ writer }: Params) =>
         id: toolCallId,
         type: 'data-run-command',
         data: {
-          sandboxId,
           commandId: cmd.cmdId,
           command,
           args,
@@ -123,7 +116,6 @@ export const runCommand = ({ writer }: Params) =>
           id: toolCallId,
           type: 'data-run-command',
           data: {
-            sandboxId,
             commandId: cmd.cmdId,
             command,
             args,
@@ -131,17 +123,16 @@ export const runCommand = ({ writer }: Params) =>
           },
         })
 
-        return `The command \`${command} ${args.join(
-          ' '
-        )}\` has been started in the background in the sandbox with ID \`${sandboxId}\` with the commandId ${cmd.cmdId
-          }.`
+        return {
+          message: `The command '${command} ${args.join(' ')}' has been started in the background in the sandbox.`,
+          commandId: cmd.cmdId,
+        }
       }
 
       writer.write({
         id: toolCallId,
         type: 'data-run-command',
         data: {
-          sandboxId,
           commandId: cmd.cmdId,
           command,
           args,
@@ -160,7 +151,6 @@ export const runCommand = ({ writer }: Params) =>
           id: toolCallId,
           type: 'data-run-command',
           data: {
-            sandboxId,
             commandId: cmd.cmdId,
             command,
             args,
@@ -169,19 +159,15 @@ export const runCommand = ({ writer }: Params) =>
           },
         })
 
-        return (
-          `The command \`${command} ${args.join(
-            ' '
-          )}\` has finished with exit code ${done.exitCode}.` +
-          `Stdout of the command was: \n` +
-          `\`\`\`\n${stdout}\n\`\`\`\n` +
-          `Stderr of the command was: \n` +
-          `\`\`\`\n${stderr}\n\`\`\``
-        )
+        return {
+          message: `The command has finished with exit code ${done.exitCode}.`,
+          stdout,
+          stderr,
+        }
       } catch (error) {
         const richError = getRichError({
           action: 'wait for command to finish',
-          args: { sandboxId, commandId: cmd.cmdId },
+          args: { commandId: cmd.cmdId },
           error,
         })
 
@@ -189,7 +175,6 @@ export const runCommand = ({ writer }: Params) =>
           id: toolCallId,
           type: 'data-run-command',
           data: {
-            sandboxId,
             commandId: cmd.cmdId,
             command,
             args,

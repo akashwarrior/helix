@@ -3,12 +3,12 @@
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
-import { ChevronRight, FileCode, Loader2 } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { shikiToMonaco } from "@shikijs/monaco";
-import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { useTheme } from "next-themes";
 import type { Monaco } from "@monaco-editor/react";
-import useSWR from "swr";
+import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
+import { File } from "@/lib/types";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -124,15 +124,7 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor({ chatId, path }: { chatId: string, path: string }) {
-  const content = useSWR(
-    `/api/files/${chatId}?path=${path}`,
-    async (pathname: string, init: RequestInit) => {
-      const response = await fetch(pathname, init)
-      return response.text()
-    },
-  )
-
+export default function CodeEditor({ path, content }: File) {
   const { theme } = useTheme();
   const activeTheme = theme === "light" ? themes[1] : themes[0];
 
@@ -159,30 +151,6 @@ export default function CodeEditor({ chatId, path }: { chatId: string, path: str
     }
   };
 
-  if (!path) {
-    return (
-      <div className="h-full w-3/4 flex items-center justify-center bg-card/50 border border-border/50">
-        <div className="text-center text-muted-foreground">
-          <FileCode size={48} className="mx-auto mb-4 opacity-50" />
-          <p className="text-lg">No file selected</p>
-          <p className="text-sm">
-            Open a file from the explorer to start editing
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (content.isLoading || !content.data) {
-    return (
-      <div className="w-3/4 h-full flex items-center justify-center text-center">
-        <div className="flex-1">
-          <Loader2 className="animate-spin" size={8} />
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="w-3/4 h-full flex flex-col border bg-card/50 border-border/50 overflow-hidden">
       <div className="px-4 bg-muted/20 border-b border-border/30 text-xs">
@@ -191,7 +159,7 @@ export default function CodeEditor({ chatId, path }: { chatId: string, path: str
 
       <div className="flex-1 relative">
         <Editor
-          value={content.data}
+          value={content}
           language={detectLanguageFromFilename(path)}
           theme={activeTheme}
           beforeMount={monacoBeforeMount}
@@ -215,8 +183,8 @@ export default function CodeEditor({ chatId, path }: { chatId: string, path: str
 
       <div className="border-t border-border/30 bg-muted/20 px-4 py-1 flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center gap-4">
-          <span>Lines: {content.data.split("\n").length}</span>
-          <span>Size: {new Blob([content.data]).size} bytes</span>
+          <span>Lines: {content.split("\n").length}</span>
+          <span>Size: {new Blob([content]).size} bytes</span>
         </div>
         <div className="flex items-center gap-2">
           <span>UTF-8</span>

@@ -4,19 +4,19 @@ import { useSandboxStore } from '@/store/sandbox'
 import useSWR from 'swr'
 
 export function SandboxState() {
-  const { status, sandboxId, setStatus } = useSandboxStore()
+  const { sandboxId, setSandboxId } = useSandboxStore();
 
-  return sandboxId && status === 'running' ? (
-    <DirtyChecker sandboxId={sandboxId} setStatus={setStatus} />
+  return sandboxId ? (
+    <DirtyChecker sandboxId={sandboxId} setSandboxId={setSandboxId} />
   ) : null
 }
 
 interface DirtyCheckerProps {
   sandboxId: string
-  setStatus: (status: 'running' | 'stopped') => void
+  setSandboxId: (sandboxId: undefined) => void
 }
 
-function DirtyChecker({ sandboxId, setStatus }: DirtyCheckerProps) {
+function DirtyChecker({ sandboxId, setSandboxId }: DirtyCheckerProps) {
   const content = useSWR<'ok' | 'stopped'>(
     `/api/sandboxes/${sandboxId}`,
     async (pathname: string, init: RequestInit) => {
@@ -28,7 +28,7 @@ function DirtyChecker({ sandboxId, setStatus }: DirtyCheckerProps) {
   )
 
   if (content.data === 'stopped') {
-    setStatus('stopped')
+    setSandboxId(undefined);
   }
 
   return null

@@ -1,34 +1,40 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2, Globe, ExternalLinkIcon } from "lucide-react";
 import { useSandboxStore } from "@/store/sandbox";
+import { AlertCircle, Loader2, Globe, ExternalLinkIcon, RefreshCcwIcon } from "lucide-react";
 
 export default function Preview() {
-  const [inputValue, setInputValue] = useState('');
   const url = useSandboxStore(state => state.url);
+  const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const refreshIframe = () => {
     if (iframeRef.current && url) {
       setError(null)
+      setLoading(true)
       iframeRef.current.src = ''
       setTimeout(() => {
         if (iframeRef.current) {
-          iframeRef.current.src = url
+          iframeRef.current.src = url + inputValue
         }
       }, 10)
     }
   }
 
-  useEffect(() => {
-    refreshIframe()
-  }, [url])
-
-  const handleIframeLoad = () => setError(null)
-  const handleIframeError = () => setError('Failed to load the page')
+  const handleIframeLoad = () => {
+    console.log('iframe loaded')
+    setError(null);
+    setLoading(false);
+  }
+  const handleIframeError = () => {
+    setError('Failed to load the page');
+    setLoading(false);
+  }
 
   return (
     <>
@@ -61,10 +67,20 @@ export default function Preview() {
             <ExternalLinkIcon size={12} />
           </Button>
         </a>
+
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-6 text-muted-foreground hover:text-foreground/85"
+          onClick={refreshIframe}
+          disabled={loading}
+        >
+          <RefreshCcwIcon size={12} className={loading ? "animate-spin" : ""} />
+        </Button>
       </div>
       <div className="h-full flex flex-col border relative overflow-hidden">
-        <div className="flex-1 bg-white relative overflow-hidden flex">
-          {!url ? (
+        <div className="flex-1 bg-white relative overflow-hidden flex h-full items-center justify-center">
+          {(!url || loading) ? (
             <div className="flex flex-col items-center m-auto">
               <Loader2 size={34} className="text-blue-600 animate-spin mb-6" />
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -72,8 +88,8 @@ export default function Preview() {
               </h3>
               <p className="text-sm text-gray-600">Loading Your App</p>
             </div>
-          ) : error ? (
-            <div className="h-full flex-1 flex items-center justify-center bg-linear-to-br from-red-50 to-red-100">
+          ) : error && (
+            <div className="w-full h-full flex-1 flex items-center justify-center bg-linear-to-br from-red-50 to-red-100">
               <div className="text-center max-w-md mx-auto p-8">
                 <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-200">
                   <AlertCircle size={32} className="text-red-500" />
@@ -94,17 +110,17 @@ export default function Preview() {
                 </Button>
               </div>
             </div>
-          ) : (
-            <div className="relative w-full flex-1 h-full">
-              <iframe
-                ref={iframeRef}
-                src={url ? url + '/' + inputValue : ''}
-                className="w-full h-full border-none"
-                onLoad={handleIframeLoad}
-                onError={handleIframeError}
-                title="Browser content"
-              />
-            </div>
+          )}
+
+          {url && !error && (
+            <iframe
+              ref={iframeRef}
+              src={url + inputValue}
+              onLoad={handleIframeLoad}
+              onError={handleIframeError}
+              title="Browser content"
+              className={cn("w-full h-full border-none", loading && "hidden")}
+            />
           )}
         </div>
       </div>

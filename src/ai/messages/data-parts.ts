@@ -8,18 +8,16 @@ export const dataPartSchema = z.object({
   'project-name': z.object({
     name: z.string(),
   }),
-  'create-sandbox': z.object({
-    sandboxId: z.string().optional(),
-    status: z.enum(['loading', 'done', 'error']),
-    error: errorSchema.optional(),
-  }),
   'generating-files': z.object({
-    paths: z.array(z.string()),
-    status: z.enum(['generating', 'done', 'error']),
+    files: z.array(z.object({
+      path: z.string(),
+      status: z.enum(['generating', 'done', 'error']),
+      content: z.string(),
+    })),
+    sandboxId: z.string().optional(),
     error: errorSchema.optional(),
   }),
   'run-command': z.object({
-    sandboxId: z.string(),
     commandId: z.string().optional(),
     command: z.string(),
     args: z.array(z.string()),

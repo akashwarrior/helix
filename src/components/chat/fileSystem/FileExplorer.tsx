@@ -4,43 +4,24 @@ import { cn } from '@/lib/utils'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { buildFileTree, type FileNode } from './build-file-tree'
 import { useState, useEffect, useCallback, memo } from 'react'
-import { useSandboxStore } from '@/store/sandbox'
-import { useHeaderOption } from '@/store/headerOptions'
-import { useParams } from 'next/navigation'
 import CodeEditor from '../CodeEditor'
+import { useFileStore } from '@/store/file'
 import {
   ChevronRightIcon,
   FolderIcon,
   FileIcon,
   FolderOpenIcon,
+  FileCode,
 } from 'lucide-react'
 
 const FileExplorer = memo(function FileExplorer() {
-  const params = useParams<{ chatId: string }>();
-  const paths = useSandboxStore(state => state.paths)
+  const files = useFileStore(state => state.files)
   const [selected, setSelected] = useState<FileNode | null>(null)
   const [fs, setFs] = useState<FileNode[]>([])
-  const { sandboxId, setSandboxId, setUrl } = useSandboxStore();
-  const setActiveView = useHeaderOption(state => state.setActiveView);
 
   useEffect(() => {
-    setFs(buildFileTree(paths));
-
-    if (!sandboxId && paths.length > 0) {
-      fetch(`/api/sandboxes`, {
-        method: 'POST',
-        body: JSON.stringify({ projectId: params.chatId }),
-      }).then(res => res.json()).then(({ sandboxId, url }) => {
-        setSandboxId(sandboxId);
-        if (url) {
-          setUrl(url);
-          setActiveView("Preview");
-        } else {
-          setActiveView("Editor")
-        }
-      });
-    }
-  }, [paths])
+    setFs(buildFileTree(files.map(file => file.path)));
+  }, [files])
 
   const toggleFolder = useCallback((path: string) => {
     setFs((prev) => {
@@ -87,11 +68,21 @@ const FileExplorer = memo(function FileExplorer() {
         <div>{renderFileTree(fs)}</div>
       </ScrollArea>
 
-      {selected && (
+      {selected ? (
         <CodeEditor
-          chatId={params.chatId}
           path={selected.path.substring(1)}
+          content={files.find((file) => file.path === selected.path.substring(1))?.content || ''}
         />
+      ) : (
+        <div className="h-full w-3/4 flex items-center justify-center bg-card/50 border border-border/50">
+          <div className="text-center text-muted-foreground">
+            <FileCode size={48} className="mx-auto mb-4 opacity-50" />
+            <p className="text-lg">No file selected</p>
+            <p className="text-sm">
+              Open a file from the explorer to start editing
+            </p>
+          </div>
+        </div>
       )}
     </div>
   );

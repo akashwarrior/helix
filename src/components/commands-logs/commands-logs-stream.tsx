@@ -27,7 +27,6 @@ export function CommandLogsStream() {
           (async () => {
             for await (const log of iterator) {
               addLog({
-                sandboxId: sandboxId,
                 cmdId: command.cmdId,
                 log: log,
               })
@@ -35,7 +34,6 @@ export function CommandLogsStream() {
 
             const log = await getCommand(sandboxId, command.cmdId)
             upsertCommand({
-              sandboxId: log.sandboxId,
               cmdId: log.cmdId,
               exitCode: log.exitCode ?? 0,
               command: command.command,
@@ -87,9 +85,7 @@ async function* getCommandLogs(sandboxId: string, cmdId: string) {
 }
 
 const cmdSchema = z.object({
-  sandboxId: z.string(),
   cmdId: z.string(),
-  startedAt: z.number(),
   exitCode: z.number().optional(),
 })
 

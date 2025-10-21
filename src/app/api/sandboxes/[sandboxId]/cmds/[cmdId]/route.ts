@@ -20,9 +20,7 @@ export async function GET(
    */
   const done = await command.wait().catch(() => null)
   return NextResponse.json({
-    sandboxId: sandbox.sandboxId,
     cmdId: command.cmdId,
-    startedAt: command.startedAt,
     exitCode: done?.exitCode,
   })
 }

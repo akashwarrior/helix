@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getSandboxId, getSandboxUrl } from "@/ai/config"
+import { createSandbox } from "@/ai/config"
 
 export async function POST(request: NextRequest) {
     const { projectId } = await request.json() as { projectId: string };
@@ -7,11 +7,15 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
     try {
-        const sandboxId = await getSandboxId(projectId);
-        const url = await getSandboxUrl(sandboxId);
-
+        let url: string | null = null;
+        const sandbox = await createSandbox(projectId);
+        try {
+            url = sandbox.domain(3000);
+        } catch {
+            url = null;
+        }
         return NextResponse.json({
-            sandboxId,
+            sandboxId: sandbox.sandboxId,
             url,
         });
     } catch (error) {

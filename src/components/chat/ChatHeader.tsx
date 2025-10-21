@@ -1,24 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useHeaderOption } from "@/store/headerOptions";
-import { useSandboxStore } from "@/store/sandbox";
 import { TextEffect } from "../ui/text-effect";
-import { ArrowLeft, ChevronsLeft, GlobeIcon } from "lucide-react";
+import { ArrowLeft, GlobeIcon, Loader2 } from "lucide-react";
 import ProfileModal from "../ProfileModal";
 
 export default function ChatHeader() {
   const router = useRouter();
-  const status = useSandboxStore(state => state.status);
-  const { activeView, setActiveView, title } = useHeaderOption();
-
-  useEffect(() => {
-    if (status && activeView === null) {
-      setActiveView("Preview");
-    }
-  }, [status]);
+  const { setActiveView, title, loading } = useHeaderOption();
 
   return (
     <header className="sticky top-0 z-40 h-14 flex items-center px-3">
@@ -35,13 +26,13 @@ export default function ChatHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        {!activeView && (
+        {loading && (
           <Button
             size="sm"
             variant="outline"
             onClick={() => setActiveView("Preview")}
           >
-            <ChevronsLeft size={14} />
+            <Loader2 size={14} className="animate-spin" />
             <span className="hidden sm:inline">
               Workspace
             </span>

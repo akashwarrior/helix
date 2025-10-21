@@ -11,14 +11,10 @@ interface Params {
 }
 
 export function getWriteFiles({ sandbox, toolCallId, writer }: Params) {
-  return async function writeFiles(params: {
-    written: string[]
-    files: File[]
-    paths: string[]
-  }) {
+  return async function writeFiles(files: File[]) {
     try {
       await sandbox.writeFiles(
-        params.files.map((file) => ({
+        files.map((file) => ({
           content: Buffer.from(file.content, 'utf8'),
           path: file.path,
         }))
@@ -26,7 +22,7 @@ export function getWriteFiles({ sandbox, toolCallId, writer }: Params) {
     } catch (error) {
       const richError = getRichError({
         action: 'write files to sandbox',
-        args: params,
+        args: { files },
         error,
       })
 
@@ -35,8 +31,7 @@ export function getWriteFiles({ sandbox, toolCallId, writer }: Params) {
         type: 'data-generating-files',
         data: {
           error: richError.error,
-          status: 'error',
-          paths: params.paths,
+          files: files.map((file) => ({ ...file, status: 'error' })),
         },
       })
 

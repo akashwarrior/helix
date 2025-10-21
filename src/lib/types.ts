@@ -8,6 +8,11 @@ export interface ErrorState {
   message: string;
 }
 
+export interface File {
+  path: string;
+  content: string;
+}
+
 export interface FileNode {
   type: "file" | "folder";
   path: string;
@@ -15,7 +20,6 @@ export interface FileNode {
 
 export interface Command {
   background?: boolean
-  sandboxId: string
   cmdId: string
   startedAt: number
   command: string

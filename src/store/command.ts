@@ -4,7 +4,7 @@ import { create } from 'zustand'
 interface CommandStore {
     commands: Command[]
     upsertCommand: (command: Omit<Command, 'startedAt'>) => void
-    addLog: (data: { sandboxId: string; cmdId: string; log: CommandLog }) => void
+    addLog: (data: { cmdId: string; log: CommandLog }) => void
 }
 
 export const useCommandStore = create<CommandStore>((set) => ({

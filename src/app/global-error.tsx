@@ -27,7 +27,7 @@ export default function Error({ error }: ErrorProps) {
         transition={{ duration: 0.6 }}
         className="relative z-10 max-w-2xl mx-auto px-6"
       >
-        <div className="bg-card/60 supports-[backdrop-filter]:bg-card/70 border rounded-2xl p-8 backdrop-blur-md text-center">
+        <div className="bg-card/60 supports-backdrop-filter:bg-card/70 border rounded-2xl p-8 backdrop-blur-md text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

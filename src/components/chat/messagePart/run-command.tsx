@@ -13,12 +13,10 @@ export function RunCommand({ message }: { message: DataPart['run-command'] }) {
     title = 'Waiting'
   else if (message.status === 'running')
     title = 'Running in background'
-  else if (message.status === 'done' && message.exitCode !== 1)
+  else if (message.status === 'error' || message.exitCode === 1)
+    title = 'Errored'
+  else if (message.status === 'done')
     title = 'Finished'
-  else if (message.status === 'done' && message.exitCode === 1)
-    title = 'Errored'
-  else if (message.status === 'error')
-    title = 'Errored'
 
   return (
     <ToolMessage>

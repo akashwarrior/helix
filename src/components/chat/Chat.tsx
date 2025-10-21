@@ -5,7 +5,6 @@ import { useChat } from "@ai-sdk/react";
 import { motion } from "motion/react";
 import { ArrowUp, Loader2 } from "lucide-react";
 import { useLocalStorageValue } from "@/lib/useLocalStorageValue";
-import type { ChatUIMessage } from "@/lib/types";
 import { DefaultChatTransport } from "ai";
 import { Button } from '@/components/ui/button'
 import { ArrowDownIcon } from 'lucide-react'
@@ -13,28 +12,28 @@ import Message from "../chat/Message";
 import { StickToBottom, useStickToBottomContext } from 'use-stick-to-bottom'
 import { useDataStateMapper, useSandboxStore } from "@/store/sandbox";
 import { useHeaderOption } from "@/store/headerOptions";
+import { useFileStore } from "@/store/file";
+import type { ChatUIMessage, File } from "@/lib/types";
 
 interface Props {
   title: string | null,
   chatId: string,
   initialMessages: any[], // TODO: fix type
-  files: string[],
+  files: File[],
 }
 
 export default function Chat({ title, initialMessages, chatId, files }: Props) {
   const mapDataToStateRef = useRef(useDataStateMapper())
-  const { title: headerTitle, setTitle, setActiveView } = useHeaderOption();
-  const addPaths = useSandboxStore(state => state.addPaths);
+  const { title: headerTitle, setTitle, setActiveView, setLoading } = useHeaderOption();
+  const setFiles = useFileStore(state => state.setFiles);
+  const setSandboxId = useSandboxStore(state => state.setSandboxId);
+  const setUrl = useSandboxStore(state => state.setUrl);
   const [input, setInput] = useLocalStorageValue('prompt-input');
   const [submitted, setSubmitted] = useState<boolean>(false);
   const { messages, status, sendMessage, regenerate, stop } = useChat<ChatUIMessage>({
     messages: initialMessages,
-    transport: new DefaultChatTransport({
-      api: `/api/chat/${chatId}`,
-    }),
-    onData: (data) => {
-      mapDataToStateRef.current(data)
-    },
+    onData: (data) => mapDataToStateRef.current(data),
+    transport: new DefaultChatTransport({ api: `/api/chat/${chatId}` }),
   })
 
   useEffect(() => {
@@ -48,16 +47,31 @@ export default function Chat({ title, initialMessages, chatId, files }: Props) {
     }
 
     if (files.length > 0) {
-      addPaths(files)
-      setActiveView("Editor")
+      setLoading(true);
+      setFiles(files);
+      fetch(`/api/sandboxes`, {
+        method: 'POST',
+        body: JSON.stringify({ projectId: chatId }),
+      }).then(res => res.json()).then(({ sandboxId, url }) => {
+        setSandboxId(sandboxId);
+        if (url) {
+          setUrl(url);
+          setActiveView("Preview");
+        } else {
+          setActiveView("Editor")
+        }
+      }).finally(() => setLoading(false));
     }
 
     return () => {
       stop()
       setTitle(null);
       setActiveView(null);
+      setFiles([]);
+      setSandboxId(undefined);
+      setLoading(false);
     }
-  }, [])
+  }, [initialMessages, title, files])
 
   useEffect(() => {
     if (status === 'streaming' && submitted) {
