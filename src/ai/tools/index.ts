@@ -1,7 +1,6 @@
 import type { InferUITools, UIMessage, UIMessageStreamWriter } from 'ai'
 import type { DataPart } from '../messages/data-parts'
 import { generateFiles } from './generate-files'
-import { getSandboxURL } from './get-sandbox-url'
 import { runCommand } from './run-command'
 
 interface Params {
@@ -12,7 +11,6 @@ interface Params {
 export function tools({ writer, projectId }: Params) {
   return {
     generateFiles: generateFiles({ writer, projectId }),
-    getSandboxURL: getSandboxURL({ writer, projectId }),
     runCommand: runCommand({ writer, projectId }),
   }
 }

@@ -16,10 +16,11 @@ export function getRichError({ action, args, error }: Params) {
   if (args) message += `\nParameters: ${JSON.stringify(args, null, 2)}`
   if (fields.json) message += `\nJSON: ${JSON.stringify(fields.json, null, 2)}`
   if (fields.text) message += `\nText: ${fields.text}`
-  return {
+  const err =  {
     message: message,
     error: fields,
   }
+  return err;
 }
 
 function getErrorFields(error: unknown) {

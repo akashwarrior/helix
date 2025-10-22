@@ -25,14 +25,20 @@ export function useDataStateMapper() {
   const addFiles = useFileStore(state => state.addFiles);
   const upsertCommand = useCommandStore(state => state.upsertCommand)
   const setActiveView = useHeaderOption(state => state.setActiveView);
+  const setTitle = useHeaderOption(state => state.setTitle);
 
   return (data: DataUIPart<DataPart>) => {
     switch (data.type) {
+      case 'data-project-name':
+        setTitle(data.data.name);
+        break;
+
       case 'data-generating-files':
         addFiles(data.data.files);
-        if (data.data.sandboxId) {
+        if (data.data.sandboxId && data.data.url) {
+          setActiveView("Preview")
           setSandboxId(data.data.sandboxId)
-          setActiveView("Editor")
+          setUrl(data.data.url)
         }
         break;
 
@@ -47,13 +53,6 @@ export function useDataStateMapper() {
             command: data.data.command,
             args: data.data.args,
           })
-        }
-        break;
-
-      case 'data-get-sandbox-url':
-        if (data.data.url) {
-          setUrl(data.data.url)
-          setActiveView("Preview")
         }
         break;
 

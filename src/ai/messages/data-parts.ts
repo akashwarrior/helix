@@ -15,6 +15,7 @@ export const dataPartSchema = z.object({
       content: z.string(),
     })),
     sandboxId: z.string().optional(),
+    url: z.string().optional(),
     error: errorSchema.optional(),
   }),
   'run-command': z.object({
@@ -24,11 +25,7 @@ export const dataPartSchema = z.object({
     status: z.enum(['executing', 'running', 'waiting', 'done', 'error']),
     exitCode: z.number().optional(),
     error: errorSchema.optional(),
-  }),
-  'get-sandbox-url': z.object({
-    url: z.string().optional(),
-    status: z.enum(['loading', 'done']),
-  }),
+  })
 })
 
 export type DataPart = z.infer<typeof dataPartSchema>

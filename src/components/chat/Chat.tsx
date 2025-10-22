@@ -24,7 +24,7 @@ interface Props {
 
 export default function Chat({ title, initialMessages, chatId, files }: Props) {
   const mapDataToStateRef = useRef(useDataStateMapper())
-  const { title: headerTitle, setTitle, setActiveView, setLoading } = useHeaderOption();
+  const { setTitle, setActiveView, setLoading } = useHeaderOption();
   const setFiles = useFileStore(state => state.setFiles);
   const setSandboxId = useSandboxStore(state => state.setSandboxId);
   const setUrl = useSandboxStore(state => state.setUrl);
@@ -78,16 +78,6 @@ export default function Chat({ title, initialMessages, chatId, files }: Props) {
       setSubmitted(false)
     }
   }, [status])
-
-  useEffect(() => {
-    if (!headerTitle && messages.length === 2) {
-      for (const part of messages[1].parts) {
-        if (part.type === 'data-project-name') {
-          setTitle(part.data.name);
-        }
-      }
-    }
-  }, [messages.length === 2 && messages[1].parts.length]);
 
   const validateAndSubmitMessage = (text: string) => {
     if (text.trim()) {

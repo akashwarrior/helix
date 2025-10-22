@@ -1,10 +1,9 @@
 import type { UIMessageStreamWriter, UIMessage } from 'ai'
 import type { DataPart } from '../messages/data-parts'
-import type { Sandbox } from '@vercel/sandbox'
 import { getContents } from './generate-files/get-contents'
 import { getRichError } from './get-rich-error'
-import { getWriteFiles } from './generate-files/get-write-files'
-import { createSandbox } from '../config'
+import { uploadFilesToS3 } from '@/lib/s3'
+import { createSandbox, writeFilesToSandbox } from '@/lib/sandbox'
 import description from './generate-files.md'
 import { tool } from 'ai'
 import z from 'zod/v4'
@@ -27,48 +26,19 @@ export const generateFiles = ({ writer, projectId }: Params) =>
 
       writer.write({ id: toolCallId, type: 'data-generating-files', data: { files } })
 
-      let sandbox: Sandbox | null = null;
-
-      try {
-        sandbox = await createSandbox(projectId);
-      } catch (error) {
-        const richError = getRichError({
-          action: 'get sandbox id',
-          error,
-        })
-
-        writer.write({
-          id: toolCallId,
-          type: 'data-generating-files',
-          data: { error: richError.error, files: files.map((file) => ({ ...file, status: 'error' })) },
-        })
-
-        console.log('error in generate files', richError.message);
-        return richError.message
-      }
-
-      const writeFiles = getWriteFiles({ sandbox, toolCallId, writer })
-      const iterator = getContents({ messages, paths, projectId })
-
-      writer.write({ id: toolCallId, type: 'data-generating-files', data: { files, sandboxId: sandbox.sandboxId } })
+      const sandbox = createSandbox(projectId, false);
+      const iterator = getContents({ messages, paths });
 
       try {
         for await (const chunk of iterator) {
-          if (chunk.length > 0) {
-            const error = await writeFiles(chunk)
-            if (error) {
-              return error
-            } else {
-              files.forEach((file) => {
-                const chunkFile = chunk.find((f) => f.path === file.path);
-                if (chunkFile) {
-                  file.content = chunkFile.content;
-                  file.status = 'done';
-                }
-              });
-              writer.write({ id: toolCallId, type: 'data-generating-files', data: { files } })
+          files.forEach((file) => {
+            const chunkFile = chunk.find((f) => f.path === file.path);
+            if (chunkFile) {
+              file.content = chunkFile.content;
+              file.status = 'done';
             }
-          }
+          });
+          writer.write({ id: toolCallId, type: 'data-generating-files', data: { files } })
         }
       } catch (error) {
         const richError = getRichError({
@@ -82,7 +52,38 @@ export const generateFiles = ({ writer, projectId }: Params) =>
           type: 'data-generating-files',
           data: {
             error: richError.error,
-            files: paths.map((path) => ({ path, content: '', status: 'error' })),
+            files: files.map((file) => ({ ...file, status: 'error' })),
+          },
+        })
+        return richError.message
+      }
+
+
+      try {
+        const sandboxInstance = await sandbox;
+        await Promise.all([uploadFilesToS3(projectId, files), writeFilesToSandbox(sandboxInstance, files)]);
+
+        const url = sandboxInstance.domain(3000);
+
+        writer.write({
+          id: toolCallId,
+          type: 'data-generating-files',
+          data: { files, sandboxId: sandboxInstance.sandboxId, url }
+        });
+
+      } catch (error) {
+        const richError = getRichError({
+          action: 'write files to sandbox',
+          args: { files },
+          error,
+        })
+
+        writer.write({
+          id: toolCallId,
+          type: 'data-generating-files',
+          data: {
+            error: richError.error,
+            files: files.map((file) => ({ ...file, status: 'error' })),
           },
         })
 

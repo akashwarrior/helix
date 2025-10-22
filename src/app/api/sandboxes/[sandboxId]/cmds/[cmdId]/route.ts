@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { getSandbox } from '@/ai/config'
+import { getSandbox } from '@/lib/sandbox'
 
 interface Params {
   sandboxId: string

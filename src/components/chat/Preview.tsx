@@ -31,6 +31,7 @@ export default function Preview() {
     setError(null);
     setLoading(false);
   }
+  
   const handleIframeError = () => {
     setError('Failed to load the page');
     setLoading(false);

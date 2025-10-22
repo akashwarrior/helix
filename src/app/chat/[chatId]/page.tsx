@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import Chat from "@/components/chat/Chat";
 import prisma from "@/lib/db";
 import { notFound } from "next/navigation";
-import { getFiles } from "@/ai/config";
+import { getFilesFromS3 } from "@/lib/s3";
 import type { File } from "@/lib/types";
 
 export default async function ChatPage({ params }: { params: Promise<{ chatId: string }> }) {
@@ -27,7 +27,7 @@ export default async function ChatPage({ params }: { params: Promise<{ chatId: s
   let files: File[] = [];
 
   try {
-    files = await getFiles(chatId);
+    files = await getFilesFromS3(chatId);
   } catch {
     console.log("Bucket not found");
   }

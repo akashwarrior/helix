@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createSandbox } from "@/ai/config"
+import { createSandbox } from "@/lib/sandbox"
 
 export async function POST(request: NextRequest) {
     const { projectId } = await request.json() as { projectId: string };

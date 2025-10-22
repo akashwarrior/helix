@@ -1,8 +1,7 @@
 import { streamObject, type ModelMessage } from 'ai'
 import { getModelOptions } from '@/ai/config'
 import { Deferred } from '@/lib/deferred'
-import { CreateBucketCommand, PutObjectCommand } from '@aws-sdk/client-s3'
-import { createS3Client } from '@/lib/s3'
+import prompt from './get-contents.md'
 import z from 'zod/v4'
 
 export type File = z.infer<typeof fileSchema>
@@ -11,7 +10,7 @@ const fileSchema = z.object({
   path: z
     .string()
     .describe(
-      "Path to the file in the Vercel Sandbox (relative paths from sandbox root, e.g., 'src/main.js', 'package.json', 'components/Button.tsx')"
+      "Path to the file in the Sandbox (relative paths from sandbox root, e.g., 'src/main.js', 'package.json', 'components/Button.tsx')"
     ),
   content: z
     .string()
@@ -23,15 +22,15 @@ const fileSchema = z.object({
 interface Params {
   messages: ModelMessage[]
   paths: string[]
-  projectId: string
 }
 
-export async function* getContents({ messages, paths, projectId }: Params): AsyncGenerator<File[]> {
+export async function* getContents({ messages, paths }: Params): AsyncGenerator<File[]> {
   const deferred = new Deferred<void>()
   const result = streamObject({
     ...getModelOptions(),
-    system:
-      'You are a file content generator. You must generate files based on the conversation history and the provided paths. NEVER generate lock files (pnpm-lock.yaml, package-lock.json, yarn.lock) - these are automatically created by package managers.',
+    system: prompt,
+
+    // TODO: instead of all messages, only send the last user message and let it decide what to generate/update
     messages: [
       ...messages,
       {
@@ -41,35 +40,13 @@ export async function* getContents({ messages, paths, projectId }: Params): Asyn
         )}`,
       },
     ],
+
+    // TODO: add git patches so it can generate files based on the changes in the codebase without overwhelming the context window
     schema: z.object({ files: z.array(fileSchema) }),
     onError: (error) => {
       deferred.reject(error)
       console.error('Error communicating with AI')
       console.error(JSON.stringify(error, null, 2))
-    },
-    onFinish: async ({ object }) => {
-      const client = createS3Client();
-      try {
-        await client.send(new CreateBucketCommand({ Bucket: projectId }));
-      } catch {
-        console.error('Bucket already exists');
-      }
-      const promises = [];
-
-      for (const file of (object?.files ?? [])) {
-        if (!file.path || !file.content) {
-          continue
-        }
-        const command = new PutObjectCommand({
-          Bucket: projectId,
-          Key: file.path,
-          Body: file.content,
-        });
-
-        promises.push(client.send(command));
-      }
-      await Promise.all(promises);
-      client.destroy();
     },
   })
 

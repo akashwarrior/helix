@@ -4,7 +4,7 @@ import { Command, Sandbox } from '@vercel/sandbox'
 import { getRichError } from './get-rich-error'
 import { tool } from 'ai'
 import description from './run-command.md'
-import { createSandbox } from '../config'
+import { createSandbox } from '@/lib/sandbox'
 import z from 'zod/v4'
 
 interface Params {
