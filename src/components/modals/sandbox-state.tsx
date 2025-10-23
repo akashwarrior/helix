@@ -1,35 +1,29 @@
 'use client'
 
 import { useSandboxStore } from '@/store/sandbox'
-import useSWR from 'swr'
+import { useEffect } from 'react';
 
 export function SandboxState() {
   const { sandboxId, setSandboxId } = useSandboxStore();
 
-  return sandboxId ? (
-    <DirtyChecker sandboxId={sandboxId} setSandboxId={setSandboxId} />
-  ) : null
-}
+  useEffect(() => {
+    if (!sandboxId) return;
 
-interface DirtyCheckerProps {
-  sandboxId: string
-  setSandboxId: (sandboxId: undefined) => void
-}
+    const revalidate = async () => {
+      const res = await fetch(`/api/sandboxes/${sandboxId}`)
+      const { status } = await res.json();
 
-function DirtyChecker({ sandboxId, setSandboxId }: DirtyCheckerProps) {
-  const content = useSWR<'ok' | 'stopped'>(
-    `/api/sandboxes/${sandboxId}`,
-    async (pathname: string, init: RequestInit) => {
-      const response = await fetch(pathname, init)
-      const { status } = await response.json()
-      return status
-    },
-    { refreshInterval: 1000 }
-  )
+      if (status === "stopping" || status === "stopped" || status === "failed") {
+        setSandboxId(undefined);
+      }
+    }
 
-  if (content.data === 'stopped') {
-    setSandboxId(undefined);
-  }
+    const timeout = setTimeout(revalidate, 2000);
+
+    return () => {
+      clearTimeout(timeout)
+    }
+  }, [sandboxId])
 
   return null
 }

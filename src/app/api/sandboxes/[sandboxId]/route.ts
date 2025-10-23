@@ -1,31 +1,16 @@
-import { APIError } from '@vercel/sandbox/dist/api-client/api-error'
 import { NextRequest, NextResponse } from 'next/server'
-import { getSandbox } from '@/ai/config'
+import { getSandbox } from '@/lib/sandbox'
 
-/**
- * We must change the SDK to add data to the instance and then
- * use it to retrieve the status of the Sandbox.
- */
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ sandboxId: string }> }
 ) {
   const { sandboxId } = await params
   try {
-    const sandbox = await getSandbox(sandboxId)
-    await sandbox.runCommand({
-      cmd: 'echo',
-      args: ['Sandbox status check'],
-    })
-    return NextResponse.json({ status: 'running' })
+    const { status } = await getSandbox(sandboxId)
+    return NextResponse.json({ status })
   } catch (error) {
-    if (
-      error instanceof APIError &&
-      error.json.error.code === 'sandbox_stopped'
-    ) {
-      return NextResponse.json({ status: 'stopped' })
-    } else {
-      throw error
-    }
+    console.error(error)
+    return NextResponse.json({ error: 'Failed to fetch sandbox status' }, { status: 500 })
   }
 }

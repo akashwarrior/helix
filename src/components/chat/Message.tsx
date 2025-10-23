@@ -21,14 +21,11 @@ const Message = memo(function Message({ message }: { message: ChatUIMessage }) {
   const [expandedReasoningIndex, setExpandedReasoningIndex] = useState<number | null>(null)
 
   useEffect(() => {
-    const parts = message.parts;
-    const lastIdx = parts.length - 1
-    if (lastIdx >= 0) {
-      if (parts[lastIdx].type === 'reasoning') {
-        setExpandedReasoningIndex(lastIdx)
-      } else if (expandedReasoningIndex) {
-        setExpandedReasoningIndex(null)
-      }
+    const isReasoning = message.parts.at(-1)?.type === 'reasoning';
+    if (isReasoning) {
+      setExpandedReasoningIndex(message.parts.length - 1)
+    } else if (expandedReasoningIndex) {
+      setExpandedReasoningIndex(null)
     }
   }, [message]);
 
