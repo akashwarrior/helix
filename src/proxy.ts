@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { auth } from "./lib/auth/auth";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/api/auth")) {
@@ -32,6 +32,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  runtime: "nodejs",
   matcher: ["/api/:path*", "/chat/:path*"],
 };

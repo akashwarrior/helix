@@ -1,6 +1,5 @@
 import type { JSONValue } from "ai";
 import { google } from "@ai-sdk/google";
-import type { LanguageModelV2 } from "@ai-sdk/provider";
 
 export type GoogleModels = Parameters<typeof google>[0];
 export const DEFAULT_MODEL: GoogleModels =
@@ -15,7 +14,7 @@ export function getAvailableModels() {
 }
 
 export interface ModelOptions {
-  model: LanguageModelV2;
+  model: ReturnType<typeof google>;
   providerOptions?: Record<string, Record<string, JSONValue>>;
 }
 

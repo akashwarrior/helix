@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { buildFileTree, type FileNode } from "./build-file-tree";
 import { useState, useEffect, useCallback, memo } from "react";
 import CodeEditor from "../code-editor";
@@ -67,9 +66,9 @@ const FileExplorer = memo(function FileExplorer() {
 
   return (
     <div className="h-full flex border relative overflow-hidden">
-      <ScrollArea className="w-1/4 border-r border-primary/18">
+      <div className="w-1/4 border-r border-primary/18">
         <div>{renderFileTree(fs)}</div>
-      </ScrollArea>
+      </div>
 
       {selected ? (
         <CodeEditor

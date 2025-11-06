@@ -1,7 +1,11 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
+import { getRedisClient } from "@/lib/redis";
 import prisma from "@/lib/db";
+
+const redis = getRedisClient();
+await redis.connect();
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
@@ -21,8 +25,21 @@ export const auth = betterAuth({
   session: {
     cookieCache: {
       enabled: true,
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60, // 1 hour
     },
+  },
+
+  secondaryStorage: {
+    get: async (key) => {
+      return await redis.get(key);
+    },
+    set: async (key, value, ttl) => {
+      if (ttl) await redis.set(key, value, { expiration: { type: 'EX', value: ttl } });
+      else await redis.set(key, value);
+    },
+    delete: async (key) => {
+      await redis.del(key);
+    }
   },
 
   plugins: [nextCookies()],

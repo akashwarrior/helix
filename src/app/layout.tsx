@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
@@ -71,9 +71,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+
+          <Toaster />
         </ThemeProvider>
 
-        <Toaster />
         <SpeedInsights />
         <Analytics />
       </body>
