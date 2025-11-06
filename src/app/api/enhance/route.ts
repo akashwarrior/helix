@@ -1,5 +1,10 @@
 import { NextRequest } from "next/server";
-import { convertToModelMessages, smoothStream, streamText, UIMessage } from "ai";
+import {
+  convertToModelMessages,
+  smoothStream,
+  streamText,
+  UIMessage,
+} from "ai";
 import { getModelOptions } from "@/ai/config";
 
 export async function POST(req: NextRequest) {

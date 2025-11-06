@@ -46,3 +46,124 @@ Avoid using this tool when:
 ## Summary
 
 Use Generate Files to programmatically create or update files in Sandbox. It enables fast iteration, contextual coding, and dynamic file management, all driven by user intent and conversation context.
+
+this is the initial project structure and give pathname based on this structure 
+
+
+{
+    "public": [
+        "file.svg",
+        "globe.svg",
+        "next.svg",
+        "vercel.svg",
+        "window.svg"
+    ],
+    "src": {
+        "app": [
+            "favicon.ico",
+            "globals.css",
+            "layout.tsx",
+            "page.tsx"
+        ],
+        "components": {
+            "ui": [
+                "accordion.tsx",
+                "alert-dialog.tsx",
+                "alert.tsx",
+                "animated-background.tsx",
+                "animated-group.tsx",
+                "animated-number.tsx",
+                "aspect-ratio.tsx",
+                "avatar.tsx",
+                "badge.tsx",
+                "border-trail.tsx",
+                "breadcrumb.tsx",
+                "button-group.tsx",
+                "button.tsx",
+                "calendar.tsx",
+                "card.tsx",
+                "carousel.tsx",
+                "chart.tsx",
+                "checkbox.tsx",
+                "collapsible.tsx",
+                "command.tsx",
+                "context-menu.tsx",
+                "cursor.tsx",
+                "dialog.tsx",
+                "dock.tsx",
+                "drawer.tsx",
+                "dropdown-menu.tsx",
+                "empty.tsx",
+                "field.tsx",
+                "form.tsx",
+                "glow-effect.tsx",
+                "hover-card.tsx",
+                "image-comparison.tsx",
+                "in-view.tsx",
+                "infinite-slider.tsx",
+                "input-group.tsx",
+                "input-otp.tsx",
+                "input.tsx",
+                "item.tsx",
+                "kbd.tsx",
+                "label.tsx",
+                "magnetic.tsx",
+                "menubar.tsx",
+                "navigation-menu.tsx",
+                "pagination.tsx",
+                "popover.tsx",
+                "progress.tsx",
+                "progressive-blur.tsx",
+                "radio-group.tsx",
+                "resizable.tsx",
+                "scroll-area.tsx",
+                "scroll-progress.tsx",
+                "select.tsx",
+                "separator.tsx",
+                "sheet.tsx",
+                "sidebar.tsx",
+                "skeleton.tsx",
+                "slider.tsx",
+                "sliding-number.tsx",
+                "sonner.tsx",
+                "spinner.tsx",
+                "spinning-text.tsx",
+                "spotlight.tsx",
+                "switch.tsx",
+                "table.tsx",
+                "tabs.tsx",
+                "text-effect.tsx",
+                "text-loop.tsx",
+                "text-morph.tsx",
+                "text-roll.tsx",
+                "text-scramble.tsx",
+                "text-shimmer-wave.tsx",
+                "text-shimmer.tsx",
+                "textarea.tsx",
+                "tilt.tsx",
+                "toggle-group.tsx",
+                "toggle.tsx",
+                "tooltip.tsx",
+                "transition-panel.tsx"
+            ]
+        },
+        "hooks": [
+            "use-mobile.ts"
+        ],
+        "lib": [
+            "utils.ts"
+        ]
+    },
+    "files": [
+        ".gitignore",
+        "components.json",
+        "eslint.config.mjs",
+        "next-env.d.ts",
+        "next.config.mjs",
+        "package.json",
+        "pnpm-lock.yaml",
+        "postcss.config.mjs",
+        "README.md",
+        "tsconfig.json"
+    ]
+}

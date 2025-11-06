@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
@@ -9,86 +9,86 @@ import { useTheme } from "next-themes";
 import type { Monaco } from "@monaco-editor/react";
 import { type BundledLanguage, BundledTheme, createHighlighter } from "shiki";
 import { File } from "@/lib/types";
+import { memo } from "react";
 
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 const themes: BundledTheme[] = ["vitesse-dark", "vitesse-light"];
 const extensionMap: Record<string, BundledLanguage> = {
   // JavaScript/TypeScript
-  js: 'jsx',
-  jsx: 'jsx',
-  ts: 'typescript',
-  tsx: 'tsx',
-  mjs: 'javascript',
-  cjs: 'javascript',
+  js: "jsx",
+  jsx: "jsx",
+  ts: "typescript",
+  tsx: "tsx",
+  mjs: "javascript",
+  cjs: "javascript",
 
   // Python
-  py: 'python',
-  pyw: 'python',
-  pyi: 'python',
+  py: "python",
+  pyw: "python",
+  pyi: "python",
 
   // Web technologies
-  html: 'html',
-  htm: 'html',
-  css: 'css',
-  scss: 'scss',
-  sass: 'sass',
-  less: 'less',
+  html: "html",
+  htm: "html",
+  css: "css",
+  scss: "scss",
+  sass: "sass",
+  less: "less",
 
   // Other popular languages
-  java: 'java',
-  c: 'c',
-  cpp: 'cpp',
-  cxx: 'cpp',
-  cc: 'cpp',
-  h: 'c',
-  hpp: 'cpp',
-  cs: 'csharp',
-  php: 'php',
-  rb: 'ruby',
-  go: 'go',
-  rs: 'rust',
-  swift: 'swift',
-  kt: 'kotlin',
-  scala: 'scala',
-  sh: 'bash',
-  bash: 'bash',
-  zsh: 'bash',
-  fish: 'bash',
-  ps1: 'powershell',
+  java: "java",
+  c: "c",
+  cpp: "cpp",
+  cxx: "cpp",
+  cc: "cpp",
+  h: "c",
+  hpp: "cpp",
+  cs: "csharp",
+  php: "php",
+  rb: "ruby",
+  go: "go",
+  rs: "rust",
+  swift: "swift",
+  kt: "kotlin",
+  scala: "scala",
+  sh: "bash",
+  bash: "bash",
+  zsh: "bash",
+  fish: "bash",
+  ps1: "powershell",
 
   // Data formats
-  json: 'json',
-  xml: 'xml',
-  yaml: 'yaml',
-  yml: 'yaml',
-  toml: 'toml',
-  ini: 'ini',
+  json: "json",
+  xml: "xml",
+  yaml: "yaml",
+  yml: "yaml",
+  toml: "toml",
+  ini: "ini",
 
   // Markup
-  md: 'markdown',
-  markdown: 'markdown',
-  tex: 'latex',
+  md: "markdown",
+  markdown: "markdown",
+  tex: "latex",
 
   // Database
-  sql: 'sql',
+  sql: "sql",
 
   // Config files
-  dockerfile: 'dockerfile',
-  gitignore: 'bash',
-  env: 'bash',
-}
+  dockerfile: "dockerfile",
+  gitignore: "bash",
+  env: "bash",
+};
 
 function detectLanguageFromFilename(path: string): string {
-  const pathParts = path.split('/')
+  const pathParts = path.split("/");
   const extension = pathParts[pathParts.length - 1]
-    ?.split('.')
+    ?.split(".")
     .pop()
-    ?.toLowerCase()
+    ?.toLowerCase();
 
-  return extensionMap[extension || ''] || 'text'
+  return extensionMap[extension || ""] || "text";
 }
-
 
 const Breadcrumb = ({ path }: { path: string }) => {
   const parts = path.split("/").filter(Boolean);
@@ -124,7 +124,7 @@ const Breadcrumb = ({ path }: { path: string }) => {
   );
 };
 
-export default function CodeEditor({ path, content }: File) {
+function CodeEditor({ path, content }: File) {
   const { theme } = useTheme();
   const activeTheme = theme === "light" ? themes[1] : themes[0];
 
@@ -193,3 +193,5 @@ export default function CodeEditor({ path, content }: File) {
     </div>
   );
 }
+
+export default memo(CodeEditor);

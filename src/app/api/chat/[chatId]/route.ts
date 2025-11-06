@@ -3,7 +3,7 @@ import { ChatUIMessage } from "@/lib/types";
 import { tools } from "@/ai/tools";
 import { getModelOptions } from "@/ai/config";
 import prompt from "./prompt.md";
-import prisma from '@/lib/db'
+import prisma from "@/lib/db";
 import { Role } from "@/generated/prisma/enums";
 import type { MessageCreateManyInput } from "@/generated/prisma/models";
 import z from "zod/v4";
@@ -15,25 +15,41 @@ import {
   generateObject,
   stepCountIs,
   streamText,
-} from 'ai'
-
+} from "ai";
+import { headers } from "next/headers";
 
 interface BodyData {
-  messages: ChatUIMessage[]
-  modelId?: string
-  trigger?: string
+  messages: ChatUIMessage[];
+  modelId?: string;
+  trigger?: string;
 }
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ chatId: string }> },
 ) {
-  const { chatId } = await params;
+  const [{ chatId }, headerlist] = await Promise.all([params, headers()]);
+  const userId = headerlist.get("x-user-id")!;
+
   if (!chatId) {
     return Response.json({ message: "Chat ID is required" }, { status: 400 });
   }
 
-  const { messages, modelId, trigger } = await req.json() as BodyData;
+  const project = await prisma.project.findUnique({
+    where: {
+      id: chatId,
+      userId: userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!project) {
+    return Response.json({ message: "Chat not found" }, { status: 404 });
+  }
+
+  const { messages, modelId, trigger } = (await req.json()) as BodyData;
 
   return createUIMessageStreamResponse({
     stream: createUIMessageStream({
@@ -43,25 +59,30 @@ export async function POST(
         let nameResult: Promise<void> | null = null;
         if (messages.length === 1) {
           nameResult = generateObject({
-            system: 'You are a conversation/chat session name generator. You must generate a name for the conversation/chat session based on the user prompt. try to make it as short as possible.',
+            system:
+              "You are a conversation/chat session name generator. You must generate a name for the conversation/chat session based on the user prompt. try to make it as short as possible.",
             ...getModelOptions(modelId),
             messages: convertToModelMessages(messages),
             schema: z.object({
-              name: z.string().describe('The name of the conversation/chat session'),
+              name: z
+                .string()
+                .describe("The name of the conversation/chat session"),
             }),
           }).then(async (result) => {
-            const name = result.object?.name ?? 'untitled';
+            const name = result.object?.name ?? "untitled";
             writer.write({
-              type: 'data-project-name',
+              type: "data-project-name",
               data: { name: name },
-            })
-            prisma.project.update({
-              where: { id: chatId },
-              data: { name: name }
-            }).catch((error) => {
-              console.error('Failed updating project name', error);
             });
-          })
+            prisma.project
+              .update({
+                where: { id: chatId },
+                data: { name: name },
+              })
+              .catch((error) => {
+                console.error("Failed updating project name", error);
+              });
+          });
         }
 
         // stream text
@@ -72,23 +93,23 @@ export async function POST(
           stopWhen: stepCountIs(20),
           tools: tools({ projectId: chatId, writer }),
           onError: (error) => {
-            console.error('Error communicating with AI');
+            console.error("Error communicating with AI");
             console.error(JSON.stringify(error, null, 2));
           },
-        })
-        result.consumeStream()
+        });
+        result.consumeStream();
         writer.merge(
           result.toUIMessageStream({
             sendReasoning: true,
             sendStart: false,
-          })
-        )
+          }),
+        );
         // waiting for project name to be generated before stream ends
         await nameResult;
       },
       onFinish: async ({ responseMessage }) => {
         try {
-          const isRegenerate = trigger === 'regenerate-message';
+          const isRegenerate = trigger === "regenerate-message";
           const messagesToCreate: MessageCreateManyInput[] = [];
 
           if (!isRegenerate) {
@@ -98,7 +119,7 @@ export async function POST(
               role: Role.user,
               parts: lastMessage.parts as Record<string, string>[],
               projectId: chatId,
-            })
+            });
           }
 
           messagesToCreate.push({
@@ -106,13 +127,13 @@ export async function POST(
             role: Role.assistant,
             parts: responseMessage.parts as Record<string, string>[],
             projectId: chatId,
-          })
+          });
 
           await prisma.message.createMany({
             data: messagesToCreate,
-          })
+          });
         } catch (e) {
-          console.error("Failed updating message", e)
+          console.error("Failed updating message", e);
         }
       },
     }),

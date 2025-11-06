@@ -1,23 +1,36 @@
-import ChatHeader from "@/components/chat/ChatHeader";
-import WorkBench from "@/components/chat/WorkBench";
-import { CommandLogsStream } from "@/components/commands-logs/commands-logs-stream";
-import { SandboxState } from "@/components/modals/sandbox-state";
 import { Suspense } from "react";
+import { ChatInput } from "@/components/chat/chat-input";
+import { ChatProvider } from "@/context/chat-context";
+import { ChatHeader } from "@/components/chat/chat-header";
+import { WorkBench } from "./workbench";
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    return (
-        <div className="flex h-screen overflow-hidden flex-col relative">
-            <ChatHeader />
+export default async function RootLayout({
+  children,
+  params,
+}: Readonly<{
+  children: React.ReactNode;
+  params: Promise<{ chatId: string }>;
+}>) {
+  const { chatId } = await params;
 
-            <main className="flex-1 flex overflow-hidden w-full z-10">
-                <Suspense>
-                    {children}
-                </Suspense>
+  return (
+    <ChatProvider chatId={chatId}>
+      <div className="flex h-screen overflow-hidden flex-col relative">
+        <ChatHeader />
 
-                <WorkBench />
-                <CommandLogsStream />
-                <SandboxState />
-            </main>
-        </div>
-    );
+        <main className="flex-1 flex overflow-hidden w-full z-10">
+          <div className="overflow-hidden h-full flex flex-col flex-1">
+            <div className="flex-1 flex overflow-hidden">
+              <Suspense>{children}</Suspense>
+            </div>
+            <ChatInput chatId={chatId} />
+          </div>
+
+          <Suspense>
+            <WorkBench chatId={chatId} />
+          </Suspense>
+        </main>
+      </div>
+    </ChatProvider>
+  );
 }

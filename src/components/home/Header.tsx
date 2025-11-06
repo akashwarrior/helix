@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { PanelLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useSession } from "@/lib/auth/auth-client";
-import { useSidebarStore } from "@/store/toggleSidebar";
+import { useSidebarStore } from "@/store/toggle-sidebar";
 import { motion } from "motion/react";
-import ProfileModal from "@/components/ProfileModal";
+import ProfileModal from "@/components/profile-dropdown";
 
 const XIcon = ({ size = 20 }: { size?: number }) => (
   <svg

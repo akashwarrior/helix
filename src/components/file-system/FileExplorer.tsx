@@ -1,49 +1,52 @@
-'use client'
+"use client";
 
-import { cn } from '@/lib/utils'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { buildFileTree, type FileNode } from './build-file-tree'
-import { useState, useEffect, useCallback, memo } from 'react'
-import CodeEditor from '../CodeEditor'
-import { useFileStore } from '@/store/file'
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { buildFileTree, type FileNode } from "./build-file-tree";
+import { useState, useEffect, useCallback, memo } from "react";
+import CodeEditor from "../code-editor";
+import { useFileStore } from "@/store/file";
 import {
   ChevronRightIcon,
   FolderIcon,
   FileIcon,
   FolderOpenIcon,
   FileCode,
-} from 'lucide-react'
+} from "lucide-react";
 
 const FileExplorer = memo(function FileExplorer() {
-  const files = useFileStore(state => state.files)
-  const [selected, setSelected] = useState<FileNode | null>(null)
-  const [fs, setFs] = useState<FileNode[]>([])
+  const files = useFileStore((state) => state.files);
+  const [selected, setSelected] = useState<FileNode | null>(null);
+  const [fs, setFs] = useState<FileNode[]>([]);
 
   useEffect(() => {
-    setFs(buildFileTree(files.map(file => file.path)));
-  }, [files])
+    setFs(buildFileTree(files.map((file) => file.path)));
+  }, [files]);
 
   const toggleFolder = useCallback((path: string) => {
     setFs((prev) => {
       const updateNode = (nodes: FileNode[]): FileNode[] =>
         nodes.map((node) => {
-          if (node.path === path && node.type === 'folder') {
-            return { ...node, expanded: !node.expanded }
+          if (node.path === path && node.type === "folder") {
+            return { ...node, expanded: !node.expanded };
           } else if (node.children) {
-            return { ...node, children: updateNode(node.children) }
+            return { ...node, children: updateNode(node.children) };
           } else {
-            return node
+            return node;
           }
-        })
-      return updateNode(prev)
-    })
-  }, [])
+        });
+      return updateNode(prev);
+    });
+  }, []);
 
-  const selectFile = useCallback((node: FileNode) => {
-    if (node.type === 'file') {
-      setSelected(node)
-    }
-  }, [setSelected]);
+  const selectFile = useCallback(
+    (node: FileNode) => {
+      if (node.type === "file") {
+        setSelected(node);
+      }
+    },
+    [setSelected],
+  );
 
   const renderFileTree = useCallback(
     (nodes: FileNode[], depth = 0) => {
@@ -57,10 +60,10 @@ const FileExplorer = memo(function FileExplorer() {
           onSelectFile={selectFile}
           renderFileTree={renderFileTree}
         />
-      ))
+      ));
     },
-    [selected, toggleFolder, selectFile]
-  )
+    [selected, toggleFolder, selectFile],
+  );
 
   return (
     <div className="h-full flex border relative overflow-hidden">
@@ -71,7 +74,10 @@ const FileExplorer = memo(function FileExplorer() {
       {selected ? (
         <CodeEditor
           path={selected.path.substring(1)}
-          content={files.find((file) => file.path === selected.path.substring(1))?.content || ''}
+          content={
+            files.find((file) => file.path === selected.path.substring(1))
+              ?.content || ""
+          }
         />
       ) : (
         <div className="h-full w-3/4 flex items-center justify-center bg-card/50 border border-border/50">
@@ -90,14 +96,13 @@ const FileExplorer = memo(function FileExplorer() {
 
 export default FileExplorer;
 
-
 interface FileTreeNodeProps {
-  node: FileNode
-  depth: number
-  selected: FileNode | null
-  onToggleFolder: (path: string) => void
-  onSelectFile: (node: FileNode) => void
-  renderFileTree: (nodes: FileNode[], depth: number) => React.ReactNode
+  node: FileNode;
+  depth: number;
+  selected: FileNode | null;
+  onToggleFolder: (path: string) => void;
+  onSelectFile: (node: FileNode) => void;
+  renderFileTree: (nodes: FileNode[], depth: number) => React.ReactNode;
 }
 
 const FileTreeNode = memo(function FileTreeNode({
@@ -108,12 +113,11 @@ const FileTreeNode = memo(function FileTreeNode({
   onSelectFile,
   renderFileTree,
 }: FileTreeNodeProps) {
-
   const handleClick = () => {
-    if (node.type === 'folder') {
-      onToggleFolder(node.path)
+    if (node.type === "folder") {
+      onToggleFolder(node.path);
     } else {
-      onSelectFile(node)
+      onSelectFile(node);
     }
   };
 
@@ -142,7 +146,11 @@ const FileTreeNode = memo(function FileTreeNode({
               )}
             />
             {node.expanded ? (
-              <FolderOpenIcon size={20} fill="currentColor" stroke="background" />
+              <FolderOpenIcon
+                size={20}
+                fill="currentColor"
+                stroke="background"
+              />
             ) : (
               <FolderIcon size={16} fill="currentColor" />
             )}
@@ -163,9 +171,9 @@ const FileTreeNode = memo(function FileTreeNode({
         </span>
       </div>
 
-      {node.type === 'folder' && node.expanded && node.children && (
+      {node.type === "folder" && node.expanded && node.children && (
         <div>{renderFileTree(node.children, depth + 1)}</div>
       )}
     </div>
-  )
-})
+  );
+});

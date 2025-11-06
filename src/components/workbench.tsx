@@ -1,15 +1,18 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { useToggleChat } from "@/store/toggleChat";
-import { useHeaderOption } from "@/store/headerOptions";
-import Preview from "@/components/chat/Preview";
-import FileExplorer from "@/components/chat/fileSystem/FileExplorer";
-import { Button } from "../ui/button";
-import { AnimatedBackground } from "../ui/animated-background";
-import { CommandsLogs } from "../commands-logs/commands-logs";
+import { useToggleChat } from "@/store/toggle-chat";
+import { useHeaderOption } from "@/store/header-options";
+import Preview from "./preview";
+import FileExplorer from "./file-system/FileExplorer";
+import { Button } from "./ui/button";
+import { AnimatedBackground } from "./ui/animated-background";
+import { CommandsLogs } from "./commands-logs/commands-logs";
+import type { File } from "@/lib/types";
+import { useSandboxStore } from "@/store/sandbox";
+import { useFileStore } from "@/store/file";
 import {
   Globe,
   Code2,
@@ -20,29 +23,54 @@ import {
 
 const views = [
   {
-    label: 'Preview',
+    label: "Preview",
     icon: <Globe size={16} />,
   },
   {
-    label: 'Editor',
+    label: "Editor",
     icon: <Code2 size={16} />,
-  }
-]
+  },
+];
 
-export default function WorkBench() {
+interface WorkBenchProps {
+  files: File[];
+  sandboxId?: string;
+  domain?: string;
+}
+
+export function WorkBench({ files, sandboxId, domain }: WorkBenchProps) {
   const { isChatOpen, toggleChat } = useToggleChat();
   const { activeView, setActiveView } = useHeaderOption();
   const [isCommandsLogsOpen, setIsCommandsLogsOpen] = useState(false);
+  const setSandboxId = useSandboxStore((state) => state.setSandboxId);
+  const setUrl = useSandboxStore((state) => state.setUrl);
+  const setFiles = useFileStore((state) => state.setFiles);
 
   const toggleCommandsLogs = () => setIsCommandsLogsOpen(!isCommandsLogsOpen);
+
+  useEffect(() => {
+    if (sandboxId) {
+      setSandboxId(sandboxId);
+      setUrl(domain!);
+      setActiveView("Preview");
+    }
+
+    setFiles(files);
+
+    return () => {
+      setSandboxId(undefined);
+      setFiles([]);
+    };
+  }, []);
 
   return (
     <motion.section
       initial={{ width: 0 }}
       animate={{ width: isChatOpen ? "70%" : "100%" }}
       transition={{ duration: 0.25, ease: "anticipate" }}
-      className={cn("flex m-1.5 rounded-lg bg-card overflow-hidden flex-col relative",
-        activeView === null && "hidden"
+      className={cn(
+        "flex m-1.5 rounded-lg bg-card overflow-hidden flex-col relative",
+        activeView === null && "hidden",
       )}
     >
       <nav className="relative h-12 flex items-center justify-start px-2 border-b gap-2 border">
@@ -52,18 +80,24 @@ export default function WorkBench() {
           className="size-8 text-muted-foreground hover:text-foreground/85 active:border-none"
           onClick={toggleChat}
         >
-          <ChevronsLeftIcon size={16} className={cn("transition-transform duration-200", isChatOpen ? "rotate-0" : "rotate-180")} />
+          <ChevronsLeftIcon
+            size={16}
+            className={cn(
+              "transition-transform duration-200",
+              isChatOpen ? "rotate-0" : "rotate-180",
+            )}
+          />
         </Button>
 
         <div className="h-1/2 border-l border-l-foreground/40 opacity-50 mr-2" />
 
-        <div className='rounded-lg bg-accent p-px border border-border/50 gap-0.5 flex'>
+        <div className="rounded-lg bg-accent p-px border border-border/50 gap-0.5 flex">
           <AnimatedBackground
             defaultValue={activeView ?? undefined}
             onValueChange={(id) => setActiveView(id as "Preview" | "Editor")}
-            className='rounded-lg bg-background'
+            className="rounded-lg bg-background"
             transition={{
-              ease: 'easeInOut',
+              ease: "easeInOut",
               duration: 0.2,
             }}
           >
@@ -84,7 +118,8 @@ export default function WorkBench() {
         <Button
           size="icon"
           variant={isCommandsLogsOpen ? "outline" : "ghost"}
-          className={cn("size-8 text-muted-foreground hover:text-foreground/85 active:border-none ml-auto",
+          className={cn(
+            "size-8 text-muted-foreground hover:text-foreground/85 active:border-none ml-auto",
           )}
           onClick={toggleCommandsLogs}
         >
@@ -102,9 +137,11 @@ export default function WorkBench() {
       </div>
 
       <div
-        className={cn("flex-1 overflow-hidden",
+        className={cn(
+          "flex-1 overflow-hidden",
           activeView !== "Editor" && "hidden",
-        )}>
+        )}
+      >
         <FileExplorer />
       </div>
 

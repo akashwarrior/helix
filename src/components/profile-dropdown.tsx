@@ -15,21 +15,21 @@ import {
 
 const THEMES_OPTIONS = [
   {
-    label: 'Light',
-    id: 'light',
+    label: "Light",
+    id: "light",
     icon: <SunIcon className="h-4 w-4" />,
   },
   {
-    label: 'Dark',
-    id: 'dark',
+    label: "Dark",
+    id: "dark",
     icon: <MoonIcon className="h-4 w-4" />,
   },
   {
-    label: 'System',
-    id: 'system',
+    label: "System",
+    id: "system",
     icon: <MonitorIcon className="h-4 w-4" />,
   },
-]
+];
 
 interface ProfileModalProps {
   children?: React.ReactNode;
@@ -45,20 +45,18 @@ export default function ProfileModal({ children }: ProfileModalProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {children || user?.image && (
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: 'auto' }}
-          >
-            <Image
-              src={user?.image || "/profile_icon.png"}
-              width={30}
-              height={30}
-              alt={"User Profile"}
-              className="rounded-full border transition-all duration-200 cursor-pointer hover:opacity-80"
-            />
-          </motion.div>
-        )}
+        {children ||
+          (user?.image && (
+            <motion.div initial={{ width: 0 }} animate={{ width: "auto" }}>
+              <Image
+                src={user?.image || "/profile_icon.png"}
+                width={30}
+                height={30}
+                alt={"User Profile"}
+                className="rounded-full border transition-all duration-200 cursor-pointer hover:opacity-80"
+              />
+            </motion.div>
+          ))}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="max-w-[280px] p-4 space-y-3.5 shadow-lg border rounded-lg"
@@ -90,9 +88,7 @@ export default function ProfileModal({ children }: ProfileModalProps) {
 
         <div className="bg-muted/40 rounded-lg p-3 space-y-2.5 text-sm">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground font-medium">
-              Credits
-            </span>
+            <span className="text-muted-foreground font-medium">Credits</span>
             <span className="font-mono text-foreground">∞</span>
           </div>
           <div className="flex items-center justify-between">
@@ -128,7 +124,7 @@ export default function ProfileModal({ children }: ProfileModalProps) {
                     >
                       {theme.icon}
                     </button>
-                  )
+                  );
                 })}
               </AnimatedBackground>
             </div>

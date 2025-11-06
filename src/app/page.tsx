@@ -1,11 +1,11 @@
 "use client";
 
-import Header from "@/components/home/Header";
+import Header from "@/components/home/header";
 import Sidebar from "@/components/home/Sidebar";
-import AuthDialog from "@/components/SignInModal";
+import AuthDialog from "@/components/modals/signin-modal";
 import { Button } from "@/components/ui/button";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from 'ai'
+import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
@@ -25,7 +25,7 @@ import {
 import {
   ImageDragContainer,
   ImageUploadTrigger,
-} from "@/components/home/ImageDrag";
+} from "@/components/home/image-drag-container";
 
 export default function Home() {
   const router = useRouter();
@@ -53,12 +53,12 @@ export default function Home() {
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage?.role !== 'assistant') return;
+    if (lastMessage?.role !== "assistant") return;
 
-    const parts = lastMessage?.parts ?? []
-    let val = '';
+    const parts = lastMessage?.parts ?? [];
+    let val = "";
     for (const part of parts) {
-      if (part.type === 'text') {
+      if (part.type === "text") {
         val += part.text;
       }
     }
@@ -67,7 +67,7 @@ export default function Home() {
     if (!textarea || !val) return;
     textarea.value = val;
     handleTextAreaChange(textarea);
-  }, [messages])
+  }, [messages]);
 
   const isLoading = status === "streaming" || status === "submitted";
 
@@ -223,10 +223,7 @@ export default function Home() {
                 exit={{ opacity: 0, y: -10 }}
                 className="mb-4 p-4 rounded-xl flex items-center gap-3 bg-destructive/15 border border-destructive/20 backdrop-blur-sm"
               >
-                <AlertCircle
-                  size={20}
-                  className="text-destructive"
-                />
+                <AlertCircle size={20} className="text-destructive" />
                 <p className="text-sm text-destructive">{error.message}</p>
                 <Button
                   size="icon"

@@ -1,7 +1,7 @@
-import type { Metadata } from '@/ai/messages/metadata'
-import type { DataPart } from '@/ai/messages/data-parts'
-import type { ToolSet } from '@/ai/tools'
-import type { UIMessage } from 'ai'
+import type { Metadata } from "@/ai/messages/metadata";
+import type { DataPart } from "@/ai/messages/data-parts";
+import type { ToolSet } from "@/ai/tools";
+import type { UIMessage } from "ai";
 
 export interface ErrorState {
   type: "network" | "auth" | "validation" | "server" | null;
@@ -19,20 +19,19 @@ export interface FileNode {
 }
 
 export interface Command {
-  background?: boolean
-  cmdId: string
-  startedAt: number
-  command: string
-  args: string[]
-  exitCode?: number
-  logs?: CommandLog[]
+  background?: boolean;
+  cmdId: string;
+  startedAt: number;
+  command: string;
+  args: string[];
+  exitCode?: number;
+  logs?: CommandLog[];
 }
 
 export interface CommandLog {
-  data: string
-  stream: 'stdout' | 'stderr'
-  timestamp: number
+  data: string;
+  stream: "stdout" | "stderr";
+  timestamp: number;
 }
 
-
-export type ChatUIMessage = UIMessage<Metadata, DataPart, ToolSet>
+export type ChatUIMessage = UIMessage<Metadata, DataPart, ToolSet>;

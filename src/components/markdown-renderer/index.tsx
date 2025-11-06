@@ -1,13 +1,13 @@
-import type { Components } from 'react-markdown'
-import { memo, useMemo } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import rehypeRaw from 'rehype-raw'
+import type { Components } from "react-markdown";
+import { memo, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 export const MarkdownRenderer = memo(function MarkdownRenderer({
   content,
 }: {
-  content: string
+  content: string;
 }) {
   const components = useMemo<Components>(
     () => ({
@@ -17,7 +17,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         </a>
       ),
       code: ({ children, className, ...props }) => {
-        const match = /language-(\w+)/.exec(className || '')
+        const match = /language-(\w+)/.exec(className || "");
         return match ? (
           <code
             className={`${className} bg-muted px-1 py-0.5 rounded text-sm font-mono`}
@@ -32,7 +32,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
           >
             {children}
           </code>
-        )
+        );
       },
       pre: ({ children, ...props }) => (
         <pre
@@ -81,8 +81,8 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
         </blockquote>
       ),
     }),
-    []
-  )
+    [],
+  );
 
   return (
     <ReactMarkdown
@@ -92,5 +92,5 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
     >
       {content}
     </ReactMarkdown>
-  )
-})
+  );
+});

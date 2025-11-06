@@ -3,7 +3,7 @@ import prisma from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.headers.get('x-user-id')!;
+    const userId = req.headers.get("x-user-id")!;
     const skip = parseInt(req.nextUrl.searchParams.get("skip") || "0", 10);
     const take = parseInt(req.nextUrl.searchParams.get("take") || "15", 10);
 
@@ -31,18 +31,20 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = req.headers.get('x-user-id')!;
-    const { prompt } = await req.json() as { prompt: string };
+    const userId = req.headers.get("x-user-id")!;
+    const { prompt } = (await req.json()) as { prompt: string };
     const { id } = await prisma.project.create({
       data: {
         userId: userId,
         messages: {
-          create: [{
-            id: crypto.randomUUID(),
-            role: "user",
-            parts: [{ type: "text", text: prompt }],
-          }]
-        }
+          create: [
+            {
+              id: crypto.randomUUID(),
+              role: "user",
+              parts: [{ type: "text", text: prompt }],
+            },
+          ],
+        },
       },
       select: {
         id: true,

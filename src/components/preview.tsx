@@ -1,41 +1,49 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSandboxStore } from "@/store/sandbox";
-import { AlertCircle, Loader2, Globe, ExternalLinkIcon, RefreshCcwIcon } from "lucide-react";
+import { useSandboxState } from "@/hook/use-sandbox-state";
+import {
+  AlertCircle,
+  Loader2,
+  Globe,
+  ExternalLinkIcon,
+  RefreshCcwIcon,
+} from "lucide-react";
 
-export default function Preview() {
-  const url = useSandboxStore(state => state.url);
-  const [inputValue, setInputValue] = useState('');
+function Preview() {
+  const { isActive } = useSandboxState();
+  const url = useSandboxStore((state) => state.url);
+  const [inputValue, setInputValue] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const refreshIframe = () => {
     if (iframeRef.current && url) {
-      setError(null)
-      setLoading(true)
-      iframeRef.current.src = ''
+      setError(null);
+      setLoading(true);
+      iframeRef.current.src = "";
       setTimeout(() => {
         if (iframeRef.current) {
-          iframeRef.current.src = url + inputValue
+          iframeRef.current.src = url + inputValue;
         }
-      }, 10)
+      }, 10);
     }
-  }
+  };
 
   const handleIframeLoad = () => {
-    console.log('iframe loaded')
+    console.log("iframe loaded");
     setError(null);
     setLoading(false);
-  }
-  
+  };
+
   const handleIframeError = () => {
-    setError('Failed to load the page');
+    setError("Failed to load the page");
     setLoading(false);
-  }
+  };
 
   return (
     <>
@@ -44,18 +52,18 @@ export default function Preview() {
         <input
           type="text"
           className="text-xs h-6 font-mono border-none outline-none w-full overflow-hidden"
-          defaultValue={'/'}
+          defaultValue={"/"}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') {
-              event.currentTarget.blur()
-              setInputValue(event.currentTarget.value)
+            if (event.key === "Enter") {
+              event.currentTarget.blur();
+              setInputValue(event.currentTarget.value);
             }
           }}
           disabled={!url}
         />
 
         <a
-          href={url && (url + inputValue)}
+          href={url && url + inputValue}
           target="_blank"
           rel="noopener noreferrer"
           title="Open in New Tab"
@@ -79,9 +87,10 @@ export default function Preview() {
           <RefreshCcwIcon size={12} className={loading ? "animate-spin" : ""} />
         </Button>
       </div>
+
       <div className="h-full flex flex-col border relative overflow-hidden">
         <div className="flex-1 bg-white relative overflow-hidden flex h-full items-center justify-center">
-          {(!url || loading) ? (
+          {!url || loading ? (
             <div className="flex flex-col items-center m-auto">
               <Loader2 size={34} className="text-blue-600 animate-spin mb-6" />
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
@@ -89,28 +98,28 @@ export default function Preview() {
               </h3>
               <p className="text-sm text-gray-600">Loading Your App</p>
             </div>
-          ) : error && (
-            <div className="w-full h-full flex-1 flex items-center justify-center bg-linear-to-br from-red-50 to-red-100">
-              <div className="text-center max-w-md mx-auto p-8">
-                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-200">
-                  <AlertCircle size={32} className="text-red-500" />
+          ) : (
+            error && (
+              <div className="w-full h-full flex-1 flex items-center justify-center bg-linear-to-br from-red-50 to-red-100">
+                <div className="text-center max-w-md mx-auto p-8">
+                  <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-red-200">
+                    <AlertCircle size={32} className="text-red-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-3">
+                    Preview Error
+                  </h3>
+                  <p className="text-gray-600 mb-6 leading-relaxed">{error}</p>
+                  <Button
+                    onClick={refreshIframe}
+                    variant="destructive"
+                    className="shadow-lg"
+                    asChild
+                  >
+                    Try Again
+                  </Button>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">
-                  Preview Error
-                </h3>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  {error}
-                </p>
-                <Button
-                  onClick={refreshIframe}
-                  variant="destructive"
-                  className="shadow-lg"
-                  asChild
-                >
-                  Try Again
-                </Button>
               </div>
-            </div>
+            )
           )}
 
           {url && !error && (
@@ -128,3 +137,5 @@ export default function Preview() {
     </>
   );
 }
+
+export default memo(Preview);

@@ -1,40 +1,37 @@
-import { NextResponse, NextRequest } from 'next/server'
-import { auth } from './lib/auth/auth';
+import { NextResponse, NextRequest } from "next/server";
+import { auth } from "./lib/auth/auth";
 
 export async function middleware(req: NextRequest) {
-    const { pathname } = req.nextUrl
+  const { pathname } = req.nextUrl;
 
-    if (pathname.startsWith('/api/auth')) {
-        return NextResponse.next()
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
+  const session = await auth.api.getSession({ headers: req.headers });
+  const isApi = pathname.startsWith("/api/");
+
+  if (!session) {
+    if (!isApi) {
+      return NextResponse.redirect(new URL("/auth", req.nextUrl));
     }
+    return NextResponse.json(
+      { success: false, message: "authentication failed" },
+      { status: 401 },
+    );
+  }
 
-    const session = await auth.api.getSession({ headers: req.headers });
-    const isApi = pathname.startsWith('/api/');
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-user-id", session.user.id);
 
-    if (!session) {
-        if (!isApi) {
-            return NextResponse.redirect(new URL('/auth', req.nextUrl));
-        }
-        return NextResponse.json(
-            { success: false, message: 'authentication failed' },
-            { status: 401 }
-        )
-    }
-
-    const requestHeaders = new Headers(req.headers)
-    requestHeaders.set('x-user-id', session.user.id);
-
-    return NextResponse.next({
-        request: {
-            headers: requestHeaders
-        }
-    })
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 }
 
 export const config = {
-    runtime: 'nodejs',
-    matcher: [
-        '/api/:path*',
-        '/chat/:path*'
-    ],
+  runtime: "nodejs",
+  matcher: ["/api/:path*", "/chat/:path*"],
 };

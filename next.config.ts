@@ -4,15 +4,15 @@ const nextConfig: NextConfig = {
   webpack(config) {
     config.module.rules.push({
       test: /\.md/,
-      type: 'asset/source',
-    })
-    return config
+      type: "asset/source",
+    });
+    return config;
   },
   turbopack: {
     rules: {
-      '*.md': {
-        loaders: ['raw-loader'],
-        as: '*.js',
+      "*.md": {
+        loaders: ["raw-loader"],
+        as: "*.js",
       },
     },
   },
@@ -25,7 +25,7 @@ const nextConfig: NextConfig = {
       },
     ],
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
+    contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };

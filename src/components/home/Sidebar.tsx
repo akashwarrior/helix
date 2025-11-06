@@ -2,11 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus, LogIn, FolderOpen, ArrowRightIcon } from "lucide-react";
-import { useSidebarStore } from "@/store/toggleSidebar";
+import { useSidebarStore } from "@/store/toggle-sidebar";
 import { useSession } from "@/lib/auth/auth-client";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useChatList } from "@/hook/useChatList";
+import { useChatList } from "@/hook/use-chat-list";
 
 interface EmptyStateProps {
   icon: React.ReactNode;
@@ -84,9 +84,7 @@ const MenuItems = () => {
               size={13}
               className="w-0 group-hover:w-4 transition-[width] duration-200"
             />
-            <span className="text-sm truncate">
-              {name ?? "Untitled"}
-            </span>
+            <span className="text-sm truncate">{name ?? "Untitled"}</span>
           </Link>
         </li>
       ))}

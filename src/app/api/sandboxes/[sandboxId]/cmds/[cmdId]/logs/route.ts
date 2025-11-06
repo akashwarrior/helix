@@ -1,19 +1,19 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { getSandbox } from '@/lib/sandbox'
+import { NextResponse, type NextRequest } from "next/server";
+import { getSandbox } from "@/lib/sandbox";
 
 interface Params {
-  sandboxId: string
-  cmdId: string
+  sandboxId: string;
+  cmdId: string;
 }
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<Params> }
+  { params }: { params: Promise<Params> },
 ) {
-  const logParams = await params
-  const encoder = new TextEncoder()
-  const sandbox = await getSandbox(logParams.sandboxId)
-  const command = await sandbox.getCommand(logParams.cmdId)
+  const logParams = await params;
+  const encoder = new TextEncoder();
+  const sandbox = await getSandbox(logParams.sandboxId);
+  const command = await sandbox.getCommand(logParams.cmdId);
 
   return new NextResponse(
     new ReadableStream({
@@ -25,13 +25,13 @@ export async function GET(
                 data: logline.data,
                 stream: logline.stream,
                 timestamp: Date.now(),
-              }) + '\n'
-            )
-          )
+              }) + "\n",
+            ),
+          );
         }
-        controller.close()
+        controller.close();
       },
     }),
-    { headers: { 'Content-Type': 'application/x-ndjson' } }
-  )
+    { headers: { "Content-Type": "application/x-ndjson" } },
+  );
 }

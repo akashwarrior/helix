@@ -11,10 +11,11 @@ const font = Host_Grotesk({
   preload: true,
 });
 
-const title = 'Helix'
-const description = 'This is a platform where anyone can Transform ideas into stunning websites with AI-powered design and creativity.'
+const title = "Helix";
+const description =
+  "This is a platform where anyone can Transform ideas into stunning websites with AI-powered design and creativity.";
 
-const baseURL = process.env.BETTER_AUTH_URL || 'http://localhost:3000'
+const baseURL = process.env.BETTER_AUTH_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseURL),
@@ -24,34 +25,34 @@ export const metadata: Metadata = {
     "web design",
     "AI website builder",
     "no-code platform",
-    "vibe coding platform"
+    "vibe coding platform",
   ],
   authors: [{ name: "Sky Gupta" }],
   creator: "Sky Gupta",
   openGraph: {
     title,
     description,
-    type: 'website',
+    type: "website",
     images: [
       {
-        url: '/logo.png',
+        url: "/logo.png",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     creator: "Sky Gupta",
-    creatorId: '@skyGuptaCS',
+    creatorId: "@skyGuptaCS",
     images: [
       {
-        url: '/logo.png',
+        url: "/logo.png",
       },
     ],
   },
   icons: {
     icon: "/logo.png",
   },
-}
+};
 
 export default function RootLayout({
   children,
@@ -60,7 +61,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-
       <body className={`${font.className} antialiased relative`}>
         <div className="home-container fixed inset-0 z-0 overflow-hidden" />
 

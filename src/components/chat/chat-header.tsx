@@ -2,14 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useHeaderOption } from "@/store/headerOptions";
+import { useHeaderOption } from "@/store/header-options";
 import { TextEffect } from "../ui/text-effect";
-import { ArrowLeft, GlobeIcon, Loader2 } from "lucide-react";
-import ProfileModal from "../ProfileModal";
+import { ArrowLeft, GlobeIcon } from "lucide-react";
+import ProfileModal from "../profile-dropdown";
 
-export default function ChatHeader() {
+export function ChatHeader() {
   const router = useRouter();
-  const { setActiveView, title, loading } = useHeaderOption();
+  const title = useHeaderOption((state) => state.title);
 
   return (
     <header className="sticky top-0 z-40 h-14 flex items-center px-3">
@@ -19,26 +19,15 @@ export default function ChatHeader() {
         </Button>
 
         <h1 className="font-medium truncate text-foreground">
-          {title && <TextEffect per="char" preset="blur">
-            {title}
-          </TextEffect>}
+          {title && (
+            <TextEffect per="char" preset="blur">
+              {title}
+            </TextEffect>
+          )}
         </h1>
       </div>
 
       <div className="flex items-center gap-2">
-        {loading && (
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setActiveView("Preview")}
-          >
-            <Loader2 size={14} className="animate-spin" />
-            <span className="hidden sm:inline">
-              Workspace
-            </span>
-          </Button>
-        )}
-
         <Button
           size="sm"
           variant="outline"
